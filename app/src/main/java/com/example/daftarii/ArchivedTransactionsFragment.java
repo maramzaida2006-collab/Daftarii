@@ -13,168 +13,176 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ArchivedTransactionsFragment extends Fragment {
+public class ArchivedTransactionsFragment extends Fragment
+        implements ArchivedTransactionsAdapter.OnTransactionActionListener {
 
-    private RecyclerView recyclerView;
+    private RecyclerView rvArchive;
     private ArchivedTransactionsAdapter adapter;
-    private List<DebtItem> archivedDebtsList;
     private FirebaseFirestore db;
-    private String currentUserId;
+    private ListenerRegistration listenerRegistration;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_archived_list, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_archived_transactions, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         db = FirebaseFirestore.getInstance();
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        rvArchive = view.findViewById(R.id.rvArchive);
+        rvArchive.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        recyclerView = view.findViewById(R.id.recyclerViewArchived);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new ArchivedTransactionsAdapter(this);
+        rvArchive.setAdapter(adapter);
 
-        archivedDebtsList = new ArrayList<>();
-
-        adapter = new ArchivedTransactionsAdapter(archivedDebtsList, new ArchivedTransactionsAdapter.OnArchivedDebtListener() {
-            @Override
-            public void onRestoreClick(DebtItem debt) {
-                new AlertDialog.Builder(requireContext())
-                        .setTitle("استعادة الحركة")
-                        .setMessage("هل أنت متأكد من رغبتك في استعادة حركة الدين (" + (debt.getItemName() != null ? debt.getItemName() : "دين") + ")؟")
-                        .setPositiveButton("استعادة", (dialog, which) -> {
-                            restoreDebt(debt);
-                        })
-                        .setNegativeButton("إلغاء", null)
-                        .show();
-            }
-
-            @Override
-            public void onDeleteLongClick(DebtItem debt) {
-                new AlertDialog.Builder(requireContext())
-                        .setTitle("حذف نهائي للحركة")
-                        .setMessage("هل أنت متأكد من حذف حركة (" + (debt.getItemName() != null ? debt.getItemName() : "دين") + ") نهائياً؟")
-                        .setPositiveButton("حذف نهائي", (dialog, which) -> {
-                            deleteDebtPermanently(debt);
-                        })
-                        .setNegativeButton("إلغاء", null)
-                        .show();
-            }
-        });
-
-        recyclerView.setAdapter(adapter);
-        loadArchivedDebts();
-
-        return view;
+        listenToArchivedTransactions();
     }
 
-    private void loadArchivedDebts() {
-        if (currentUserId == null) return;
-
-        db.collection("customers")
-                .whereEqualTo("userId", currentUserId)
-                .get()
-                .addOnSuccessListener(customerSnapshots -> {
-                    archivedDebtsList.clear();
-
-                    if (customerSnapshots.isEmpty()) {
-                        adapter.notifyDataSetChanged();
+    private void listenToArchivedTransactions() {
+        listenerRegistration = db.collectionGroup("debts")
+                .whereEqualTo("archived", true)
+                .orderBy("deletedAt", Query.Direction.DESCENDING)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (!isAdded()) return;
+                    if (error != null) {
+                        // في حال لم يتم إنشاء Index لـ orderBy مع whereEqualTo بعد، نجلب بدون orderBy مؤقتاً
+                        loadWithoutOrderFallback();
                         return;
                     }
-
-                    for (var customerDoc : customerSnapshots) {
-                        String customerId = customerDoc.getId();
-
-                        customerDoc.getReference().collection("debts")
-                                .whereEqualTo("archived", true)
-                                .addSnapshotListener((debtSnapshots, error) -> {
-                                    if (error != null || debtSnapshots == null) return;
-
-                                    archivedDebtsList.removeIf(item -> customerId.equals(item.getCustomerId()));
-
-                                    for (QueryDocumentSnapshot debtDoc : debtSnapshots) {
-                                        DebtItem debt = debtDoc.toObject(DebtItem.class);
-                                        debt.setId(debtDoc.getId());
-                                        debt.setCustomerId(customerId);
-                                        archivedDebtsList.add(debt);
-                                    }
-                                    adapter.notifyDataSetChanged();
-                                });
+                    if (snapshots != null) {
+                        List<Transaction> list = parseTransactions(snapshots.getDocuments());
+                        adapter.setTransactions(list);
+                        notifyActivityCount(list.size());
                     }
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "فشل جلب الأرشيف محلياً: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void restoreDebt(DebtItem debt) {
-        if (debt.getId() == null || debt.getCustomerId() == null) {
-            Toast.makeText(getContext(), "خطأ: معرف الزبون أو الحركة مفقود", Toast.LENGTH_SHORT).show();
+    private void loadWithoutOrderFallback() {
+        db.collectionGroup("debts")
+                .whereEqualTo("archived", true)
+                .get()
+                .addOnSuccessListener(snapshots -> {
+                    if (!isAdded() || snapshots == null) return;
+                    List<Transaction> list = parseTransactions(snapshots.getDocuments());
+                    adapter.setTransactions(list);
+                    notifyActivityCount(list.size());
+                });
+    }
+
+    private List<Transaction> parseTransactions(List<DocumentSnapshot> docs) {
+        List<Transaction> list = new ArrayList<>();
+        for (DocumentSnapshot doc : docs) {
+            Transaction tx = doc.toObject(Transaction.class);
+            if (tx != null) {
+                tx.setId(doc.getId());
+                // استخراج customerId من المسار: customers/{customerId}/debts/{debtId}
+                if (tx.getCustomerId() == null || tx.getCustomerId().isEmpty()) {
+                    DocumentReference parentCustomer = doc.getReference().getParent().getParent();
+                    if (parentCustomer != null) {
+                        tx.setCustomerId(parentCustomer.getId());
+                    }
+                }
+                list.add(tx);
+            }
+        }
+        return list;
+    }
+
+    private void notifyActivityCount(int count) {
+        if (getActivity() instanceof ArchiveActivity) {
+            ((ArchiveActivity) getActivity()).updateTransactionsCount(count);
+        }
+    }
+
+    @Override
+    public void onRestoreClick(Transaction transaction) {
+        if (transaction.getId() == null || transaction.getCustomerId() == null) {
+            Toast.makeText(requireContext(), "تعذر تحديد بيانات الحركة", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        DocumentReference customerRef = db.collection("customers").document(debt.getCustomerId());
-        DocumentReference debtRef = customerRef.collection("debts").document(debt.getId());
+        DocumentReference customerRef = db.collection("customers").document(transaction.getCustomerId());
+        DocumentReference debtRef = customerRef.collection("debts").document(transaction.getId());
 
-        // جلب بيانات الزبون من الكاش المحلي لمعرفة إجمالي الدين الحالي وإضافة قيمة الحركة المستعادة إليه فوراً
-        customerRef.get().addOnSuccessListener(customerDoc -> {
-            double currentTotal = 0.0;
-            if (customerDoc.exists() && customerDoc.getDouble("totalDebt") != null) {
-                currentTotal = customerDoc.getDouble("totalDebt");
+        db.runTransaction(firestoreTx -> {
+            DocumentSnapshot customerSnap = firestoreTx.get(customerRef);
+            double currentDebt = 0.0;
+            if (customerSnap.exists() && customerSnap.getDouble("totalDebt") != null) {
+                currentDebt = customerSnap.getDouble("totalDebt");
             }
 
-            // حساب الإجمالي الجديد بعد إضافة قيمة الحركة المستعادة
-            double newTotalDebt = Math.round((currentTotal + debt.getAmount()) * 100.0) / 100.0;
+            boolean isPayment = "PAYMENT".equalsIgnoreCase(transaction.getType());
+            double delta = isPayment ? -Math.abs(transaction.getAmount()) : Math.abs(transaction.getAmount());
+            double updatedDebt = currentDebt + delta;
 
-            WriteBatch batch = db.batch();
-            // 1. إعادة حالة الحركة إلى غير مؤرشفة
-            batch.update(debtRef, "archived", false);
-            // 2. تحديث إجمالي الدين للزبون في مستند الزبون لكي يتحدث في الشاشة الرئيسية فوراً
-            batch.update(customerRef, "totalDebt", newTotalDebt);
+            Map<String, Object> txUpdates = new HashMap<>();
+            txUpdates.put("archived", false);
+            txUpdates.put("deletedAt", 0L);
 
-            batch.commit()
-                    .addOnSuccessListener(aVoid -> {
-                        archivedDebtsList.remove(debt);
-                        adapter.notifyDataSetChanged();
-                        Toast.makeText(getContext(), "تمت استعادة الحركة وتحديث رصيد الزبون بنجاح", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "فشل الاستعادة: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
-
+            firestoreTx.update(debtRef, txUpdates);
+            if (customerSnap.exists()) {
+                firestoreTx.update(customerRef, "totalDebt", updatedDebt);
+            }
+            return null;
+        }).addOnSuccessListener(unused -> {
+            if (isAdded()) {
+                Toast.makeText(requireContext(), "تم استرجاع الحركة وتحديث الرصيد", Toast.LENGTH_SHORT).show();
+            }
         }).addOnFailureListener(e -> {
-            // في حال فشل القراءة، نقوم بعمل استعادة عادية للحركة على الأقل
-            debtRef.update("archived", false).addOnSuccessListener(aVoid -> {
-                archivedDebtsList.remove(debt);
-                adapter.notifyDataSetChanged();
-                Toast.makeText(getContext(), "تمت الاستعادة بنجاح", Toast.LENGTH_SHORT).show();
-            });
+            if (isAdded()) {
+                Toast.makeText(requireContext(), "فشل استرجاع الحركة: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
-    private void deleteDebtPermanently(DebtItem debt) {
-        if (debt.getId() == null || debt.getCustomerId() == null) {
-            Toast.makeText(getContext(), "خطأ: معرف الزبون أو الحركة مفقود", Toast.LENGTH_SHORT).show();
-            return;
-        }
+    @Override
+    public void onDeleteClick(Transaction transaction) {
+        if (!isAdded() || transaction.getId() == null || transaction.getCustomerId() == null) return;
 
-        db.collection("customers").document(debt.getCustomerId())
-                .collection("debts").document(debt.getId())
-                .delete()
-                .addOnSuccessListener(aVoid -> {
-                    archivedDebtsList.remove(debt);
-                    adapter.notifyDataSetChanged();
-                    Toast.makeText(getContext(), "تم حذف الحركة نهائياً", Toast.LENGTH_SHORT).show();
+        new AlertDialog.Builder(requireContext())
+                .setTitle("حذف نهائي")
+                .setMessage("هل أنتِ متأكدة من حذف هذه الحركة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.")
+                .setPositiveButton("حذف", (dialog, which) -> {
+                    db.collection("customers")
+                            .document(transaction.getCustomerId())
+                            .collection("debts")
+                            .document(transaction.getId())
+                            .delete()
+                            .addOnSuccessListener(unused -> {
+                                if (isAdded()) {
+                                    Toast.makeText(requireContext(), "تم حذف الحركة نهائياً", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                if (isAdded()) {
+                                    Toast.makeText(requireContext(), "فشل الحذف: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "فشل الحذف النهائي: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                .setNegativeButton("إلغاء", null)
+                .show();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (listenerRegistration != null) {
+            listenerRegistration.remove();
+        }
     }
 }
