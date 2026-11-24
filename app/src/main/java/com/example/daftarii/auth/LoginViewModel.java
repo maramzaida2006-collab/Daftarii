@@ -9,7 +9,6 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.daftarii.R;
 import com.example.daftarii.logic.AuthError;
-import com.example.daftarii.logic.GuestTrial;
 import com.example.daftarii.logic.StartRouter;
 import com.example.daftarii.logic.Validators;
 import com.example.daftarii.util.Event;
@@ -40,29 +39,6 @@ public class LoginViewModel extends AndroidViewModel {
 
     public boolean isRememberMe() {
         return prefs.isRememberMe();
-    }
-
-    /**
-     * لما الشاشة تفتح: إذا في مستخدم مسجّل من قبل، بنوجّهه للمكان الصح.
-     * (لحد ما نعمل Splash بالدفعة الجاية، شاشة الدخول هي أول شاشة.)
-     */
-    public void checkExistingSession() {
-        boolean signedIn = repo.isSignedIn();
-        if (!signedIn) return;
-        boolean guest = repo.isGuest();
-        boolean expired = guest && GuestTrial.isExpired(repo.accountCreatedAt(), System.currentTimeMillis());
-        StartRouter.Destination d = StartRouter.decide(
-                true, true, guest, repo.isEmailVerified(), prefs.isRememberMe(), expired);
-        if (StartRouter.shouldSignOut(d, true)) {
-            repo.signOut();
-            return;
-        }
-        if (d == StartRouter.Destination.GUEST_EXPIRED) {
-            // شاشة تحويل الزائر جاية بالدفعة 4. هلأ بنوقفه هون وبنشرحله.
-            message.setValue(new Event<>(R.string.guest_trial_expired));
-            return;
-        }
-        navigation.setValue(new Event<>(d));
     }
 
     public void login(String email, String password, boolean rememberMe) {

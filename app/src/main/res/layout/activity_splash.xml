@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- شاشة البداية: خلفية plum، والشعار والاسم بالنص، ونقاط تحميل تحت. حسب تصميم Splash. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/plum"
+    android:clipChildren="true">
+
+    <!-- دوائر الزينة -->
+    <View
+        android:layout_width="420dp"
+        android:layout_height="420dp"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="-160dp"
+        android:layout_marginEnd="-140dp"
+        android:alpha="0.10"
+        android:background="@drawable/shape_circle"
+        android:backgroundTint="@color/lavender" />
+
+    <View
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="-100dp"
+        android:layout_marginBottom="-110dp"
+        android:alpha="0.09"
+        android:background="@drawable/shape_circle"
+        android:backgroundTint="@color/peach" />
+
+    <!-- الشعار والاسم -->
+    <LinearLayout
+        android:id="@+id/splashContent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <FrameLayout
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:background="@drawable/shape_r26"
+            android:backgroundTint="@color/lavender">
+
+            <ImageView
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="center"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_book"
+                app:tint="@color/plum" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:fontFamily="@font/alexandria_semibold"
+            android:text="@string/app_name"
+            android:textColor="@color/on_plum"
+            android:textSize="34sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/splash_tagline"
+            android:textColor="@color/on_plum_secondary"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- نقاط التحميل: النقطة الطويلة بتتنقّل بينهم (SplashActivity) -->
+    <LinearLayout
+        android:id="@+id/splashDots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="60dp"
+        android:gravity="center_vertical"
+        android:importantForAccessibility="noHideDescendants"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="22dp"
+            android:layout_height="6dp"
+            android:background="@drawable/shape_r3"
+            android:backgroundTint="@color/lavender" />
+
+        <View
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginStart="8dp"
+            android:alpha="0.35"
+            android:background="@drawable/shape_r3"
+            android:backgroundTint="@color/lavender" />
+
+        <View
+            android:layout_width="6dp"
+            android:layout_height="6dp"
+            android:layout_marginStart="8dp"
+            android:alpha="0.35"
+            android:background="@drawable/shape_r3"
+            android:backgroundTint="@color/lavender" />
+    </LinearLayout>
+</FrameLayout>

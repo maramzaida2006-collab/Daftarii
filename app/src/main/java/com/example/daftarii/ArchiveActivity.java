@@ -14,28 +14,48 @@ import com.google.android.material.tabs.TabLayoutMediator;
 
 public class ArchiveActivity extends AppCompatActivity {
 
+    private TabLayout tabLayout;
+    private ViewPager2 viewPager;
+    private int transactionsCount = 0;
+    private int customersCount = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_archive);
 
-        // ربط زر الرجوع في الترويسة وإغلاق الشاشة عند النقر عليه
-        ImageView btnBack = findViewById(R.id.btnBackArchive);
+        ImageView btnBack = findViewById(R.id.btnBack);
         btnBack.setOnClickListener(v -> finish());
 
-        TabLayout tabLayout = findViewById(R.id.tabLayoutArchive);
-        ViewPager2 viewPager = findViewById(R.id.viewPagerArchive);
+        tabLayout = findViewById(R.id.tabLayout);
+        viewPager = findViewById(R.id.viewPager);
 
         ArchivePagerAdapter pagerAdapter = new ArchivePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             if (position == 0) {
-                tab.setText("الزبائن المؤرشفون");
+                tab.setText("الحركات (" + transactionsCount + ")");
             } else {
-                tab.setText("الحركات المؤرشفة");
+                tab.setText("الزبائن (" + customersCount + ")");
             }
         }).attach();
+    }
+
+    public void updateTransactionsCount(int count) {
+        this.transactionsCount = count;
+        TabLayout.Tab tab = tabLayout.getTabAt(0);
+        if (tab != null) {
+            tab.setText("الحركات (" + transactionsCount + ")");
+        }
+    }
+
+    public void updateCustomersCount(int count) {
+        this.customersCount = count;
+        TabLayout.Tab tab = tabLayout.getTabAt(1);
+        if (tab != null) {
+            tab.setText("الزبائن (" + customersCount + ")");
+        }
     }
 
     private static class ArchivePagerAdapter extends FragmentStateAdapter {
@@ -47,9 +67,9 @@ public class ArchiveActivity extends AppCompatActivity {
         @Override
         public Fragment createFragment(int position) {
             if (position == 0) {
-                return new ArchivedCustomersFragment();
-            } else {
                 return new ArchivedTransactionsFragment();
+            } else {
+                return new ArchivedCustomersFragment();
             }
         }
 

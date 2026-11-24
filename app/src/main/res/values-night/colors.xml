@@ -25,6 +25,17 @@
     <color name="due_bg">#3A2C14</color>
     <color name="due_fg">#F0C27A</color>
 
+    <color name="avatar_pink_bg">#3A2030</color>
+    <color name="avatar_pink_fg">#F2A7C6</color>
+    <color name="dot_inactive">#4A445A</color>
+
+    <!-- شاشة القفل (فوق plum) -->
+    <color name="lock_key_bg">#1AC8BFFF</color>        <!-- أزرار الأرقام -->
+    <color name="lock_dot_off">#40C8BFFF</color>       <!-- نقطة فاضية -->
+    <color name="lock_avatar_bg">#29C8BFFF</color>
+    <color name="lock_fp_bg">#1FC8BFFF</color>         <!-- زر البصمة -->
+    <color name="lock_fp_stroke">#59C8BFFF</color>
+
     <color name="error">#F2B8B5</color>
     <?xml version="1.0" encoding="utf-8"?>
     <resources>

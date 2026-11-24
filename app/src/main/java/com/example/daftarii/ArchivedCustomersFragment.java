@@ -13,129 +13,171 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-public class ArchivedCustomersFragment extends Fragment {
+public class ArchivedCustomersFragment extends Fragment
+        implements ArchivedCustomersAdapter.OnCustomerActionListener {
 
-    private RecyclerView recyclerView;
+    private RecyclerView rvArchivedCustomers;
     private ArchivedCustomersAdapter adapter;
-    private List<Customer> archivedCustomersList;
     private FirebaseFirestore db;
-    private String currentUserId;
+    private ListenerRegistration listenerRegistration;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_archived_list, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_archived_customers, container, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         db = FirebaseFirestore.getInstance();
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ? FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        rvArchivedCustomers = view.findViewById(R.id.rvArchivedCustomers);
+        rvArchivedCustomers.setLayoutManager(new LinearLayoutManager(requireContext()));
 
-        recyclerView = view.findViewById(R.id.recyclerViewArchived);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new ArchivedCustomersAdapter(this);
+        rvArchivedCustomers.setAdapter(adapter);
 
-        archivedCustomersList = new ArrayList<>();
-
-        // ربط الـ Adapter مع إضافة رسالة تأكيد الاستعادة ورسالة تأكيد الحذف النهائي
-        adapter = new ArchivedCustomersAdapter(archivedCustomersList, new ArchivedCustomersAdapter.OnArchivedCustomerListener() {
-            @Override
-            public void onRestoreClick(Customer customer) {
-                // إظهار نافذة تأكيد استعادة الزبون
-                new AlertDialog.Builder(requireContext())
-                        .setTitle("استعادة الزبون")
-                        .setMessage("هل أنت متأكد من رغبتك في استعادة الزبون (" + (customer.getName() != null ? customer.getName() : "بدون اسم") + ") إلى القائمة النشطة؟")
-                        .setPositiveButton("استعادة", (dialog, which) -> {
-                            restoreCustomer(customer);
-                        })
-                        .setNegativeButton("إلغاء", null)
-                        .show();
-            }
-
-            @Override
-            public void onDeleteLongClick(Customer customer) {
-                // إظهار نافذة تأكيد الحذف النهائي عند الضغط المطول على الزبون
-                new AlertDialog.Builder(requireContext())
-                        .setTitle("حذف نهائي للزبون")
-                        .setMessage("هل أنت متأكد من حذف الزبون (" + (customer.getName() != null ? customer.getName() : "بدون اسم") + ") نهائياً مع كافة ديونه؟ لا يمكن التراجع عن هذا الإجراء.")
-                        .setPositiveButton("حذف نهائي", (dialog, which) -> {
-                            deleteCustomerPermanently(customer);
-                        })
-                        .setNegativeButton("إلغاء", null)
-                        .show();
-            }
-        });
-
-        recyclerView.setAdapter(adapter);
-        loadArchivedCustomers();
-
-        return view;
+        listenToArchivedCustomers();
     }
 
-    private void loadArchivedCustomers() {
-        if (currentUserId == null) return;
+    private void listenToArchivedCustomers() {
+        listenerRegistration = db.collection("customers")
+                .whereEqualTo("archived", true)
+                .orderBy("deletedAt", Query.Direction.DESCENDING)
+                .addSnapshotListener((snapshots, error) -> {
+                    if (!isAdded()) return;
+                    if (error != null) {
+                        loadWithoutOrderFallback();
+                        return;
+                    }
+                    if (snapshots != null) {
+                        List<Customer> list = parseCustomers(snapshots.getDocuments());
+                        adapter.setCustomers(list);
+                        notifyActivityCount(list.size());
+                    }
+                });
+    }
+
+    private void loadWithoutOrderFallback() {
+        db.collection("customers")
+                .whereEqualTo("archived", true)
+                .get()
+                .addOnSuccessListener(snapshots -> {
+                    if (!isAdded() || snapshots == null) return;
+                    List<Customer> list = parseCustomers(snapshots.getDocuments());
+                    adapter.setCustomers(list);
+                    notifyActivityCount(list.size());
+                });
+    }
+
+    private List<Customer> parseCustomers(List<DocumentSnapshot> docs) {
+        List<Customer> list = new ArrayList<>();
+        for (DocumentSnapshot doc : docs) {
+            Customer customer = doc.toObject(Customer.class);
+            if (customer != null) {
+                customer.setId(doc.getId());
+                list.add(customer);
+            }
+        }
+        return list;
+    }
+
+    private void notifyActivityCount(int count) {
+        if (getActivity() instanceof ArchiveActivity) {
+            ((ArchiveActivity) getActivity()).updateCustomersCount(count);
+        }
+    }
+
+    @Override
+    public void onRestoreClick(Customer customer) {
+        if (customer.getId() == null || customer.getId().isEmpty()) {
+            Toast.makeText(requireContext(), "تعذر تحديد بيانات الزبون", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("archived", false);
+        updates.put("deletedAt", 0L);
 
         db.collection("customers")
-                .whereEqualTo("userId", currentUserId)
-                .whereEqualTo("archived", true) // الزبائن المؤرشفون فقط
-                .addSnapshotListener((value, error) -> {
-                    if (error != null) return;
-
-                    archivedCustomersList.clear();
-                    if (value != null) {
-                        for (QueryDocumentSnapshot doc : value) {
-                            Customer customer = doc.toObject(Customer.class);
-                            customer.setId(doc.getId());
-                            archivedCustomersList.add(customer);
-                        }
+                .document(customer.getId())
+                .update(updates)
+                .addOnSuccessListener(unused -> {
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), "تم استرجاع الزبون إلى القائمة الرئيسية", Toast.LENGTH_SHORT).show();
                     }
-                    adapter.notifyDataSetChanged();
-                });
-    }
-
-    private void restoreCustomer(Customer customer) {
-        if (customer.getId() == null) return;
-
-        db.collection("customers").document(customer.getId())
-                .update("archived", false, "deletedAt", 0L)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "تمت استعادة الزبون بنجاح", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "فشل الاستعادة: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), "فشل استرجاع الزبون: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 });
     }
 
-    private void deleteCustomerPermanently(Customer customer) {
-        if (customer.getId() == null) return;
+    @Override
+    public void onDeleteClick(Customer customer) {
+        if (!isAdded() || customer.getId() == null || customer.getId().isEmpty()) return;
 
-        // حذف كافة الديون التابعة للزبون أولاً ثم حذف مستند الزبون نهائياً
-        db.collection("customers").document(customer.getId())
+        new AlertDialog.Builder(requireContext())
+                .setTitle("حذف نهائي")
+                .setMessage("هل أنتِ متأكدة من حذف الزبون «" +
+                        (customer.getName() != null ? customer.getName() : "") +
+                        "» نهائياً مع حركاته؟ لا يمكن التراجع عن هذا الإجراء.")
+                .setPositiveButton("حذف", (dialog, which) -> deleteCustomerWithDebts(customer.getId()))
+                .setNegativeButton("إلغاء", null)
+                .show();
+    }
+
+    private void deleteCustomerWithDebts(String customerId) {
+        db.collection("customers")
+                .document(customerId)
                 .collection("debts")
                 .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
+                .addOnSuccessListener(debtSnapshots -> {
                     WriteBatch batch = db.batch();
-                    for (var doc : queryDocumentSnapshots) {
+                    for (QueryDocumentSnapshot doc : debtSnapshots) {
                         batch.delete(doc.getReference());
                     }
-                    // حذف الزبون نفسه من الـ Firestore
-                    batch.delete(db.collection("customers").document(customer.getId()));
+                    batch.delete(db.collection("customers").document(customerId));
 
-                    batch.commit().addOnSuccessListener(aVoid -> {
-                        archivedCustomersList.remove(customer);
-                        adapter.notifyDataSetChanged();
-                        Toast.makeText(getContext(), "تم حذف الزبون نهائياً", Toast.LENGTH_SHORT).show();
-                    }).addOnFailureListener(e -> {
-                        Toast.makeText(getContext(), "فشل الحذف النهائي: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    });
+                    batch.commit()
+                            .addOnSuccessListener(unused -> {
+                                if (isAdded()) {
+                                    Toast.makeText(requireContext(), "تم حذف الزبون نهائياً", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .addOnFailureListener(e -> {
+                                if (isAdded()) {
+                                    Toast.makeText(requireContext(), "فشل الحذف: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "خطأ أثناء جلب ديون الزبون: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    if (isAdded()) {
+                        Toast.makeText(requireContext(), "تعذر الوصول لحركات الزبون: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
                 });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (listenerRegistration != null) {
+            listenerRegistration.remove();
+        }
     }
 }

@@ -46,4 +46,6 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.7'
     implementation 'androidx.lifecycle:lifecycle-livedata:2.8.7'
     implementation 'com.google.firebase:firebase-firestore'
+    // صفحات الترحيب اللي بتتقلّب بالسحب
+    implementation 'androidx.viewpager2:viewpager2:1.1.0'
 }
