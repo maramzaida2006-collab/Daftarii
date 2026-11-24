@@ -26,4 +26,35 @@
     <color name="due_fg">#F0C27A</color>
 
     <color name="error">#F2B8B5</color>
+    <?xml version="1.0" encoding="utf-8"?>
+    <resources>
+        <!-- الخلفيات والأسطح الليلية -->
+        <color name="background">#0F172A</color>
+        <color name="surface">#1E293B</color>
+
+        <!-- النصوص في الوضع الليلي -->
+        <color name="text_primary">#F8FAFC</color>
+        <color name="text_secondary">#94A3B8</color>
+
+        <!-- البطاقة الداكنة والعناصر البارزة -->
+        <color name="plum">#1E1B4B</color>
+        <color name="on_plum">#FFFFFF</color>
+        <color name="on_plum_secondary">#CBD5E1</color>
+        <color name="lavender">#312E81</color>
+        <color name="lavender_soft">#282454</color>
+        <color name="lavender_chip">#3730A3</color>
+        <color name="violet">#A78BFA</color>
+        <color name="peach">#FDBA74</color>
+
+        <!-- ألوان الحالات (ديون / دفعات / مستحق) -->
+        <color name="debt_bg">#3B1D24</color>
+        <color name="debt_fg">#FCA5A5</color>
+
+        <color name="payment_bg">#13332A</color>
+        <color name="payment_fg">#6EE7B7</color>
+
+        <color name="due_bg">#3A2E14</color>
+        <color name="due_fg">#FCD34D</color>
+    </resources>
 </resources>
+
