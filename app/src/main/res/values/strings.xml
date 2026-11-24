@@ -181,4 +181,6 @@
     <string name="month_sep">سبتمبر</string>
     <string name="month_oct">أكتوبر</string>
     <string name="month_nov">نوفمبر</string>
+    <string name="action_edit">تعديل</string>
+    <string name="sample_tx2_subtitle">اليوم • 02:15 م</string>
 </resources>
