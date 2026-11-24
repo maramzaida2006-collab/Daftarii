@@ -73,4 +73,31 @@
     <string name="auth_error_network">No internet connection. Check it and try again</string>
     <string name="auth_error_not_allowed">This sign-in method isn\'t enabled in Firebase</string>
     <string name="auth_error_unknown">Something went wrong, try again</string>
+
+    <!-- Splash and onboarding -->
+    <string name="splash_tagline">Your shop\'s debt book, organized and secure</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_start">Get started</string>
+    <string name="onboarding1_title">All your shop\'s debts\nin one place</string>
+    <string name="onboarding1_body">Record a debt or a payment in seconds, and the balance updates by itself. No paper book, no calculator.</string>
+    <string name="onboarding2_title">Due-date reminders,\nstatements in one tap</string>
+    <string name="onboarding2_body">Get a notification when a due date is near, and send the customer a neat PDF statement on WhatsApp.</string>
+    <!-- Illustration samples (not real data) -->
+    <string name="onboarding_demo_total_label">Total due</string>
+    <string name="onboarding_demo_total">₪ 12,480</string>
+    <string name="onboarding_demo_c1_initials">AK</string>
+    <string name="onboarding_demo_c1_name">Ahmad Khalil</string>
+    <string name="onboarding_demo_c1_amount">₪ 640</string>
+    <string name="onboarding_demo_c2_initials">HO</string>
+    <string name="onboarding_demo_c2_name">Heba Odeh</string>
+    <string name="onboarding_demo_c2_amount">₪ 95</string>
+    <string name="status_overdue">Overdue</string>
+    <string name="status_regular">On track</string>
+    <string name="onboarding_demo_due_title">Payment due tomorrow</string>
+    <string name="onboarding_demo_due_body">Samer Yaseen · ₪ 320</string>
+    <string name="onboarding_demo_statement">Statement</string>
+    <string name="onboarding_demo_pdf">PDF</string>
+    <string name="onboarding_demo_due_label">Due</string>
+    <string name="onboarding_demo_shared">Shared on WhatsApp</string>
 </resources>

@@ -80,4 +80,31 @@
     <string name="auth_error_network">ما في إنترنت، تأكد من الاتصال وجرّب كمان مرة</string>
     <string name="auth_error_not_allowed">طريقة الدخول هاي مش مفعّلة بـ Firebase</string>
     <string name="auth_error_unknown">صار خطأ، جرّب كمان مرة</string>
+
+    <!-- البداية والترحيب -->
+    <string name="splash_tagline">دفتر ديون محلّك، مرتّب وآمن</string>
+    <string name="onboarding_skip">تخطي</string>
+    <string name="onboarding_next">التالي</string>
+    <string name="onboarding_start">ابدأ الآن</string>
+    <string name="onboarding1_title">كل ديون محلّك\nبمكان واحد</string>
+    <string name="onboarding1_body">سجّل الدين والدفعة بثواني، والرصيد بينحسب لحاله. بدون دفتر ورق وبدون آلة حاسبة.</string>
+    <string name="onboarding2_title">تذكير بالموعد\nوكشف حساب بضغطة</string>
+    <string name="onboarding2_body">بيوصلك إشعار لما يقرب موعد السداد، وبتبعت للزبون كشف PDF مرتّب على واتساب.</string>
+    <!-- أمثلة بالرسمة (مش بيانات حقيقية) -->
+    <string name="onboarding_demo_total_label">إجمالي المستحق</string>
+    <string name="onboarding_demo_total">₪ 12,480</string>
+    <string name="onboarding_demo_c1_initials">أخ</string>
+    <string name="onboarding_demo_c1_name">أحمد خليل</string>
+    <string name="onboarding_demo_c1_amount">₪ 640</string>
+    <string name="onboarding_demo_c2_initials">هع</string>
+    <string name="onboarding_demo_c2_name">هبة عودة</string>
+    <string name="onboarding_demo_c2_amount">₪ 95</string>
+    <string name="status_overdue">متأخر</string>
+    <string name="status_regular">منتظم</string>
+    <string name="onboarding_demo_due_title">موعد سداد غداً</string>
+    <string name="onboarding_demo_due_body">سامر ياسين · ₪ 320</string>
+    <string name="onboarding_demo_statement">كشف حساب</string>
+    <string name="onboarding_demo_pdf">PDF</string>
+    <string name="onboarding_demo_due_label">المستحق</string>
+    <string name="onboarding_demo_shared">تمت المشاركة على واتساب</string>
 </resources>

@@ -27,17 +27,24 @@
             android:exported="false" />
         <activity
             android:name=".RegisterActivity"
-            android:exported="false" /> <!-- تم تعيين شاشة تسجيل الدخول كشاشة بداية التطبيق -->
+            android:exported="false" />
         <activity
             android:name=".LoginActivity"
+            android:exported="false" />
+        <!-- شاشة البداية: أول شاشة بتفتح، وبتقرر وين يروح المستخدم (StartRouter) -->
+        <activity
+            android:name=".SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.Supermarket">
+            android:theme="@style/Theme.Daftari.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".OnboardingActivity"
+            android:exported="false" />
         <activity
             android:name=".LockActivity"
             android:exported="false" />

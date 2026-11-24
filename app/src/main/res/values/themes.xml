@@ -45,4 +45,15 @@
     </style>
 
     <style name="Theme.Supermarket" parent="Base.Theme.Supermarket" />
+
+    <!-- شاشة البداية: كلها plum، والشريط فوق وتحت بنفس اللون. -->
+    <style name="Base.Theme.Daftari.Splash" parent="Theme.Supermarket">
+        <item name="android:windowBackground">@color/plum</item>
+        <item name="android:statusBarColor">@color/plum</item>
+        <item name="android:navigationBarColor">@color/plum</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+    </style>
+
+    <!-- بأندرويد 12 وأحدث في نسخة بـ values-v31 بتلوّن شاشة النظام كمان. -->
+    <style name="Theme.Daftari.Splash" parent="Base.Theme.Daftari.Splash" />
 </resources>

@@ -34,5 +34,11 @@
     <color name="due_bg">#FDF1DC</color>
     <color name="due_fg">#93560A</color>
 
+    <!-- صورة زبون تانية (وردي) -->
+    <color name="avatar_pink_bg">#FCE4EE</color>
+    <color name="avatar_pink_fg">#9C2F5E</color>
+    <!-- نقطة الصفحة غير الحالية (الترحيب) -->
+    <color name="dot_inactive">#D6D1CA</color>
+
     <color name="error">#B3261E</color>
 </resources>

@@ -25,5 +25,9 @@
     <color name="due_bg">#3A2C14</color>
     <color name="due_fg">#F0C27A</color>
 
+    <color name="avatar_pink_bg">#3A2030</color>
+    <color name="avatar_pink_fg">#F2A7C6</color>
+    <color name="dot_inactive">#4A445A</color>
+
     <color name="error">#F2B8B5</color>
 </resources>
