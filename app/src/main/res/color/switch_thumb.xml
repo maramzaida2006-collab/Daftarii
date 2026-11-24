@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- دائرة مفتاح التشغيل: lavender لما يكون شغّال، وبيضا لما يكون طافي. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/lavender" android:state_checked="true" />
+    <item android:color="@color/surface" />
+</selector>

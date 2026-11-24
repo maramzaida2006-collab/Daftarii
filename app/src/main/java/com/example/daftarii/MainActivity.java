@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.daftarii.auth.PinStore;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
@@ -85,14 +86,12 @@ public class MainActivity extends AppCompatActivity {
                         .setTitle(R.string.guest_logout_title)
                         .setMessage(R.string.guest_logout_message)
                         .setPositiveButton(R.string.guest_logout_confirm, (d, w) -> {
-                            mAuth.signOut();
-                            navigateToLogin();
+                            signOutAndGoToLogin();
                         })
                         .setNegativeButton(R.string.action_cancel, null)
                         .show();
             } else {
-                mAuth.signOut();
-                navigateToLogin();
+                signOutAndGoToLogin();
             }
         });
 
@@ -142,6 +141,13 @@ public class MainActivity extends AppCompatActivity {
         }
         currentUserId = mAuth.getCurrentUser().getUid();
         loadCustomers();
+    }
+
+    /** تسجيل الخروج بيمسح الـ PIN والبصمة عن الجوال (قرار الـ PO). */
+    private void signOutAndGoToLogin() {
+        new PinStore(this).clear();
+        mAuth.signOut();
+        navigateToLogin();
     }
 
     private void navigateToLogin() {

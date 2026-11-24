@@ -56,4 +56,7 @@
 
     <!-- بأندرويد 12 وأحدث في نسخة بـ values-v31 بتلوّن شاشة النظام كمان. -->
     <style name="Theme.Daftari.Splash" parent="Base.Theme.Daftari.Splash" />
+
+    <!-- شاشات كلها plum غير البداية (متل شاشة القفل). -->
+    <style name="Theme.Daftari.Plum" parent="Base.Theme.Daftari.Splash" />
 </resources>

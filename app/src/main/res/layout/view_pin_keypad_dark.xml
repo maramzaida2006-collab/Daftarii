@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- لوحة أرقام الـ PIN على خلفية plum (شاشة القفل). نفس الـ ids بالنسختين، والكود بـ util/PinPad.
+     الأرقام إنجليزية دايماً (متل التصميم)، فمش بـ strings.xml.
+     بالعربي بتنقلب لحالها (1 على اليمين وزر الحذف على الشمال)، متل التصميم. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/key1"
+            style="@style/Daftari.PinKey.Dark"
+            android:text="1"
+            tools:ignore="HardcodedText" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/key2"
+            style="@style/Daftari.PinKey.Dark"
+            android:text="2"
+            tools:ignore="HardcodedText" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/key3"
+            style="@style/Daftari.PinKey.Dark"
+            android:text="3"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/key4"
+            style="@style/Daftari.PinKey.Dark"
+            android:text="4"
+            tools:ignore="HardcodedText" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/key5"
+            style="@style/Daftari.PinKey.Dark"
+            android:text="5"
+            tools:ignore="HardcodedText" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/key6"
+            style="@style/Daftari.PinKey.Dark"
+            android:text="6"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/key7"
+            style="@style/Daftari.PinKey.Dark"
+            android:text="7"
+            tools:ignore="HardcodedText" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/key8"
+            style="@style/Daftari.PinKey.Dark"
+            android:text="8"
+            tools:ignore="HardcodedText" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/key9"
+            style="@style/Daftari.PinKey.Dark"
+            android:text="9"
+            tools:ignore="HardcodedText" />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:orientation="horizontal">
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="64dp"
+            android:layout_weight="1"
+            android:layout_marginStart="11dp"
+            android:layout_marginEnd="11dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/key0"
+            style="@style/Daftari.PinKey.Dark"
+            android:text="0"
+            tools:ignore="HardcodedText" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/keyDelete"
+            style="@style/Daftari.PinKey.Delete.Dark" />
+    </LinearLayout>
+</LinearLayout>

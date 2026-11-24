@@ -45,8 +45,13 @@
         <activity
             android:name=".OnboardingActivity"
             android:exported="false" />
+        <!-- شاشة القفل: كلها plum -->
         <activity
             android:name=".LockActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Daftari.Plum" />
+        <activity
+            android:name=".CreatePinActivity"
             android:exported="false" />
         <activity
             android:name=".CustomerDetailActivity"

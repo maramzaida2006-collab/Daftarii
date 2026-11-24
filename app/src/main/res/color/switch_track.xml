@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- مسار مفتاح التشغيل: plum لما يكون شغّال، ورمادي لما يكون طافي. -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/plum" android:state_checked="true" />
+    <item android:color="@color/outline" />
+</selector>

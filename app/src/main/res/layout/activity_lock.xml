@@ -1,84 +1,160 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- شاشة القفل: plum، اسم المحل فوق، PIN من 4 أرقام، وزر البصمة. حسب تصميم Lock. -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0F172A"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:background="@color/plum"
+    android:clipChildren="true">
 
-    <ImageView
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_marginBottom="16dp"
-        android:src="@android:drawable/ic_lock_lock"
-        app:tint="@android:color/white" />
+    <View
+        android:layout_width="380dp"
+        android:layout_height="380dp"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="-150dp"
+        android:layout_marginTop="-150dp"
+        android:alpha="0.08"
+        android:background="@drawable/shape_circle"
+        android:backgroundTint="@color/lavender" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="قفل حماية التطبيق"
-        android:textColor="@android:color/white"
-        android:textSize="22sp"
-        android:textStyle="bold" />
+    <!-- ScrollView عشان الجوالات الصغيرة: إذا ما في مكان بيتحرّك، وإذا في مكان بيعبّي الشاشة -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:fitsSystemWindows="true"
+        android:scrollbars="none">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="32dp"
-        android:text="أدخل كلمة السر أو استخدم البصمة للمتابعة"
-        android:textColor="#94A3B8"
-        android:textSize="14sp" />
-
-    <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        app:boxCornerRadiusBottomEnd="16dp"
-        app:boxCornerRadiusBottomStart="16dp"
-        app:boxCornerRadiusTopEnd="16dp"
-        app:boxCornerRadiusTopStart="16dp"
-        app:boxStrokeColor="@android:color/white"
-        app:hintTextColor="@android:color/white"
-        app:passwordToggleEnabled="true"
-        app:passwordToggleTint="@android:color/white">
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingTop="54dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="30dp">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/etPinCode"
+        <!-- المحل -->
+        <TextView
+            android:id="@+id/tvLockAvatar"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/shape_circle"
+            android:backgroundTint="@color/lock_avatar_bg"
+            android:fontFamily="@font/alexandria_semibold"
+            android:gravity="center"
+            android:importantForAccessibility="no"
+            android:textColor="@color/lavender"
+            android:textSize="24sp" />
+
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="كلمة السر (PIN)"
-            android:inputType="numberPassword"
-            android:maxLength="6"
-            android:textColor="@android:color/white"
-            android:textSize="16sp" />
-    </com.google.android.material.textfield.TextInputLayout>
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="@string/lock_welcome"
+            android:textColor="@color/on_plum_secondary"
+            android:textSize="14sp" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLogin"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:layout_marginBottom="12dp"
-        android:backgroundTint="#3B82F6"
-        android:text="فتح التطبيق"
-        android:textColor="@android:color/white"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        app:cornerRadius="16dp" />
+        <TextView
+            android:id="@+id/tvLockShopName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/alexandria_semibold"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textColor="@color/on_plum"
+            android:textSize="20sp" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnBiometric"
-        style="@style/Widget.Material3.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="تسجيل الدخول بالبصمة 🔒"
-        android:textColor="@android:color/white"
-        android:textSize="15sp"
-        app:cornerRadius="16dp"
-        app:strokeColor="@android:color/white" />
+        <!-- النقاط الأربعة -->
+        <LinearLayout
+            android:id="@+id/pinDots"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="22dp"
+            android:orientation="horizontal">
 
-</LinearLayout>
+            <View style="@style/Daftari.PinDot" />
+
+            <View style="@style/Daftari.PinDot" />
+
+            <View style="@style/Daftari.PinDot" />
+
+            <View style="@style/Daftari.PinDot" />
+        </LinearLayout>
+
+        <!-- الرمز غلط / موقوف -->
+        <TextView
+            android:id="@+id/tvLockMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:accessibilityLiveRegion="assertive"
+            android:gravity="center"
+            android:textColor="@color/peach"
+            android:textSize="13sp" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <include
+            android:id="@+id/pinKeypad"
+            layout="@layout/view_pin_keypad_dark"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="7dp"
+            android:layout_marginEnd="7dp" />
+
+        <!-- البصمة: بتبيّن بس إذا المستخدم فعّلها -->
+        <LinearLayout
+            android:id="@+id/groupBiometric"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLockBiometric"
+                style="@style/Widget.Material3.Button.IconButton.Outlined"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:contentDescription="@string/lock_biometric_button"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:backgroundTint="@color/lock_fp_bg"
+                app:cornerRadius="35dp"
+                app:icon="@drawable/ic_fingerprint"
+                app:iconSize="32dp"
+                app:iconTint="@color/lavender"
+                app:strokeColor="@color/lock_fp_stroke" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:importantForAccessibility="no"
+                android:text="@string/lock_biometric_hint"
+                android:textColor="@color/on_plum_secondary"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLockOtherAccount"
+            style="@style/Daftari.Button.Link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:text="@string/lock_other_account"
+            android:textColor="@color/lavender" />
+    </LinearLayout>
+    </ScrollView>
+</FrameLayout>

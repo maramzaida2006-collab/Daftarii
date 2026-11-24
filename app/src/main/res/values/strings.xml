@@ -107,4 +107,29 @@
     <string name="onboarding_demo_pdf">PDF</string>
     <string name="onboarding_demo_due_label">المستحق</string>
     <string name="onboarding_demo_shared">تمت المشاركة على واتساب</string>
+
+    <!-- إنشاء PIN وشاشة القفل -->
+    <string name="pin_step">خطوة %1$d من 2</string>
+    <string name="pin_create_title">أنشئ رمز الدخول</string>
+    <string name="pin_create_subtitle">4 أرقام بتستخدمها لفتح التطبيق بسرعة</string>
+    <string name="pin_confirm_title">أكّد رمز الدخول</string>
+    <string name="pin_confirm_subtitle">اكتب نفس الأرقام الأربعة كمان مرة</string>
+    <string name="pin_mismatch">الرمزين مش متطابقين، جرّب من الأول</string>
+    <string name="pin_biometric_title">تفعيل الدخول بالبصمة</string>
+    <string name="pin_biometric_subtitle">بتقدر تغيّرها لاحقاً من حسابي</string>
+    <string name="pin_delete">حذف</string>
+    <string name="pin_entered">انكتب %1$d من 4 أرقام</string>
+    <string name="lock_welcome">أهلاً بعودتك</string>
+    <string name="lock_biometric_hint">المس للدخول بالبصمة</string>
+    <string name="lock_biometric_button">الدخول بالبصمة</string>
+    <string name="lock_other_account">الدخول بحساب آخر</string>
+    <string name="lock_wrong_pin">الرمز غلط. ضايلك %1$d محاولات</string>
+    <string name="lock_wrong_pin_last">الرمز غلط. ضايلك محاولة وحدة</string>
+    <string name="lock_locked_out">محاولات كتير. جرّب كمان %1$d ثانية</string>
+    <string name="lock_other_account_title">الدخول بحساب آخر</string>
+    <string name="lock_other_account_message">رح تطلع من الحساب ويتمسح رمز الدخول عن الجوال. بياناتك بتضل محفوظة، وبترجع بتلاقيها لما تسجّل دخول.</string>
+    <string name="lock_other_account_confirm">اطلع</string>
+    <string name="biometric_prompt_title">الدخول لدفتري</string>
+    <string name="biometric_prompt_subtitle">استخدم البصمة لفتح التطبيق</string>
+    <string name="biometric_prompt_use_pin">استخدم الرمز</string>
 </resources>
