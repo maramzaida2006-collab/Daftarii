@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Supermarket Debt Book</string>
+    <string name="app_name">دفتري</string>
     <string name="customer_details_title" translatable="false">Customer Account Details</string>
     <string name="total_debt_label" translatable="false">Current Total Debt</string>
     <string name="hint_amount" translatable="false">Amount</string>
@@ -9,4 +9,69 @@
     <string name="history_label" translatable="false">Transactions History</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+
+    <!-- ===== الدخول والحساب (سندس) ===== -->
+    <string name="auth_login_title">أهلاً فيك من جديد</string>
+    <string name="auth_login_subtitle">سجّل دخولك لتتابع حسابات زبائنك</string>
+    <string name="auth_label_email">البريد الإلكتروني</string>
+    <string name="auth_label_password">كلمة المرور</string>
+    <string name="auth_label_confirm_password">تأكيد كلمة المرور</string>
+    <string name="auth_label_shop_name">اسم المحل</string>
+    <string name="auth_hint_shop_name">مثال: سوبرماركت النور</string>
+    <string name="auth_hint_email">name@email.com</string>
+    <string name="auth_remember_me">تذكرني</string>
+    <string name="auth_forgot_link">نسيت كلمة السر؟</string>
+    <string name="auth_login_button">تسجيل الدخول</string>
+    <string name="auth_or">أو</string>
+    <string name="auth_guest_button">الدخول كزائر</string>
+    <string name="auth_no_account">ما عندك حساب؟</string>
+    <string name="auth_create_account_link">أنشئ حساباً</string>
+    <string name="auth_register_title">حساب جديد</string>
+    <string name="auth_register_subtitle">دقيقة وحدة وبيصير دفترك جاهز</string>
+    <string name="auth_register_info">رح نبعتلك رابط تفعيل على بريدك، وما بتقدر تدخل قبل ما تفعّله.</string>
+    <string name="auth_register_button">إنشاء الحساب</string>
+    <string name="auth_have_account">عندك حساب؟</string>
+    <string name="auth_login_link">سجّل دخولك</string>
+    <string name="auth_back">رجوع</string>
+    <string name="password_strength_weak">كلمة سر ضعيفة</string>
+    <string name="password_strength_medium">كلمة سر متوسطة</string>
+    <string name="password_strength_strong">كلمة سر قوية</string>
+    <string name="verify_title">فعّل بريدك الإلكتروني</string>
+    <string name="verify_sent_to">بعتنا رابط تفعيل على</string>
+    <string name="verify_instructions">افتح الرابط وارجع هون عشان تكمّل.</string>
+    <string name="verify_continue">فعّلت، تابع</string>
+    <string name="verify_open_mail">فتح تطبيق البريد</string>
+    <string name="verify_not_received">ما وصلك؟</string>
+    <string name="verify_resend">إعادة الإرسال</string>
+    <string name="verify_resend_in">إعادة الإرسال بعد %1$s</string>
+    <string name="verify_change_email">تغيير البريد الإلكتروني</string>
+    <string name="verify_not_yet">لسا ما تفعّل الحساب. افتح الرابط اللي بالبريد وجرّب كمان مرة.</string>
+    <string name="verify_resent">بعتنالك الرابط كمان مرة.</string>
+    <string name="verify_no_mail_app">ما لقينا تطبيق بريد على الجوال.</string>
+    <string name="forgot_title">نسيت كلمة السر؟</string>
+    <string name="forgot_subtitle">اكتب بريدك وبنبعتلك رابط لتعيين كلمة سر جديدة.</string>
+    <string name="forgot_send">أرسل رابط الاستعادة</string>
+    <string name="forgot_sent_title">تم الإرسال</string>
+    <string name="forgot_sent_body">إذا البريد مسجّل عنا، رح يوصلك رابط. افحص بريدك، وإذا ما لقيته شوف مجلد الرسائل غير المرغوبة.</string>
+    <string name="forgot_back_to_login">رجوع لتسجيل الدخول</string>
+    <string name="guest_trial_expired">خلصت الفترة التجريبية للزائر (7 أيام). أنشئ حساباً عشان تكمّل.</string>
+    <string name="guest_logout_title">تسجيل خروج الزائر</string>
+    <string name="guest_logout_message">إذا طلعت، كل البيانات اللي سجّلتها كزائر رح تضيع. متأكد؟</string>
+    <string name="guest_logout_confirm">اطلع</string>
+    <string name="action_cancel">إلغاء</string>
+    <string name="error_email_empty">اكتب البريد الإلكتروني</string>
+    <string name="error_email_invalid">البريد الإلكتروني مش صحيح</string>
+    <string name="error_password_empty">اكتب كلمة المرور</string>
+    <string name="error_password_short">كلمة المرور لازم تكون 6 أحرف أو أكتر</string>
+    <string name="error_password_mismatch">كلمتين السر مش متطابقات</string>
+    <string name="error_shop_name_empty">اكتب اسم المحل</string>
+    <string name="error_shop_name_long">الاسم طويل كتير</string>
+    <string name="auth_error_wrong_credentials">البريد أو كلمة السر غلط</string>
+    <string name="auth_error_user_disabled">هاد الحساب موقوف</string>
+    <string name="auth_error_email_in_use">في حساب بهاد البريد من قبل. سجّل دخولك بداله.</string>
+    <string name="auth_error_weak_password">كلمة السر ضعيفة، جرّب وحدة أطول</string>
+    <string name="auth_error_too_many">محاولات كتير، استنى شوي وجرّب كمان مرة</string>
+    <string name="auth_error_network">ما في إنترنت، تأكد من الاتصال وجرّب كمان مرة</string>
+    <string name="auth_error_not_allowed">طريقة الدخول هاي مش مفعّلة بـ Firebase</string>
+    <string name="auth_error_unknown">صار خطأ، جرّب كمان مرة</string>
 </resources>

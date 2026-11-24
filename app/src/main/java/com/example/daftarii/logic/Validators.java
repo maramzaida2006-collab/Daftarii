@@ -15,7 +15,8 @@ public final class Validators {
         INVALID_FORMAT,
         TOO_SHORT,
         NOT_POSITIVE,
-        TOO_LARGE
+        TOO_LARGE,
+        MISMATCH
     }
 
     public static final int NAME_MAX = 50;
@@ -38,6 +39,17 @@ public final class Validators {
     public static Result password(String password) {
         if (password == null || password.isEmpty()) return Result.EMPTY;
         return password.length() >= PASSWORD_MIN ? Result.OK : Result.TOO_SHORT;
+    }
+
+    /** تأكيد كلمة السر: لازم يكون نفسها حرف بحرف. */
+    public static Result passwordConfirmation(String password, String confirmation) {
+        if (confirmation == null || confirmation.isEmpty()) return Result.EMPTY;
+        return confirmation.equals(password) ? Result.OK : Result.MISMATCH;
+    }
+
+    /** اسم المحل بشاشة إنشاء حساب: إجباري ولحد 50 حرف، متل اسم الزبون. */
+    public static Result shopName(String name) {
+        return customerName(name);
     }
 
     /** الـ PIN: 4 أرقام بالضبط. */

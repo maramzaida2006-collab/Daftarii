@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ستايلات مشتركة من التصميم. استخدموها بكل الشاشات بدل ما تكتبوا الألوان والأحجام بكل layout. -->
+<resources>
+
+    <!-- العنوان الكبير بأول الشاشة (26sp) -->
+    <style name="Daftari.Text.Title" parent="">
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <!-- النص الفرعي تحت العنوان -->
+    <style name="Daftari.Text.Subtitle" parent="">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:lineSpacingMultiplier">1.3</item>
+    </style>
+
+    <!-- اسم الحقل فوق الخانة -->
+    <style name="Daftari.Text.Label" parent="">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:layout_marginBottom">6dp</item>
+    </style>
+
+    <!-- خانة إدخال: بيضا، زوايا 18، أيقونة على البداية -->
+    <style name="Daftari.Field" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="hintEnabled">false</item>
+        <item name="boxBackgroundColor">@color/surface</item>
+        <item name="boxStrokeColor">@color/violet</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxCornerRadiusTopStart">18dp</item>
+        <item name="boxCornerRadiusTopEnd">18dp</item>
+        <item name="boxCornerRadiusBottomStart">18dp</item>
+        <item name="boxCornerRadiusBottomEnd">18dp</item>
+        <item name="startIconTint">@color/text_secondary</item>
+        <item name="endIconTint">@color/text_secondary</item>
+    </style>
+
+    <style name="Daftari.FieldInput" parent="">
+        <item name="android:minHeight">54dp</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+    </style>
+
+    <!-- الزر الأساسي: plum، 56dp، زوايا 20 -->
+    <style name="Daftari.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/plum</item>
+        <item name="android:textColor">@color/on_plum</item>
+        <item name="iconTint">@color/lavender</item>
+        <item name="iconGravity">textStart</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:elevation">4dp</item>
+    </style>
+
+    <!-- الزر الثانوي: أبيض بإطار -->
+    <style name="Daftari.Button.Secondary" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="backgroundTint">@color/surface</item>
+        <item name="strokeColor">@color/outline</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="iconTint">@color/text_primary</item>
+        <item name="iconGravity">textStart</item>
+        <item name="cornerRadius">20dp</item>
+        <item name="android:minHeight">54dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+
+    <!-- رابط: نص بنفسجي بدون خلفية -->
+    <style name="Daftari.Button.Link" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/violet</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:minHeight">40dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+    </style>
+
+    <!-- زر الرجوع الدائري الأبيض (46dp) -->
+    <style name="Daftari.BackButton" parent="">
+        <item name="android:layout_width">46dp</item>
+        <item name="android:layout_height">46dp</item>
+        <item name="android:background">@drawable/shape_circle</item>
+        <item name="android:backgroundTint">@color/surface</item>
+        <item name="android:src">@drawable/ic_back</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:elevation">2dp</item>
+        <item name="tint">@color/text_primary</item>
+        <item name="android:contentDescription">@string/auth_back</item>
+    </style>
+</resources>

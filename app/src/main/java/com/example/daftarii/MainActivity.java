@@ -2,8 +2,6 @@ package com.example.daftarii;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -19,7 +17,6 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
@@ -45,8 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private String currentUserId;
 
-    private final Handler securityHandler = new Handler(Looper.getMainLooper());
-    private Runnable securityRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,8 +79,21 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
 
         btnLogout.setOnClickListener(v -> {
-            mAuth.signOut();
-            navigateToLogin();
+            if (mAuth.getCurrentUser() != null && mAuth.getCurrentUser().isAnonymous()) {
+                // الزائر بيخسر بياناته إذا طلع: نحذّره أول
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.guest_logout_title)
+                        .setMessage(R.string.guest_logout_message)
+                        .setPositiveButton(R.string.guest_logout_confirm, (d, w) -> {
+                            mAuth.signOut();
+                            navigateToLogin();
+                        })
+                        .setNegativeButton(R.string.action_cancel, null)
+                        .show();
+            } else {
+                mAuth.signOut();
+                navigateToLogin();
+            }
         });
 
         btnMenuArchive.setOnClickListener(v -> {
@@ -108,68 +116,32 @@ public class MainActivity extends AppCompatActivity {
 
         btnAddCustomer.setOnClickListener(v -> showAddCustomerDialog());
 
-        securityRunnable = new Runnable() {
-            @Override
-            public void run() {
-                checkAccountActiveStatusSilently();
-                securityHandler.postDelayed(this, 10000);
-            }
-        };
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         checkUserAuthAndLoad();
-        if (securityHandler != null && securityRunnable != null) {
-            securityHandler.postDelayed(securityRunnable, 10000);
-        }
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if (securityHandler != null && securityRunnable != null) {
-            securityHandler.removeCallbacks(securityRunnable);
-        }
-    }
-
-    private void checkAccountActiveStatusSilently() {
-        if (mAuth.getCurrentUser() != null) {
-            mAuth.getCurrentUser().getIdToken(true).addOnCompleteListener(task -> {
-                if (!task.isSuccessful()) {
-                    Exception exception = task.getException();
-                    if (exception instanceof FirebaseAuthInvalidUserException) {
-                        String errorCode = ((FirebaseAuthInvalidUserException) exception).getErrorCode();
-                        if (errorCode != null && errorCode.equals("ERROR_USER_DISABLED")) {
-                            Toast.makeText(MainActivity.this, "تم تعطيل هذا الحساب من الإدارة!", Toast.LENGTH_LONG).show();
-                            mAuth.signOut();
-                            navigateToLogin();
-                        }
-                    }
-                }
-            });
-        }
-    }
-
+    /**
+     * مين مسموحله يشوف الرئيسية: الزائر، أو حساب إيميله مفعّل.
+     * (شلنا الفحص اللي كان كل 10 ثواني: كان بيصرف نت وبطارية على الفاضي.)
+     */
     private void checkUserAuthAndLoad() {
         if (mAuth.getCurrentUser() == null) {
             navigateToLogin();
-        } else {
-            currentUserId = mAuth.getCurrentUser().getUid();
-
-            mAuth.getCurrentUser().getIdToken(false).addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    if (mAuth.getCurrentUser() != null && !mAuth.getCurrentUser().isEmailVerified()) {
-                        Toast.makeText(this, "هذا البريد غير مفعل! يرجى تفعيل الحساب.", Toast.LENGTH_LONG).show();
-                        mAuth.signOut();
-                        navigateToLogin();
-                        return;
-                    }
-                }
-                loadCustomers();
-            });
+            return;
         }
+        if (!mAuth.getCurrentUser().isAnonymous() && !mAuth.getCurrentUser().isEmailVerified()) {
+            Intent intent = new Intent(MainActivity.this, VerifyEmailActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+            return;
+        }
+        currentUserId = mAuth.getCurrentUser().getUid();
+        loadCustomers();
     }
 
     private void navigateToLogin() {

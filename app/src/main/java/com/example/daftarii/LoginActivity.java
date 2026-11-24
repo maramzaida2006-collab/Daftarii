@@ -1,122 +1,114 @@
 package com.example.daftarii;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.CheckBox;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.example.daftarii.auth.LoginViewModel;
+import com.example.daftarii.logic.StartRouter;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+import com.google.android.material.textfield.TextInputLayout;
 
+/** شاشة تسجيل الدخول. كل المنطق بـ LoginViewModel، وهون عرض بس. */
 public class LoginActivity extends AppCompatActivity {
 
-    private TextInputEditText etEmail, etPassword;
-    private MaterialButton btnLogin, btnGoToRegister, btnForgotPassword;
-    private CheckBox cbRememberMe;
-    private FirebaseAuth mAuth;
-    private SharedPreferences sharedPreferences;
+    private LoginViewModel viewModel;
 
-    private static final String PREF_NAME = "SupermarketPrefs";
-    private static final String KEY_REMEMBER = "remember_me";
+    private TextInputLayout tilEmail, tilPassword;
+    private TextInputEditText etEmail, etPassword;
+    private MaterialCheckBox cbRememberMe;
+    private MaterialButton btnLogin, btnGuest;
+    private LinearProgressIndicator progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mAuth = FirebaseAuth.getInstance();
-        sharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 
-
-        boolean isRemembered = sharedPreferences.getBoolean(KEY_REMEMBER, false);
-        if (mAuth.getCurrentUser() != null) {
-            if (isRemembered) {
-
-                startActivity(new Intent(LoginActivity.this, LockActivity.class));
-                finish();
-            } else {
-
-                mAuth.signOut();
-            }
-        }
-
+        tilEmail = findViewById(R.id.tilLoginEmail);
+        tilPassword = findViewById(R.id.tilLoginPassword);
         etEmail = findViewById(R.id.etLoginEmail);
         etPassword = findViewById(R.id.etLoginPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnGoToRegister = findViewById(R.id.btnGoToRegister);
-        btnForgotPassword = findViewById(R.id.btnForgotPassword);
         cbRememberMe = findViewById(R.id.cbRememberMe);
+        btnLogin = findViewById(R.id.btnLogin);
+        btnGuest = findViewById(R.id.btnGuest);
+        progress = findViewById(R.id.progressLogin);
 
-        cbRememberMe.setChecked(isRemembered);
+        cbRememberMe.setChecked(viewModel.isRememberMe());
 
-        btnLogin.setOnClickListener(v -> {
-            String email = etEmail.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
+        btnLogin.setOnClickListener(v -> viewModel.login(
+                text(etEmail), rawText(etPassword), cbRememberMe.isChecked()));
+        btnGuest.setOnClickListener(v -> viewModel.loginAsGuest());
+        findViewById(R.id.btnForgotPassword).setOnClickListener(v ->
+                startActivity(new Intent(this, ForgotPasswordActivity.class)));
+        findViewById(R.id.btnGoToRegister).setOnClickListener(v ->
+                startActivity(new Intent(this, RegisterActivity.class)));
 
-            if (email.isEmpty()) {
-                etEmail.setError("الرجاء إدخال البريد الإلكتروني");
-                etEmail.requestFocus();
-                return;
-            }
+        observe();
 
-            if (password.isEmpty()) {
-                etPassword.setError("الرجاء إدخال كلمة المرور");
-                etPassword.requestFocus();
-                return;
-            }
+        if (savedInstanceState == null) {
+            viewModel.checkExistingSession();
+        }
+    }
 
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            if (mAuth.getCurrentUser() != null && mAuth.getCurrentUser().isEmailVerified()) {
-
-                                SharedPreferences.Editor editor = sharedPreferences.edit();
-                                editor.putBoolean(KEY_REMEMBER, cbRememberMe.isChecked());
-                                editor.apply();
-
-                                Toast.makeText(this, "تم تسجيل الدخول بنجاح", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                                finish();
-                            } else {
-                                Toast.makeText(this, "الرجاء تفعيل البريد الإلكتروني أولاً من الرابط المرسل إليك", Toast.LENGTH_LONG).show();
-                                mAuth.signOut();
-                            }
-                        } else {
-                            String errorMessage = "فشل تسجيل الدخول";
-                            try {
-                                throw task.getException();
-                            } catch (FirebaseAuthInvalidUserException e) {
-                                String errorCode = e.getErrorCode();
-                                if (errorCode != null && errorCode.equals("ERROR_USER_DISABLED")) {
-                                    errorMessage = "تم تعطيل حسابك من قبل الإدارة!";
-                                } else {
-                                    errorMessage = "الحساب غير موجود أو تم تعطيله!";
-                                }
-                            } catch (FirebaseAuthInvalidCredentialsException e) {
-                                errorMessage = "كلمة المرور غير صحيحة أو البريد غير صحيح!";
-                            } catch (Exception e) {
-                                errorMessage = "فشل الدخول: " + e.getMessage();
-                            }
-
-                            Toast.makeText(LoginActivity.this, errorMessage, Toast.LENGTH_LONG).show();
-                        }
-                    });
+    private void observe() {
+        viewModel.getLoading().observe(this, loading -> {
+            boolean on = Boolean.TRUE.equals(loading);
+            progress.setVisibility(on ? View.VISIBLE : View.GONE);
+            btnLogin.setEnabled(!on);
+            btnGuest.setEnabled(!on);
         });
-
-        btnForgotPassword.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, ForgotPasswordActivity.class);
-            startActivity(intent);
+        viewModel.getEmailError().observe(this, res ->
+                tilEmail.setError(res == null ? null : getString(res)));
+        viewModel.getPasswordError().observe(this, res ->
+                tilPassword.setError(res == null ? null : getString(res)));
+        viewModel.getMessage().observe(this, event -> {
+            Integer res = event.getIfNotHandled();
+            if (res != null) Toast.makeText(this, res, Toast.LENGTH_LONG).show();
         });
-
-        btnGoToRegister.setOnClickListener(v -> {
-            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+        viewModel.getNavigation().observe(this, event -> {
+            StartRouter.Destination d = event.getIfNotHandled();
+            if (d != null) navigate(d);
         });
+    }
+
+    private void navigate(StartRouter.Destination destination) {
+        Class<?> target;
+        switch (destination) {
+            case VERIFY_EMAIL:
+                target = VerifyEmailActivity.class;
+                break;
+            case HOME_GUEST:
+                // الزائر ما إله PIN ولا بصمة: على الرئيسية مباشرة
+                target = MainActivity.class;
+                break;
+            case LOCK:
+            default:
+                target = LockActivity.class;
+                break;
+        }
+        Intent intent = new Intent(this, target);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    /** نص الحقل بدون مسافات بالأطراف (للإيميل). */
+    private static String text(TextInputEditText et) {
+        return et.getText() == null ? "" : et.getText().toString().trim();
+    }
+
+    /** نص الحقل متل ما هو، بدون trim (لكلمة السر). */
+    private static String rawText(TextInputEditText et) {
+        return et.getText() == null ? "" : et.getText().toString();
     }
 }

@@ -19,6 +19,9 @@
             android:name=".ArchiveActivity"
             android:exported="false" />
         <activity
+            android:name=".VerifyEmailActivity"
+            android:exported="false" />
+        <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
         <activity

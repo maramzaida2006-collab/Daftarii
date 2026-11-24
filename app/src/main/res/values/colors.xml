@@ -14,10 +14,14 @@
     <color name="background">#F6F4F1</color>          <!-- ivory -->
     <color name="surface">#FFFFFF</color>
     <color name="surface_variant">#EDEAE5</color>
-    <color name="text_primary">#2D2640</color>
-    <color name="text_secondary">#6E6880</color>
-    <color name="outline">#DAD5CE</color>
+    <color name="text_primary">#1F1B2E</color>
+    <color name="text_secondary">#6B6678</color>
+    <color name="outline">#ECE8E3</color>
     <color name="on_plum">#FFFFFF</color>
+    <color name="on_plum_secondary">#CFC8E8</color>   <!-- النص الفرعي على البطاقات الـ plum -->
+    <color name="lavender_soft">#EFECFD</color>       <!-- بطاقات المعلومات -->
+    <color name="lavender_soft_2">#E2DDFB</color>
+    <color name="peach">#F6C9B4</color>               <!-- دوائر الزينة بالهيدر -->
 
     <!-- الديون: خوخي -->
     <color name="debt_bg">#FCE9E1</color>
