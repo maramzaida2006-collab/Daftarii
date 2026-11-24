@@ -1,14 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- العربي هو اللغة الأساسية. الإنجليزي بـ values-en/strings.xml: أي نص جديد بتضيفوه هون، ضيفوا ترجمته هناك. -->
     <string name="app_name">دفتري</string>
-    <string name="customer_details_title" translatable="false">Customer Account Details</string>
-    <string name="total_debt_label" translatable="false">Current Total Debt</string>
-    <string name="hint_amount" translatable="false">Amount</string>
-    <string name="hint_item_name" translatable="false">Item or note...</string>
-    <string name="btn_add_debt" translatable="false">Add New Transaction</string>
-    <string name="history_label" translatable="false">Transactions History</string>
+    <string name="customer_details_title">تفاصيل حساب الزبون</string>
+    <string name="total_debt_label">إجمالي المديونية الحالية</string>
+    <string name="hint_amount">المبلغ</string>
+    <string name="hint_item_name">الصنف أو الملاحظة...</string>
+    <string name="btn_add_debt">إضافة الحركة الجديدة</string>
+    <string name="history_label">سجل الحركات والديون</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+
+    <!-- ===== اللغة ===== -->
+    <!-- اسم اللغة التانية، بيظهر على زر تغيير اللغة -->
+    <string name="lang_switch_label">English</string>
+    <string name="lang_switch_description">تغيير اللغة إلى الإنجليزية</string>
 
     <!-- ===== الدخول والحساب (سندس) ===== -->
     <string name="auth_login_title">أهلاً فيك من جديد</string>

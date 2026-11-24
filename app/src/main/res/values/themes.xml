@@ -20,6 +20,26 @@
         <item name="colorOutline">@color/outline</item>
         <item name="colorError">@color/error</item>
 
+        <!-- الخطوط: Readex Pro للنصوص، Alexandria للعناوين -->
+        <item name="android:fontFamily">@font/readex_pro</item>
+        <item name="fontFamily">@font/readex_pro</item>
+        <item name="android:textViewStyle">@style/Daftari.TextView</item>
+        <item name="textAppearanceDisplayLarge">@style/Daftari.TA.Display.Large</item>
+        <item name="textAppearanceDisplayMedium">@style/Daftari.TA.Display.Medium</item>
+        <item name="textAppearanceDisplaySmall">@style/Daftari.TA.Display.Small</item>
+        <item name="textAppearanceHeadlineLarge">@style/Daftari.TA.Headline.Large</item>
+        <item name="textAppearanceHeadlineMedium">@style/Daftari.TA.Headline.Medium</item>
+        <item name="textAppearanceHeadlineSmall">@style/Daftari.TA.Headline.Small</item>
+        <item name="textAppearanceTitleLarge">@style/Daftari.TA.Title.Large</item>
+        <item name="textAppearanceTitleMedium">@style/Daftari.TA.Title.Medium</item>
+        <item name="textAppearanceTitleSmall">@style/Daftari.TA.Title.Small</item>
+        <item name="textAppearanceBodyLarge">@style/Daftari.TA.Body.Large</item>
+        <item name="textAppearanceBodyMedium">@style/Daftari.TA.Body.Medium</item>
+        <item name="textAppearanceBodySmall">@style/Daftari.TA.Body.Small</item>
+        <item name="textAppearanceLabelLarge">@style/Daftari.TA.Label.Large</item>
+        <item name="textAppearanceLabelMedium">@style/Daftari.TA.Label.Medium</item>
+        <item name="textAppearanceLabelSmall">@style/Daftari.TA.Label.Small</item>
+
         <item name="android:statusBarColor">@color/background</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">@bool/light_system_bars</item>
     </style>

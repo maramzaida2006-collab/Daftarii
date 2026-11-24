@@ -21,6 +21,7 @@
     <color name="on_plum_secondary">#CFC8E8</color>   <!-- النص الفرعي على البطاقات الـ plum -->
     <color name="lavender_soft">#EFECFD</color>       <!-- بطاقات المعلومات -->
     <color name="lavender_soft_2">#E2DDFB</color>
+    <color name="lavender_chip">#33C8BFFF</color>   <!-- زر صغير شفاف على الهيدر الـ plum -->
     <color name="peach">#F6C9B4</color>               <!-- دوائر الزينة بالهيدر -->
 
     <!-- الديون: خوخي -->

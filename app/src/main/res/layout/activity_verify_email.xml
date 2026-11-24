@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:background="@color/background"
     android:fillViewport="true"
-    android:layoutDirection="rtl"
     android:scrollbars="none">
 
     <LinearLayout
@@ -81,7 +80,7 @@
             android:textColor="@color/text_primary"
             android:textDirection="ltr"
             android:textSize="15sp"
-            android:textStyle="bold" />
+            android:fontFamily="@font/readex_pro_semibold" />
 
         <TextView
             style="@style/Daftari.Text.Subtitle"

@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.daftarii.auth.LoginViewModel;
 import com.example.daftarii.logic.StartRouter;
+import com.example.daftarii.util.LanguageManager;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
@@ -52,6 +53,8 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(new Intent(this, ForgotPasswordActivity.class)));
         findViewById(R.id.btnGoToRegister).setOnClickListener(v ->
                 startActivity(new Intent(this, RegisterActivity.class)));
+        // تغيير اللغة: أندرويد بيعيد فتح الشاشة باللغة الجديدة لحاله
+        findViewById(R.id.btnLanguage).setOnClickListener(v -> LanguageManager.toggle());
 
         observe();
 
