@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- الوضع الليلي: نفس الأسماء، بقيم غامقة. مروة بتقدر تعدّلها لما تطابقها مع شاشات التصميم الليلية. -->
+<resources>
+    <color name="plum">#3A3252</color>
+    <color name="lavender">#C8BFFF</color>
+    <color name="violet">#B3A8FF</color>
+
+    <color name="background">#17141F</color>
+    <color name="surface">#221E2E</color>
+    <color name="surface_variant">#2C2739</color>
+    <color name="text_primary">#F1EEF7</color>
+    <color name="text_secondary">#A9A3B8</color>
+    <color name="outline">#3D3750</color>
+    <color name="on_plum">#FFFFFF</color>
+
+    <color name="debt_bg">#3E2420</color>
+    <color name="debt_fg">#F2A598</color>
+    <color name="payment_bg">#1C3329</color>
+    <color name="payment_fg">#8FD3B3</color>
+    <color name="due_bg">#3A2C14</color>
+    <color name="due_fg">#F0C27A</color>
+
+    <color name="error">#F2B8B5</color>
+</resources>

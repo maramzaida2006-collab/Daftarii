@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ألوان "دفتري" من التصميم. الأسماء نفسها موجودة بـ values-night/colors.xml بقيم ليلية،
+     فاستخدموا دايماً @color/... أو ?attr/... وما تكتبوا ألوان مباشرة بالـ layouts. -->
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- الهوية -->
+    <color name="plum">#2D2640</color>                 <!-- البطاقات الرئيسية والشريط السفلي -->
+    <color name="lavender">#C8BFFF</color>
+    <color name="violet">#5B4FC4</color>               <!-- اللون الأساسي: الأزرار والروابط -->
+
+    <!-- الخلفيات والنصوص -->
+    <color name="background">#F6F4F1</color>          <!-- ivory -->
+    <color name="surface">#FFFFFF</color>
+    <color name="surface_variant">#EDEAE5</color>
+    <color name="text_primary">#2D2640</color>
+    <color name="text_secondary">#6E6880</color>
+    <color name="outline">#DAD5CE</color>
+    <color name="on_plum">#FFFFFF</color>
+
+    <!-- الديون: خوخي -->
+    <color name="debt_bg">#FCE9E1</color>
+    <color name="debt_fg">#B5473A</color>
+    <!-- الدفعات: نعناعي -->
+    <color name="payment_bg">#E3F3EC</color>
+    <color name="payment_fg">#2F7A5B</color>
+    <!-- المواعيد: كهرماني -->
+    <color name="due_bg">#FDF1DC</color>
+    <color name="due_fg">#93560A</color>
+
+    <color name="error">#B3261E</color>
 </resources>

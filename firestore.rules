@@ -1,0 +1,53 @@
+rules_version = '2';
+
+// قواعد "دفتري".
+// كل مستخدم بيوصل لبياناته بس: users/{uid}/...
+// الزائر (Anonymous) إله uid زي أي حساب، فالقاعدة نفسها بتشتغل معه،
+// ولما يتحوّل لحساب بـ linkWithCredential الـ uid بيضل نفسه وبياناته ما بتضيع.
+//
+// للنشر: Firebase Console ← Firestore ← Rules، الصقوا الملف واعملوا Publish.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    function validCustomer() {
+      let d = request.resource.data;
+      return d.name is string && d.name.size() > 0 && d.name.size() <= 50
+          && d.balance is int
+          && (!('phone' in d) || d.phone == null || d.phone is string)
+          && (!('dueDate' in d) || d.dueDate == null || d.dueDate is int || d.dueDate is timestamp)
+          && (!('archived' in d) || d.archived is bool);
+    }
+
+    function validTransaction() {
+      let d = request.resource.data;
+      return d.customerId is string
+          && d.type in ['DEBT', 'PAYMENT']
+          && d.amount is int && d.amount > 0
+          && (!('note' in d) || d.note == null || (d.note is string && d.note.size() <= 200))
+          && (!('archived' in d) || d.archived is bool);
+    }
+
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /customers/{customerId} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validCustomer();
+      }
+
+      match /transactions/{txId} {
+        allow read, delete: if isOwner(uid);
+        allow create: if isOwner(uid) && validTransaction();
+        // النوع والزبون ما بيتغيّروا بالتعديل
+        allow update: if isOwner(uid) && validTransaction()
+                      && request.resource.data.type == resource.data.type
+                      && request.resource.data.customerId == resource.data.customerId;
+      }
+    }
+  }
+}
