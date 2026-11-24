@@ -73,4 +73,56 @@
     <string name="auth_error_network">No internet connection. Check it and try again</string>
     <string name="auth_error_not_allowed">This sign-in method isn\'t enabled in Firebase</string>
     <string name="auth_error_unknown">Something went wrong, try again</string>
+
+    <!-- Splash and onboarding -->
+    <string name="splash_tagline">Your shop\'s debt book, organized and secure</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_start">Get started</string>
+    <string name="onboarding1_title">All your shop\'s debts\nin one place</string>
+    <string name="onboarding1_body">Record a debt or a payment in seconds, and the balance updates by itself. No paper book, no calculator.</string>
+    <string name="onboarding2_title">Due-date reminders,\nstatements in one tap</string>
+    <string name="onboarding2_body">Get a notification when a due date is near, and send the customer a neat PDF statement on WhatsApp.</string>
+    <!-- Illustration samples (not real data) -->
+    <string name="onboarding_demo_total_label">Total due</string>
+    <string name="onboarding_demo_total">₪ 12,480</string>
+    <string name="onboarding_demo_c1_initials">AK</string>
+    <string name="onboarding_demo_c1_name">Ahmad Khalil</string>
+    <string name="onboarding_demo_c1_amount">₪ 640</string>
+    <string name="onboarding_demo_c2_initials">HO</string>
+    <string name="onboarding_demo_c2_name">Heba Odeh</string>
+    <string name="onboarding_demo_c2_amount">₪ 95</string>
+    <string name="status_overdue">Overdue</string>
+    <string name="status_regular">On track</string>
+    <string name="onboarding_demo_due_title">Payment due tomorrow</string>
+    <string name="onboarding_demo_due_body">Samer Yaseen · ₪ 320</string>
+    <string name="onboarding_demo_statement">Statement</string>
+    <string name="onboarding_demo_pdf">PDF</string>
+    <string name="onboarding_demo_due_label">Due</string>
+    <string name="onboarding_demo_shared">Shared on WhatsApp</string>
+
+    <!-- Create PIN and lock screen -->
+    <string name="pin_step">Step %1$d of 2</string>
+    <string name="pin_create_title">Create your PIN</string>
+    <string name="pin_create_subtitle">4 digits to open the app quickly</string>
+    <string name="pin_confirm_title">Confirm your PIN</string>
+    <string name="pin_confirm_subtitle">Enter the same 4 digits again</string>
+    <string name="pin_mismatch">The PINs don\'t match. Start again</string>
+    <string name="pin_biometric_title">Unlock with fingerprint</string>
+    <string name="pin_biometric_subtitle">You can change this later in My account</string>
+    <string name="pin_delete">Delete</string>
+    <string name="pin_entered">%1$d of 4 digits entered</string>
+    <string name="lock_welcome">Welcome back</string>
+    <string name="lock_biometric_hint">Touch to unlock with fingerprint</string>
+    <string name="lock_biometric_button">Unlock with fingerprint</string>
+    <string name="lock_other_account">Use another account</string>
+    <string name="lock_wrong_pin">Wrong PIN. %1$d attempts left</string>
+    <string name="lock_wrong_pin_last">Wrong PIN. 1 attempt left</string>
+    <string name="lock_locked_out">Too many attempts. Try again in %1$d seconds</string>
+    <string name="lock_other_account_title">Use another account</string>
+    <string name="lock_other_account_message">You\'ll be signed out and the PIN will be removed from this phone. Your data stays saved and will be there when you log in again.</string>
+    <string name="lock_other_account_confirm">Sign out</string>
+    <string name="biometric_prompt_title">Open Daftari</string>
+    <string name="biometric_prompt_subtitle">Use your fingerprint to open the app</string>
+    <string name="biometric_prompt_use_pin">Use PIN</string>
 </resources>

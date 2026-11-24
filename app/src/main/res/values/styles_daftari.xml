@@ -148,4 +148,58 @@
         <item name="android:textColor">@color/text_primary</item>
         <item name="android:textSize">28sp</item>
     </style>
+
+    <!-- ===== لوحة أرقام الـ PIN ===== -->
+    <!-- زر رقم: 64dp، زوايا 22. الفاتح (إنشاء PIN) -->
+    <style name="Daftari.PinKey" parent="Widget.Material3.Button">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">11dp</item>
+        <item name="android:layout_marginEnd">11dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:padding">0dp</item>
+        <item name="cornerRadius">22dp</item>
+        <item name="backgroundTint">@color/surface</item>
+        <item name="android:textColor">@color/text_primary</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:fontFamily">@font/alexandria_medium</item>
+        <item name="android:elevation">1dp</item>
+    </style>
+
+    <!-- زر رقم على خلفية plum (شاشة القفل) -->
+    <style name="Daftari.PinKey.Dark">
+        <item name="backgroundTint">@color/lock_key_bg</item>
+        <item name="android:textColor">@color/on_plum</item>
+        <item name="android:elevation">0dp</item>
+    </style>
+
+    <!-- زر الحذف: بدون خلفية -->
+    <style name="Daftari.PinKey.Delete" parent="Widget.Material3.Button.IconButton">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">64dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">11dp</item>
+        <item name="android:layout_marginEnd">11dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="icon">@drawable/ic_backspace</item>
+        <item name="iconSize">24dp</item>
+        <item name="iconTint">@color/text_primary</item>
+        <item name="android:contentDescription">@string/pin_delete</item>
+    </style>
+
+    <style name="Daftari.PinKey.Delete.Dark">
+        <item name="iconTint">@color/on_plum</item>
+    </style>
+
+    <!-- نقطة من نقاط الـ PIN (16dp). لونها بيتغيّر من الكود. -->
+    <style name="Daftari.PinDot" parent="">
+        <item name="android:layout_width">16dp</item>
+        <item name="android:layout_height">16dp</item>
+        <item name="android:layout_marginStart">8dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:background">@drawable/shape_circle</item>
+    </style>
 </resources>

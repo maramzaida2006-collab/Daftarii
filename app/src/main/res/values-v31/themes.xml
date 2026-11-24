@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- أندرويد 12 وأحدث بيعرض شاشة بداية من النظام قبل شاشتنا.
+         بنلوّنها plum عشان تبيّن متل شاشتنا وما يصير "وميض" أبيض. -->
+    <style name="Theme.Daftari.Splash" parent="Base.Theme.Daftari.Splash">
+        <item name="android:windowSplashScreenBackground">@color/plum</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@color/lavender</item>
+    </style>
+</resources>

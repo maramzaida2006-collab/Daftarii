@@ -1,103 +1,163 @@
 package com.example.daftarii;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.widget.Toast;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
+import com.example.daftarii.auth.BiometricHelper;
+import com.example.daftarii.auth.LockViewModel;
+import com.example.daftarii.util.PinPad;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import java.util.concurrent.Executor;
-
+/**
+ * شاشة القفل: بتفتح كل مرة الحساب المفعّل بيفتح التطبيق.
+ * PIN من 4 أرقام أو البصمة. إذا ما في PIN لسا، بتحوّل على إنشاء PIN.
+ * كل المنطق بـ LockViewModel.
+ */
 public class LockActivity extends AppCompatActivity {
 
-    private TextInputEditText etPinCode;
-    private MaterialButton btnLogin, btnBiometric;
-    private SharedPreferences sharedPreferences;
-    private static final String PREF_NAME = "AppLockPrefs";
-    private static final String KEY_PIN = "user_pin";
+    private LockViewModel viewModel;
+    private ViewGroup dots;
+    private TextView tvMessage;
+    private View keypad;
+    private int dotOn, dotOff;
+    private boolean biometricEnabled;
+    private BiometricPrompt biometricPrompt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_lock);
 
-        etPinCode = findViewById(R.id.etPinCode);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnBiometric = findViewById(R.id.btnBiometric);
+        viewModel = new ViewModelProvider(this).get(LockViewModel.class);
 
-        sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
-        String savedPin = sharedPreferences.getString(KEY_PIN, null);
+        dots = findViewById(R.id.pinDots);
+        tvMessage = findViewById(R.id.tvLockMessage);
+        keypad = findViewById(R.id.pinKeypad);
+        dotOn = ContextCompat.getColor(this, R.color.lavender);
+        dotOff = ContextCompat.getColor(this, R.color.lock_dot_off);
 
-        if (savedPin == null) {
-            btnLogin.setText("إنشاء كلمة السر والحفظ");
-            etPinCode.setHint("أنشئ كلمة سر جديدة (4-6 أرقام)");
-        } else {
-            showBiometricPrompt();
-        }
+        // اسم المحل وأول حرف منه
+        String name = viewModel.shopName();
+        if (name == null) name = getString(R.string.app_name);
+        ((TextView) findViewById(R.id.tvLockShopName)).setText(name);
+        ((TextView) findViewById(R.id.tvLockAvatar)).setText(firstLetter(name));
 
-        btnLogin.setOnClickListener(v -> {
-            String inputPin = etPinCode.getText().toString().trim();
-            if (inputPin.isEmpty()) {
-                Toast.makeText(this, "الرجاء إدخال كلمة السر", Toast.LENGTH_SHORT).show();
-                return;
+        PinPad.bind(keypad, new PinPad.Listener() {
+            @Override
+            public void onDigit(char digit) {
+                viewModel.onDigit(digit);
             }
 
-            if (savedPin == null) {
-                sharedPreferences.edit().putString(KEY_PIN, inputPin).apply();
-                Toast.makeText(this, "تم حفظ كلمة السر بنجاح", Toast.LENGTH_SHORT).show();
-                openMainActivity();
-            } else {
-                if (inputPin.equals(savedPin)) {
-                    openMainActivity();
-                } else {
-                    Toast.makeText(this, "كلمة السر غير صحيحة", Toast.LENGTH_SHORT).show();
-                }
+            @Override
+            public void onDelete() {
+                viewModel.onDelete();
             }
         });
 
-        btnBiometric.setOnClickListener(v -> showBiometricPrompt());
+        biometricEnabled = viewModel.isBiometricEnabled();
+        // مكتبة البصمة بتنصح نعمل الـ prompt مرة وحدة بـ onCreate
+        biometricPrompt = new BiometricPrompt(this, ContextCompat.getMainExecutor(this),
+                new BiometricPrompt.AuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                        viewModel.onBiometricSuccess();
+                    }
+                    // الغلط والإلغاء: النظام بيعرض الرسالة بنافذته، والمستخدم بيقدر يكتب الـ PIN
+                });
+        findViewById(R.id.groupBiometric).setVisibility(biometricEnabled ? View.VISIBLE : View.GONE);
+        findViewById(R.id.btnLockBiometric).setOnClickListener(v -> showBiometricPrompt());
+        findViewById(R.id.btnLockOtherAccount).setOnClickListener(v -> confirmOtherAccount());
+
+        observe();
+        viewModel.start();
+
+        // أول ما تفتح الشاشة: إذا البصمة مفعّلة، بنطلبها مباشرة
+        if (savedInstanceState == null && biometricEnabled) {
+            keypad.post(this::showBiometricPrompt);
+        }
+    }
+
+    private void observe() {
+        viewModel.getFilled().observe(this, n -> {
+            int count = n == null ? 0 : n;
+            PinPad.showDots(dots, count, dotOn, dotOff);
+            dots.setContentDescription(getString(R.string.pin_entered, count));
+        });
+        viewModel.getMessage().observe(this, m -> {
+            if (m == null) {
+                tvMessage.setText(null);
+            } else if (m.wrongPin) {
+                tvMessage.setText(m.value == 1
+                        ? getString(R.string.lock_wrong_pin_last)
+                        : getString(R.string.lock_wrong_pin, m.value));
+            } else {
+                tvMessage.setText(getString(R.string.lock_locked_out, m.value));
+            }
+        });
+        viewModel.getLocked().observe(this, locked ->
+                PinPad.setEnabled(keypad, !Boolean.TRUE.equals(locked)));
+        viewModel.getShake().observe(this, event -> {
+            if (event.getIfNotHandled() != null) PinPad.shake(dots);
+        });
+        viewModel.getNavigation().observe(this, event -> {
+            LockViewModel.Nav nav = event.getIfNotHandled();
+            if (nav == null) return;
+            switch (nav) {
+                case UNLOCKED:
+                    goTo(MainActivity.class);
+                    break;
+                case CREATE_PIN:
+                    goTo(CreatePinActivity.class);
+                    break;
+                case LOGIN:
+                default:
+                    goTo(LoginActivity.class);
+                    break;
+            }
+        });
     }
 
     private void showBiometricPrompt() {
-        Executor executor = ContextCompat.getMainExecutor(this);
-        BiometricPrompt biometricPrompt = new BiometricPrompt(LockActivity.this,
-                executor, new BiometricPrompt.AuthenticationCallback() {
-            @Override
-            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
-                super.onAuthenticationSucceeded(result);
-                openMainActivity();
-            }
-
-            @Override
-            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
-                super.onAuthenticationError(errorCode, errString);
-            }
-
-            @Override
-            public void onAuthenticationFailed() {
-                super.onAuthenticationFailed();
-                Toast.makeText(getApplicationContext(), "لم يتم التعرف على البصمة", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        BiometricPrompt.PromptInfo promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .setTitle("تسجيل الدخول بالبصمة")
-                .setSubtitle("ضع إصبعك على المستشعر لفتح دفتر الديون")
-                .setNegativeButtonText("إدخال كلمة السر")
+        if (isFinishing() || !biometricEnabled) return;
+        BiometricPrompt.PromptInfo info = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle(getString(R.string.biometric_prompt_title))
+                .setSubtitle(getString(R.string.biometric_prompt_subtitle))
+                .setNegativeButtonText(getString(R.string.biometric_prompt_use_pin))
+                .setAllowedAuthenticators(BiometricHelper.AUTHENTICATORS)
                 .build();
-
-        biometricPrompt.authenticate(promptInfo);
+        biometricPrompt.authenticate(info);
     }
 
-    private void openMainActivity() {
-        Intent intent = new Intent(LockActivity.this, MainActivity.class);
+    private void confirmOtherAccount() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.lock_other_account_title)
+                .setMessage(R.string.lock_other_account_message)
+                .setPositiveButton(R.string.lock_other_account_confirm,
+                        (d, w) -> viewModel.useAnotherAccount())
+                .setNegativeButton(R.string.action_cancel, null)
+                .show();
+    }
+
+    /** أول حرف من الاسم، حتى لو كان حرف من أكتر من char (متل بعض الإيموجي). */
+    private static String firstLetter(String name) {
+        String trimmed = name.trim();
+        if (trimmed.isEmpty()) return "";
+        int end = trimmed.offsetByCodePoints(0, 1);
+        return trimmed.substring(0, end).toUpperCase();
+    }
+
+    private void goTo(Class<?> target) {
+        Intent intent = new Intent(this, target);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
         finish();
     }
