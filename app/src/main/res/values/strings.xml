@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Supermarket Debt Book</string>
+    <string name="customer_details_title" translatable="false">Customer Account Details</string>
+    <string name="total_debt_label" translatable="false">Current Total Debt</string>
+    <string name="hint_amount" translatable="false">Amount</string>
+    <string name="hint_item_name" translatable="false">Item or note...</string>
+    <string name="btn_add_debt" translatable="false">Add New Transaction</string>
+    <string name="history_label" translatable="false">Transactions History</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+</resources>
