@@ -1,0 +1,764 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/reportsRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:layoutDirection="rtl">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollReportsContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:paddingBottom="112dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="14dp">
+
+            <!-- 1. الهيدر العلوي: التقارير + أيقونة الجرس -->
+            <LinearLayout
+                android:id="@+id/topBarReports"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvReportsTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/alexandria_semibold"
+                    android:text="@string/nav_reports"
+                    android:textColor="@color/text_primary"
+                    android:textSize="20sp" />
+
+                <FrameLayout
+                    android:id="@+id/btnReportsNotifications"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/shape_circle"
+                    android:backgroundTint="@color/surface"
+                    android:clickable="true"
+                    android:contentDescription="@string/home_notifications_cd"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@android:drawable/ic_popup_reminder"
+                        app:tint="@color/text_primary" />
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- 2. شريط الفترات: هذا الشهر / 3 أشهر / هذه السنة -->
+            <LinearLayout
+                android:id="@+id/reportPeriodTabs"
+                android:layout_width="match_parent"
+                android:layout_height="42dp"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/shape_r18"
+                android:backgroundTint="@color/surface"
+                android:orientation="horizontal"
+                android:padding="4dp">
+
+                <TextView
+                    android:id="@+id/tabThisMonth"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_r16"
+                    android:backgroundTint="@color/background"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="@font/readex_pro_semibold"
+                    android:gravity="center"
+                    android:text="@string/period_this_month"
+                    android:textColor="@color/text_primary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tabThreeMonths"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="@font/readex_pro_medium"
+                    android:gravity="center"
+                    android:text="@string/period_three_months"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tabThisYear"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="@font/readex_pro_medium"
+                    android:gravity="center"
+                    android:text="@string/period_this_year"
+                    android:textColor="@color/text_secondary"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <!-- 3. بطاقة نسبة التحصيل (Plum Card) -->
+            <LinearLayout
+                android:id="@+id/cardCollectionRate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:background="@drawable/shape_r26"
+                android:backgroundTint="@color/plum"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <!-- النص والوصف على اليمين -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="14dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvCollectionRateLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/collection_rate_label"
+                        android:textColor="@color/on_plum_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvCollectionSummary"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:fontFamily="@font/alexandria_semibold"
+                        android:lineSpacingExtra="2dp"
+                        android:text="@string/sample_collection_summary"
+                        android:textColor="@color/on_plum"
+                        android:textSize="13sp" />
+                </LinearLayout>
+
+                <!-- حلقة النسبة 79% على الشمال -->
+                <FrameLayout
+                    android:id="@+id/ringCollectionRate"
+                    android:layout_width="76dp"
+                    android:layout_height="76dp"
+                    android:background="@drawable/shape_circle"
+                    android:backgroundTint="@color/lavender">
+
+                    <FrameLayout
+                        android:layout_width="54dp"
+                        android:layout_height="54dp"
+                        android:layout_gravity="center"
+                        android:background="@drawable/shape_circle"
+                        android:backgroundTint="@color/plum">
+
+                        <TextView
+                            android:id="@+id/tvCollectionPercent"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:fontFamily="@font/alexandria_semibold"
+                            android:text="@string/sample_collection_percent"
+                            android:textColor="@color/on_plum"
+                            android:textSize="14sp" />
+                    </FrameLayout>
+                </FrameLayout>
+            </LinearLayout>
+
+            <!-- 4. شبكة البطاقات الأربع: ديون جديدة، المحصل، زبائن متأخرون، زبائن جدد -->
+            <LinearLayout
+                android:id="@+id/statsGridRow1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <!-- ديون جديدة -->
+                <LinearLayout
+                    android:id="@+id/cardNewDebtsStat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_r24"
+                    android:backgroundTint="@color/debt_bg"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/readex_pro_semibold"
+                        android:text="@string/stat_new_debts"
+                        android:textColor="@color/debt_fg"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatNewDebtsAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/alexandria_semibold"
+                        android:text="@string/sample_stat_new_debts"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatNewDebtsCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/sample_stat_new_debts_sub"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- المحصل -->
+                <LinearLayout
+                    android:id="@+id/cardCollectedStat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_r24"
+                    android:backgroundTint="@color/payment_bg"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/readex_pro_semibold"
+                        android:text="@string/stat_collected"
+                        android:textColor="@color/payment_fg"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatCollectedAmount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/alexandria_semibold"
+                        android:text="@string/sample_stat_collected"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatCollectedCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/sample_stat_collected_sub"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/statsGridRow2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <!-- زبائن متأخرون -->
+                <LinearLayout
+                    android:id="@+id/cardOverdueCustomersStat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_r24"
+                    android:backgroundTint="@color/due_bg"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/readex_pro_semibold"
+                        android:text="@string/stat_overdue_customers"
+                        android:textColor="@color/due_fg"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatOverdueCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/alexandria_semibold"
+                        android:text="@string/sample_stat_overdue"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatOverdueTotal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/sample_stat_overdue_sub"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- زبائن جدد -->
+                <LinearLayout
+                    android:id="@+id/cardNewCustomersStat"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/shape_r24"
+                    android:backgroundTint="@color/lavender_soft"
+                    android:orientation="vertical"
+                    android:padding="14dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/readex_pro_semibold"
+                        android:text="@string/stat_new_customers"
+                        android:textColor="@color/violet"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatNewCustomersCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/alexandria_semibold"
+                        android:text="@string/sample_stat_new_customers"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/tvStatNewCustomersSub"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/sample_stat_new_customers_sub"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 5. بطاقة الديون والتحصيل والمخطط البياني -->
+            <LinearLayout
+                android:id="@+id/cardDebtsAndCollectionChart"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_r24"
+                android:backgroundTint="@color/surface"
+                android:orientation="vertical"
+                android:padding="14dp">
+
+                <!-- العنوان ومفتاح الألوان -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/tvChartSectionTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:fontFamily="@font/alexandria_semibold"
+                        android:text="@string/chart_debts_collection"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp" />
+
+                    <!-- مؤشر تحصيل -->
+                    <View
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/shape_circle"
+                        android:backgroundTint="@color/violet" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/legend_collection"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+
+                    <!-- مؤشر ديون -->
+                    <View
+                        android:layout_width="7dp"
+                        android:layout_height="7dp"
+                        android:layout_marginEnd="4dp"
+                        android:background="@drawable/shape_circle"
+                        android:backgroundTint="@color/peach" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/legend_debts"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- أعمدة الأشهر الستة (يونيو - نوفمبر) -->
+                <LinearLayout
+                    android:id="@+id/monthlyBarsContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="112dp"
+                    android:baselineAligned="false"
+                    android:gravity="bottom"
+                    android:orientation="horizontal">
+
+                    <!-- يونيو -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="bottom|center_horizontal"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center_horizontal"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="48dp"
+                                android:layout_marginEnd="2dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/violet" />
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="58dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/peach" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/readex_pro_regular"
+                            android:text="@string/month_jun"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+
+                    <!-- يوليو -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="bottom|center_horizontal"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center_horizontal"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="56dp"
+                                android:layout_marginEnd="2dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/violet" />
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="68dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/peach" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/readex_pro_regular"
+                            android:text="@string/month_jul"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+
+                    <!-- أغسطس -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="bottom|center_horizontal"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center_horizontal"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="62dp"
+                                android:layout_marginEnd="2dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/violet" />
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="56dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/peach" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/readex_pro_regular"
+                            android:text="@string/month_aug"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+
+                    <!-- سبتمبر -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="bottom|center_horizontal"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center_horizontal"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="52dp"
+                                android:layout_marginEnd="2dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/violet" />
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="74dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/peach" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/readex_pro_regular"
+                            android:text="@string/month_sep"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+
+                    <!-- أكتوبر -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="bottom|center_horizontal"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center_horizontal"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="64dp"
+                                android:layout_marginEnd="2dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/violet" />
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="70dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/peach" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/readex_pro_regular"
+                            android:text="@string/month_oct"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+
+                    <!-- نوفمبر -->
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="bottom|center_horizontal"
+                        android:orientation="vertical">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="0dp"
+                            android:layout_weight="1"
+                            android:gravity="bottom|center_horizontal"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="68dp"
+                                android:layout_marginEnd="2dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/violet" />
+
+                            <View
+                                android:layout_width="9dp"
+                                android:layout_height="84dp"
+                                android:background="@drawable/shape_r16"
+                                android:backgroundTint="@color/peach" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/readex_pro_regular"
+                            android:text="@string/month_nov"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="9sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- 6. الشريط السفلي العائم (التقارير نشط) -->
+    <LinearLayout
+        android:id="@+id/bottomNavFloatingReports"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="bottom"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/shape_r26"
+        android:backgroundTint="@color/plum"
+        android:baselineAligned="false"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="10dp">
+
+        <!-- الرئيسية -->
+        <FrameLayout
+            android:id="@+id/navReportsTabHome"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/nav_home"
+                android:src="@drawable/ic_book"
+                app:tint="@color/on_plum_secondary" />
+        </FrameLayout>
+
+        <!-- التقارير (نشط) -->
+        <LinearLayout
+            android:id="@+id/navReportsTabActive"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1.55"
+            android:background="@drawable/shape_r26"
+            android:backgroundTint="@color/lavender"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/more"
+                app:tint="@color/plum" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/readex_pro_semibold"
+                android:text="@string/nav_reports"
+                android:textColor="@color/plum"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- حسابي -->
+        <FrameLayout
+            android:id="@+id/navReportsTabProfile"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/nav_profile"
+                android:src="@drawable/ic_user"
+                app:tint="@color/on_plum_secondary" />
+        </FrameLayout>
+    </LinearLayout>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

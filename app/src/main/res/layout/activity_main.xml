@@ -1,196 +1,610 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F8FAFC"
-    android:layoutDirection="rtl"
-    android:textDirection="rtl"
-    tools:context=".MainActivity">
+    android:background="@color/background"
+    android:layoutDirection="rtl">
 
-    <!-- Header Background with Premium Gradient -->
-    <View
-        android:id="@+id/headerBackground"
-        android:layout_width="0dp"
-        android:layout_height="180dp"
-        android:background="@drawable/bg_header_gradient"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollMainContent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="never"
+        android:paddingBottom="104dp">
 
-    <!-- هيدر علوي منظم لضمان ظهور النصوص على اليمين والأيقونة على اليسار -->
-    <LinearLayout
-        android:id="@+id/headerLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginTop="30dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <!-- النصوص والعنوان على اليمين -->
         <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:gravity="start">
-
-            <TextView
-                android:id="@+id/tvAppTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="دفتر ديون السوبرماركت"
-                android:textColor="@android:color/white"
-                android:textSize="22sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvAppSubtitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="إدارة الحسابات والزبونات بكل احترافية"
-                android:textColor="#E2E8F0"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <!-- أيقونة الأرشيف على اليسار -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/btnMenuArchive"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            app:cardCornerRadius="22dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="#00FFFFFF"
-            app:strokeWidth="1dp"
-            app:strokeColor="#C2FFFFFF">
-
-            <ImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:padding="12dp"
-                android:src="@drawable/more"
-                app:tint="@android:color/white"
-                android:contentDescription="قائمة الأرشيف" />
-        </com.google.android.material.card.MaterialCardView>
-
-    </LinearLayout>
-
-    <!-- Modern Floating Search Card -->
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/cardSearch"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="20dp"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="6dp"
-        app:cardBackgroundColor="@android:color/white"
-        app:strokeWidth="0dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/headerLayout">
-
-        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:boxBackgroundMode="none"
-            app:hintEnabled="false"
-            app:startIconDrawable="@android:drawable/ic_menu_search"
-            app:startIconTint="#64748B">
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:paddingTop="18dp">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etSearch"
+            <!-- 1. الهيدر العلوي -->
+            <RelativeLayout
+                android:id="@+id/headerContainer"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:background="@android:color/transparent"
-                android:hint="ابحث عن اسم الزبون..."
-                android:inputType="text"
-                android:paddingStart="16dp"
-                android:paddingEnd="8dp"
-                android:textColor="#0F172A"
-                android:textColorHint="#94A3B8"
-                android:textSize="15sp" />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
-    </com.google.android.material.card.MaterialCardView>
+                <FrameLayout
+                    android:id="@+id/flStoreAvatar"
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/shape_circle"
+                    android:backgroundTint="@color/plum">
 
-    <!-- Customers RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewCustomers"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:clipToPadding="false"
-        android:paddingBottom="90dp"
-        app:layout_constraintBottom_toTopOf="@+id/layoutBottomActions"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cardSearch"
-        tools:listitem="@layout/item_customer" />
+                    <TextView
+                        android:id="@+id/tvStoreInitial"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:fontFamily="@font/alexandria_semibold"
+                        android:text="@string/home_store_initial"
+                        android:textColor="@color/on_plum"
+                        android:textSize="18sp" />
+                </FrameLayout>
 
-    <!-- مجموعة الأزرار السفلية مع مسافة فاصلة واضحة بينهما -->
-    <!-- مجموعة الأزرار السفلية مع مسافة فاصلة واضحة بينهما -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="12dp"
+                    android:layout_toEndOf="@id/flStoreAvatar"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvGreeting"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/home_greeting"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvStoreName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/alexandria_semibold"
+                        android:text="@string/home_store_name"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <FrameLayout
+                    android:id="@+id/btnNotifications"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/shape_circle"
+                    android:backgroundTint="@color/surface"
+                    android:clickable="true"
+                    android:contentDescription="@string/home_notifications_cd"
+                    android:focusable="true">
+
+                    <ImageView
+                        android:id="@+id/ivNotificationBell"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_gravity="center"
+                        android:importantForAccessibility="no"
+                        android:src="@android:drawable/ic_popup_reminder"
+                        app:tint="@color/text_primary" />
+
+                    <View
+                        android:id="@+id/viewUnreadDot"
+                        android:layout_width="8dp"
+                        android:layout_height="8dp"
+                        android:layout_gravity="top|end"
+                        android:layout_marginTop="12dp"
+                        android:layout_marginEnd="13dp"
+                        android:background="@drawable/shape_circle"
+                        android:backgroundTint="@color/debt_fg" />
+                </FrameLayout>
+            </RelativeLayout>
+
+            <!-- 2. بطاقة إجمالي المستحق (Plum Card) -->
+            <LinearLayout
+                android:id="@+id/cardTotalDue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/shape_r26"
+                android:backgroundTint="@color/plum"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/tvTotalDueLabel"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/home_total_due_label"
+                        android:textColor="@color/on_plum_secondary"
+                        android:textSize="13sp" />
+
+                    <TextView
+                        android:id="@+id/tvMonthBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/shape_r18"
+                        android:backgroundTint="@color/lavender_chip"
+                        android:fontFamily="@font/readex_pro_medium"
+                        android:paddingHorizontal="12dp"
+                        android:paddingVertical="5dp"
+                        android:text="@string/home_current_month"
+                        android:textColor="@color/on_plum"
+                        android:textSize="11sp" />
+                </RelativeLayout>
+
+                <TextView
+                    android:id="@+id/tvTotalDueAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="18dp"
+                    android:fontFamily="@font/alexandria_semibold"
+                    android:text="@string/home_sample_total_due"
+                    android:textColor="@color/on_plum"
+                    android:textSize="32sp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginBottom="14dp"
+                    android:background="@color/outline" />
+
+                <!-- إحصائيات البطاقة الثلاث -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/readex_pro_regular"
+                            android:text="@string/home_collected_this_month"
+                            android:textColor="@color/on_plum_secondary"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/tvCollectedAmount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/alexandria_semibold"
+                            android:text="@string/home_sample_collected"
+                            android:textColor="@color/on_plum"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="34dp"
+                        android:background="@color/outline" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/readex_pro_regular"
+                            android:text="@string/home_debtor_customers"
+                            android:textColor="@color/on_plum_secondary"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/tvDebtorsCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/alexandria_semibold"
+                            android:text="@string/home_sample_debtors"
+                            android:textColor="@color/on_plum"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="34dp"
+                        android:background="@color/outline" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/readex_pro_regular"
+                            android:text="@string/home_overdue_customers"
+                            android:textColor="@color/on_plum_secondary"
+                            android:textSize="11sp" />
+
+                        <TextView
+                            android:id="@+id/tvOverdueCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:fontFamily="@font/alexandria_semibold"
+                            android:text="@string/home_sample_overdue"
+                            android:textColor="@color/peach"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 3. أزرار الإجراءات السريعة الأربع -->
+            <LinearLayout
+                android:id="@+id/quickActionsRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:baselineAligned="false"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <!-- دين جديد -->
+                <LinearLayout
+                    android:id="@+id/btnNewDebt"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:layout_width="54dp"
+                        android:layout_height="54dp"
+                        android:background="@drawable/shape_r18"
+                        android:backgroundTint="@color/debt_bg">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/arrow__1_"
+                            app:tint="@color/debt_fg" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/action_new_debt"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- دفعة -->
+                <LinearLayout
+                    android:id="@+id/btnNewPayment"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:layout_width="54dp"
+                        android:layout_height="54dp"
+                        android:background="@drawable/shape_r18"
+                        android:backgroundTint="@color/payment_bg">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:importantForAccessibility="no"
+                            android:rotation="180"
+                            android:src="@drawable/arrow__1_"
+                            app:tint="@color/payment_fg" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/action_payment"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- زبون جديد -->
+                <LinearLayout
+                    android:id="@+id/btnAddCustomer"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:layout_width="54dp"
+                        android:layout_height="54dp"
+                        android:background="@drawable/shape_r18"
+                        android:backgroundTint="@color/lavender_soft">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/ic_user"
+                            app:tint="@color/violet" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/action_new_customer"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- بحث -->
+                <LinearLayout
+                    android:id="@+id/btnSearchCustomers"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <FrameLayout
+                        android:layout_width="54dp"
+                        android:layout_height="54dp"
+                        android:background="@drawable/shape_r18"
+                        android:backgroundTint="@color/due_bg">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_gravity="center"
+                            android:importantForAccessibility="no"
+                            android:src="@drawable/search_interface_symbol"
+                            app:tint="@color/due_fg" />
+                    </FrameLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/action_search"
+                        android:textColor="@color/text_primary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 4. قسم بحاجة لمتابعة -->
+            <RelativeLayout
+                android:id="@+id/followUpHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="22dp"
+                android:layout_marginBottom="10dp">
+
+                <TextView
+                    android:id="@+id/tvFollowUpTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:fontFamily="@font/alexandria_semibold"
+                    android:text="@string/section_follow_up"
+                    android:textColor="@color/text_primary"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:id="@+id/btnViewAllFollowUp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:fontFamily="@font/readex_pro_medium"
+                    android:gravity="center_vertical"
+                    android:minHeight="48dp"
+                    android:text="@string/action_view_all"
+                    android:textColor="@color/violet"
+                    android:textSize="12sp" />
+            </RelativeLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvFollowUpCustomers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipToPadding="false"
+                android:orientation="horizontal"
+                android:overScrollMode="never"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="2"
+                tools:listitem="@layout/item_follow_up_customer" />
+
+            <!-- 5. بطاقة قائمة الزبائن -->
+            <LinearLayout
+                android:id="@+id/cardCustomersSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
+                android:background="@drawable/shape_r24"
+                android:backgroundTint="@color/surface"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp">
+
+                    <TextView
+                        android:id="@+id/tvCustomersSectionTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:fontFamily="@font/alexandria_semibold"
+                        android:text="@string/section_customers"
+                        android:textColor="@color/text_primary"
+                        android:textSize="15sp" />
+
+                    <TextView
+                        android:id="@+id/tvSortHighestDebt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:fontFamily="@font/readex_pro_regular"
+                        android:text="@string/filter_highest_debt"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="11sp" />
+                </RelativeLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvCustomersList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:itemCount="2"
+                    tools:listitem="@layout/item_home_customer_row" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- 6. الشريط السفلي العائم -->
     <LinearLayout
-        android:id="@+id/layoutBottomActions"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
+        android:id="@+id/bottomNavFloating"
+        android:layout_width="match_parent"
+        android:layout_height="64dp"
+        android:layout_gravity="bottom"
+        android:layout_marginHorizontal="24dp"
+        android:layout_marginBottom="18dp"
+        android:background="@drawable/shape_r26"
+        android:backgroundTint="@color/plum"
+        android:baselineAligned="false"
+        android:elevation="8dp"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        android:paddingHorizontal="10dp">
 
-        <!-- زر إضافة زبون جديد (على اليمين) -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddCustomer"
+        <!-- الرئيسية (نشط) -->
+        <LinearLayout
+            android:id="@+id/navTabHome"
             android:layout_width="0dp"
-            android:layout_height="55dp"
-            android:layout_weight="2"
-            android:layout_marginLeft="6dp"
-            android:backgroundTint="#0F172A"
-            android:text="إضافة زبون جديد"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:cornerRadius="16dp"
-            app:elevation="6dp"
-            app:icon="@android:drawable/ic_input_add"
-            app:iconTint="@android:color/white"
-            app:iconSize="18dp" />
+            android:layout_height="48dp"
+            android:layout_weight="1.55"
+            android:background="@drawable/shape_r26"
+            android:backgroundTint="@color/lavender"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="horizontal">
 
-        <!-- زر تسجيل الخروج (على اليسار مع مسافة فاصلة بينه وبين الزر الأيمن) -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnLogout"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            <ImageView
+                android:id="@+id/ivNavHome"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:importantForAccessibility="no"
+                android:src="@drawable/ic_book"
+                app:tint="@color/plum" />
+
+            <TextView
+                android:id="@+id/tvNavHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/readex_pro_semibold"
+                android:text="@string/nav_home"
+                android:textColor="@color/plum"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- التقارير -->
+        <FrameLayout
+            android:id="@+id/navTabReports"
             android:layout_width="0dp"
-            android:layout_height="55dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
-            android:layout_marginRight="6dp"
-            android:text="خروج"
-            android:textColor="#E53935"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            app:cornerRadius="16dp"
-            app:strokeColor="#EF5350"
-            app:strokeWidth="1dp"
-            app:icon="@drawable/quit"
-            app:iconTint="#E53935"
-            app:iconSize="18dp" />
+            android:clickable="true"
+            android:focusable="true">
 
+            <ImageView
+                android:id="@+id/ivNavReports"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/nav_reports"
+                android:src="@drawable/Vector1"
+                app:tint="@color/on_plum_secondary" />
+        </FrameLayout>
+
+        <!-- حسابي -->
+        <FrameLayout
+            android:id="@+id/navTabProfile"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true">
+
+            <ImageView
+                android:id="@+id/ivNavProfile"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_gravity="center"
+                android:contentDescription="@string/nav_profile"
+                android:src="@drawable/ic_user"
+                app:tint="@color/on_plum_secondary" />
+        </FrameLayout>
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
