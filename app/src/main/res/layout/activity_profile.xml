@@ -247,7 +247,7 @@
                         android:layout_height="16dp"
                         android:importantForAccessibility="no"
                         android:rotation="180"
-                        android:src="@drawable/Vector"
+                        android:src="@drawable/ic_back"
                         app:tint="@color/text_secondary" />
                 </LinearLayout>
 
@@ -298,7 +298,7 @@
                         android:layout_height="16dp"
                         android:importantForAccessibility="no"
                         android:rotation="180"
-                        android:src="@drawable/Vector"
+                        android:src="@drawable/ic_back"
                         app:tint="@color/text_secondary" />
                 </LinearLayout>
             </LinearLayout>
@@ -377,7 +377,7 @@
                         android:layout_height="16dp"
                         android:importantForAccessibility="no"
                         android:rotation="180"
-                        android:src="@drawable/Vector"
+                        android:src="@drawable/ic_back"
                         app:tint="@color/text_secondary" />
                 </LinearLayout>
 
@@ -428,7 +428,7 @@
                         android:layout_height="16dp"
                         android:importantForAccessibility="no"
                         android:rotation="180"
-                        android:src="@drawable/Vector"
+                        android:src="@drawable/ic_back"
                         app:tint="@color/text_secondary" />
                 </LinearLayout>
             </LinearLayout>

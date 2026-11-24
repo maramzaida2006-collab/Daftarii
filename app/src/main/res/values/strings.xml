@@ -239,4 +239,10 @@
     <string name="month_nov">نوفمبر</string>
     <string name="action_edit">تعديل</string>
     <string name="sample_tx2_subtitle">اليوم • 02:15 م</string>
+    <string name="guest_store_name_fallback">%1$s (زائر)</string>
+    <string name="add_customer_first">أضف زبوناً أولاً</string>
+    <string name="search_customer_hint">ابحث باسم الزبون أو رقم الجوال</string>
+    <string name="action_clear_search">مسح البحث</string>
+    <string name="no_overdue_customers">لا يوجد زبائن متأخرون حالياً</string>
+    <string name="no_follow_up_customers">لا يوجد زبائن بحاجة لمتابعة حالياً</string>
 </resources>

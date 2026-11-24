@@ -189,7 +189,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:importantForAccessibility="no"
-                    android:src="@drawable/ic_description"
+                    android:src="@drawable/svg__13_"
                     app:tint="@color/text_secondary" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
@@ -231,7 +231,7 @@
                         android:layout_width="18dp"
                         android:layout_height="18dp"
                         android:importantForAccessibility="no"
-                        android:src="@drawable/ic_history"
+                        android:src="@drawable/svg__14_"
                         app:tint="@color/violet" />
                 </LinearLayout>
 

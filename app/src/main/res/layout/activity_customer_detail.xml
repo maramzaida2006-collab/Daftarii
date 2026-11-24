@@ -42,12 +42,13 @@
                     android:focusable="true">
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
+                        android:id="@+id/btnBack"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:importantForAccessibility="no"
                         android:rotation="180"
-                        android:src="@drawable/Vector"
+                        android:src="@drawable/ic_back"
                         app:tint="@color/text_primary" />
                 </FrameLayout>
 
@@ -80,7 +81,7 @@
                 </FrameLayout>
             </LinearLayout>
 
-            <!-- 2. معلومات الزبون وحالة التأخير (أخ يمين، الاسم وسط، متأخر 5 أيام شمال) -->
+            <!-- 2. معلومات الزبون وحالة التأخير -->
             <LinearLayout
                 android:id="@+id/customerInfoHeader"
                 android:layout_width="match_parent"
@@ -89,7 +90,6 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <!-- دائرة الأحرف الرمزية للزبون (يمين) -->
                 <FrameLayout
                     android:id="@+id/flCustomerDetailAvatar"
                     android:layout_width="46dp"
@@ -108,7 +108,6 @@
                         android:textSize="16sp" />
                 </FrameLayout>
 
-                <!-- اسم الزبون ورقم الجوال (وسط) -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -138,7 +137,6 @@
                         android:textSize="12sp" />
                 </LinearLayout>
 
-                <!-- شارة الحالة على الشمال (متأخر 5 أيام) -->
                 <LinearLayout
                     android:id="@+id/badgeCustomerOverdue"
                     android:layout_width="wrap_content"
@@ -169,7 +167,7 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- 3. بطاقة الرصيد المستحق وأزرار التواصل السريع (Plum Card) -->
+            <!-- 3. بطاقة الرصيد المستحق وأزرار التواصل السريع -->
             <LinearLayout
                 android:id="@+id/cardBalanceSummary"
                 android:layout_width="match_parent"
@@ -189,7 +187,7 @@
                     android:textSize="12sp" />
 
                 <TextView
-                    android:id="@+id/tvDetailDueAmount"
+                    android:id="@+id/tvDetailTotalDebt"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
@@ -208,7 +206,6 @@
                     android:textColor="@color/on_plum_secondary"
                     android:textSize="11sp" />
 
-                <!-- أزرار: اتصال، واتساب، كشف PDF، الموعد -->
                 <LinearLayout
                     android:id="@+id/quickContactRow"
                     android:layout_width="match_parent"
@@ -218,7 +215,6 @@
                     android:gravity="center"
                     android:orientation="horizontal">
 
-                    <!-- اتصال -->
                     <LinearLayout
                         android:id="@+id/btnCallCustomer"
                         android:layout_width="0dp"
@@ -254,7 +250,6 @@
                             android:textSize="11sp" />
                     </LinearLayout>
 
-                    <!-- واتساب -->
                     <LinearLayout
                         android:id="@+id/btnWhatsappCustomer"
                         android:layout_width="0dp"
@@ -290,7 +285,6 @@
                             android:textSize="11sp" />
                     </LinearLayout>
 
-                    <!-- كشف PDF -->
                     <LinearLayout
                         android:id="@+id/btnExportCustomerPdf"
                         android:layout_width="0dp"
@@ -308,6 +302,7 @@
                             android:backgroundTint="@color/lavender_chip">
 
                             <ImageView
+                                android:id="@+id/btnDownloadPdf"
                                 android:layout_width="18dp"
                                 android:layout_height="18dp"
                                 android:layout_gravity="center"
@@ -326,7 +321,6 @@
                             android:textSize="11sp" />
                     </LinearLayout>
 
-                    <!-- الموعد -->
                     <LinearLayout
                         android:id="@+id/btnDueDateReminder"
                         android:layout_width="0dp"
@@ -373,7 +367,7 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:id="@+id/btnDetailAddDebt"
+                    android:id="@+id/btnAddDebtItem"
                     android:layout_width="0dp"
                     android:layout_height="46dp"
                     android:layout_marginEnd="6dp"
@@ -404,7 +398,7 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/btnDetailRecordPayment"
+                    android:id="@+id/btnPayDebt"
                     android:layout_width="0dp"
                     android:layout_height="46dp"
                     android:layout_marginStart="6dp"
@@ -435,7 +429,46 @@
                 </LinearLayout>
             </LinearLayout>
 
-            <!-- 5. تبويبات التصفية: الكل / الديون / الدفعات -->
+            <!-- 5. حقول إدخال المبلغ والصنف عند الحاجة -->
+            <LinearLayout
+                android:id="@+id/inputFieldsRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etAmount"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_amount"
+                        android:inputType="numberDecimal"
+                        android:textColor="@color/text_primary" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1.5">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etItemName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/hint_item_name"
+                        android:inputType="text"
+                        android:textColor="@color/text_primary" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <!-- 6. تبويبات التصفية: الكل / الديون / الدفعات -->
             <LinearLayout
                 android:id="@+id/filterTabsContainer"
                 android:layout_width="match_parent"
@@ -488,7 +521,7 @@
                     android:textSize="12sp" />
             </LinearLayout>
 
-            <!-- 6. بطاقة سجل الحركات (اليوم / 16 نوفمبر) -->
+            <!-- 7. بطاقة سجل الحركات والقائمة الديناميكية -->
             <LinearLayout
                 android:id="@+id/cardTransactionsHistory"
                 android:layout_width="match_parent"
@@ -500,365 +533,21 @@
                 android:paddingHorizontal="14dp"
                 android:paddingVertical="10dp">
 
-                <!-- عنوان المجموعة: اليوم -->
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="4dp"
                     android:fontFamily="@font/readex_pro_medium"
-                    android:text="@string/group_today"
+                    android:text="@string/history_label"
                     android:textColor="@color/text_secondary"
                     android:textSize="11sp" />
 
-                <!-- حركة 1: خبز، حليب، بيض -->
-                <LinearLayout
-                    android:id="@+id/rowTxItem1"
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerViewDebts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingVertical="6dp">
-
-                    <FrameLayout
-                        android:id="@+id/flTxIcon1"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@drawable/shape_r16"
-                        android:backgroundTint="@color/debt_bg">
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:layout_gravity="center"
-                            android:importantForAccessibility="no"
-                            android:rotation="90"
-                            android:src="@drawable/arrow__1_"
-                            app:tint="@color/debt_fg" />
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:fontFamily="@font/readex_pro_semibold"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx1_title"
-                            android:textColor="@color/text_primary"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx1_time"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/colTx1Amount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/alexandria_semibold"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx1_amount"
-                            android:textColor="@color/debt_fg"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx1_balance"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-
-                    <!-- أيقونة قلم تعديل الحركة 1 -->
-                    <FrameLayout
-                        android:id="@+id/btnEditTx1"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="6dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:contentDescription="@string/action_edit"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="15dp"
-                            android:layout_height="15dp"
-                            android:layout_gravity="center"
-                            android:importantForAccessibility="no"
-                            android:src="@android:drawable/ic_menu_edit"
-                            app:tint="@color/text_secondary" />
-                    </FrameLayout>
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/background" />
-
-                <!-- حركة 2: مواد تنظيف (معدّلة) -->
-                <LinearLayout
-                    android:id="@+id/rowTxItem2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingVertical="6dp">
-
-                    <FrameLayout
-                        android:id="@+id/flTxIcon2"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@drawable/shape_r16"
-                        android:backgroundTint="@color/debt_bg">
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:layout_gravity="center"
-                            android:importantForAccessibility="no"
-                            android:rotation="90"
-                            android:src="@drawable/arrow__1_"
-                            app:tint="@color/debt_fg" />
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:ellipsize="end"
-                                android:fontFamily="@font/readex_pro_semibold"
-                                android:maxLines="1"
-                                android:text="@string/sample_tx2_title"
-                                android:textColor="@color/text_primary"
-                                android:textSize="13sp" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="6dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/lavender_soft"
-                                android:fontFamily="@font/readex_pro_medium"
-                                android:maxLines="1"
-                                android:paddingHorizontal="7dp"
-                                android:paddingVertical="1dp"
-                                android:text="@string/badge_edited"
-                                android:textColor="@color/violet"
-                                android:textSize="9sp" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:ellipsize="end"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx2_subtitle"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/colTx2Amount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/alexandria_semibold"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx2_amount"
-                            android:textColor="@color/debt_fg"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx2_balance"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-
-                    <!-- أيقونة قلم تعديل الحركة 2 -->
-                    <FrameLayout
-                        android:id="@+id/btnEditTx2"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="6dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:contentDescription="@string/action_edit"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="15dp"
-                            android:layout_height="15dp"
-                            android:layout_gravity="center"
-                            android:importantForAccessibility="no"
-                            android:src="@android:drawable/ic_menu_edit"
-                            app:tint="@color/text_secondary" />
-                    </FrameLayout>
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="4dp"
-                    android:background="@color/background" />
-
-                <!-- عنوان المجموعة: 16 نوفمبر -->
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="4dp"
-                    android:fontFamily="@font/readex_pro_medium"
-                    android:text="@string/group_nov_16"
-                    android:textColor="@color/text_secondary"
-                    android:textSize="11sp" />
-
-                <!-- حركة 3: دفعة نقدية -->
-                <LinearLayout
-                    android:id="@+id/rowTxItem3"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal"
-                    android:paddingVertical="6dp">
-
-                    <FrameLayout
-                        android:id="@+id/flTxIcon3"
-                        android:layout_width="36dp"
-                        android:layout_height="36dp"
-                        android:background="@drawable/shape_r16"
-                        android:backgroundTint="@color/payment_bg">
-
-                        <ImageView
-                            android:layout_width="16dp"
-                            android:layout_height="16dp"
-                            android:layout_gravity="center"
-                            android:importantForAccessibility="no"
-                            android:rotation="-90"
-                            android:src="@drawable/arrow__1_"
-                            app:tint="@color/payment_fg" />
-                    </FrameLayout>
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginHorizontal="10dp"
-                        android:layout_weight="1"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:ellipsize="end"
-                            android:fontFamily="@font/readex_pro_semibold"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx3_title"
-                            android:textColor="@color/text_primary"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx3_time"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/colTx3Amount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:gravity="end"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/alexandria_semibold"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx3_amount"
-                            android:textColor="@color/payment_fg"
-                            android:textSize="13sp" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="1dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:maxLines="1"
-                            android:text="@string/sample_tx3_balance"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="10sp" />
-                    </LinearLayout>
-
-                    <!-- أيقونة قلم تعديل الحركة 3 -->
-                    <FrameLayout
-                        android:id="@+id/btnEditTx3"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:layout_marginStart="6dp"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:clickable="true"
-                        android:contentDescription="@string/action_edit"
-                        android:focusable="true">
-
-                        <ImageView
-                            android:layout_width="15dp"
-                            android:layout_height="15dp"
-                            android:layout_gravity="center"
-                            android:importantForAccessibility="no"
-                            android:src="@android:drawable/ic_menu_edit"
-                            app:tint="@color/text_secondary" />
-                    </FrameLayout>
-                </LinearLayout>
+                    android:nestedScrollingEnabled="false"
+                    tools:listitem="@layout/item_debt" />
             </LinearLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>

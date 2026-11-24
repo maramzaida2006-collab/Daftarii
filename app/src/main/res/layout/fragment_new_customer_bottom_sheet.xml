@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- res/layout/new_customer_sheet.xml -->
-<!-- يعمل كـ Bottom Sheet (BottomSheetDialogFragment) أو كـ layout عادي -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,7 +6,8 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_bottom_sheet"
     android:fillViewport="true"
-    android:layoutDirection="rtl">
+    android:layoutDirection="rtl"
+    tools:context=".NewCustomerBottomSheetFragment">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -85,6 +84,7 @@
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/container"
                     app:tint="@color/text_secondary" />
 
@@ -135,6 +135,7 @@
                 <ImageView
                     android:layout_width="20dp"
                     android:layout_height="20dp"
+                    android:importantForAccessibility="no"
                     android:src="@drawable/container__1_"
                     app:tint="@color/text_secondary" />
 
@@ -188,6 +189,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
+                android:text="بدون"
                 android:textColor="@color/chip_text_selector"
                 android:textSize="13sp"
                 app:checkedIconVisible="false"
@@ -196,15 +198,16 @@
                 app:chipMinHeight="40dp"
                 app:chipStrokeColor="@color/outline"
                 app:chipStrokeWidth="1dp"
-                app:ensureMinTouchTargetSize="false"
-                android:text="بدون" />
+                app:ensureMinTouchTargetSize="false" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipWeek"
                 style="@style/Widget.App.Chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:checked="true"
                 android:checkable="true"
+                android:text="أسبوع"
                 android:textColor="@color/chip_text_selector"
                 android:textSize="13sp"
                 app:checkedIconVisible="false"
@@ -213,9 +216,7 @@
                 app:chipMinHeight="40dp"
                 app:chipStrokeColor="@color/outline"
                 app:chipStrokeWidth="1dp"
-                app:ensureMinTouchTargetSize="false"
-                android:checked="true"
-                android:text="أسبوع" />
+                app:ensureMinTouchTargetSize="false" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipTwoWeeks"
@@ -223,6 +224,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
+                android:text="أسبوعين"
                 android:textColor="@color/chip_text_selector"
                 android:textSize="13sp"
                 app:checkedIconVisible="false"
@@ -231,8 +233,7 @@
                 app:chipMinHeight="40dp"
                 app:chipStrokeColor="@color/outline"
                 app:chipStrokeWidth="1dp"
-                app:ensureMinTouchTargetSize="false"
-                android:text="أسبوعين" />
+                app:ensureMinTouchTargetSize="false" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipMonth"
@@ -240,6 +241,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
+                android:text="شهر"
                 android:textColor="@color/chip_text_selector"
                 android:textSize="13sp"
                 app:checkedIconVisible="false"
@@ -248,8 +250,7 @@
                 app:chipMinHeight="40dp"
                 app:chipStrokeColor="@color/outline"
                 app:chipStrokeWidth="1dp"
-                app:ensureMinTouchTargetSize="false"
-                android:text="شهر" />
+                app:ensureMinTouchTargetSize="false" />
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipCustom"
@@ -257,6 +258,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checkable="true"
+                android:text="تاريخ محدد"
                 android:textColor="@color/chip_text_selector"
                 android:textSize="13sp"
                 app:checkedIconVisible="false"
@@ -265,8 +267,7 @@
                 app:chipMinHeight="40dp"
                 app:chipStrokeColor="@color/outline"
                 app:chipStrokeWidth="1dp"
-                app:ensureMinTouchTargetSize="false"
-                android:text="تاريخ محدد" />
+                app:ensureMinTouchTargetSize="false" />
         </com.google.android.material.chip.ChipGroup>
 
         <TextView
@@ -309,7 +310,6 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
-                    <!-- في RTL أول عنصر يطلع يمين: الشارة "دين" -->
                     <TextView
                         android:id="@+id/tvDebtBadge"
                         android:layout_width="wrap_content"
