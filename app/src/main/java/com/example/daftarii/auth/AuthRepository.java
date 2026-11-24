@@ -61,6 +61,21 @@ public class AuthRepository {
         return user != null ? user.getEmail() : null;
     }
 
+    @Nullable
+    public String currentUid() {
+        FirebaseUser user = auth.getCurrentUser();
+        return user != null ? user.getUid() : null;
+    }
+
+    /** اسم المحل (انحفظ كـ displayName وقت التسجيل). null إذا مش موجود. */
+    @Nullable
+    public String currentDisplayName() {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) return null;
+        String name = user.getDisplayName();
+        return name == null || name.trim().isEmpty() ? null : name.trim();
+    }
+
     /** وقت إنشاء الحساب، من سيرفر Firebase. للزائر هو بداية الفترة التجريبية. 0 إذا مش معروف. */
     public long accountCreatedAt() {
         FirebaseUser user = auth.getCurrentUser();

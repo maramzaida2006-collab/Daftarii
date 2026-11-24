@@ -56,11 +56,8 @@ public class LoginActivity extends AppCompatActivity {
         // تغيير اللغة: أندرويد بيعيد فتح الشاشة باللغة الجديدة لحاله
         findViewById(R.id.btnLanguage).setOnClickListener(v -> LanguageManager.toggle());
 
+        // التوجيه لما التطبيق يفتح صار بـ SplashActivity، فهون ما في فحص للجلسة.
         observe();
-
-        if (savedInstanceState == null) {
-            viewModel.checkExistingSession();
-        }
     }
 
     private void observe() {

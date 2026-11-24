@@ -34,6 +34,19 @@
     <color name="due_bg">#FDF1DC</color>
     <color name="due_fg">#93560A</color>
 
+    <!-- صورة زبون تانية (وردي) -->
+    <color name="avatar_pink_bg">#FCE4EE</color>
+    <color name="avatar_pink_fg">#9C2F5E</color>
+    <!-- نقطة الصفحة غير الحالية (الترحيب) -->
+    <color name="dot_inactive">#D6D1CA</color>
+
+    <!-- شاشة القفل (فوق plum) -->
+    <color name="lock_key_bg">#1AC8BFFF</color>        <!-- أزرار الأرقام -->
+    <color name="lock_dot_off">#40C8BFFF</color>       <!-- نقطة فاضية -->
+    <color name="lock_avatar_bg">#29C8BFFF</color>
+    <color name="lock_fp_bg">#1FC8BFFF</color>         <!-- زر البصمة -->
+    <color name="lock_fp_stroke">#59C8BFFF</color>
+
     <color name="error">#B3261E</color>
 
 
