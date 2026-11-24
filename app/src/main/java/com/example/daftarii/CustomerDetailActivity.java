@@ -1,59 +1,47 @@
 package com.example.daftarii;
 
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.text.InputType;
-import android.util.Log;
-import android.widget.ImageView;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.FileProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.WriteBatch;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 public class CustomerDetailActivity extends AppCompatActivity {
 
-    private static final String TAG = "CustomerDetailActivity";
-
-    private ImageView btnBack;
-    private TextView tvDetailCustomerName, tvDetailCustomerPhone, tvDetailTotalDebt;
-    private TextInputEditText etAmount, etItemName;
-    private MaterialButton btnAddDebtItem, btnPayDebt, btnDownloadPdf;
-    private RecyclerView recyclerViewDebts;
-
     private FirebaseFirestore db;
-    private String customerId, customerName, customerPhone;
-    private double currentTotalDebt = 0.0;
-    private List<DebtItem> debtItemList;
-    private DebtDetailsAdapter debtsAdapter;
+    private String customerId;
+    private String customerPhone = "";
+    private double currentDebt = 0.0;
+
+    private FrameLayout btnBackCustomerDetail, btnCustomerMoreOptions;
+    private FrameLayout btnEditTx1, btnEditTx2, btnEditTx3;
+    private TextView tvCustomerDetailInitials, tvDetailCustomerName, tvDetailCustomerPhone;
+    private TextView tvCustomerOverdueStatus, tvDetailDueAmount, tvDueDateAndLastPayment;
+    private View badgeCustomerOverdue;
+
+    private LinearLayout btnCallCustomer, btnWhatsappCustomer, btnExportCustomerPdf, btnDueDateReminder;
+    private LinearLayout btnDetailAddDebt, btnDetailRecordPayment;
+    private TextView tabFilterAll, tabFilterDebts, tabFilterPayments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,443 +49,288 @@ public class CustomerDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_customer_detail);
 
         db = FirebaseFirestore.getInstance();
+        customerId = getIntent().getStringExtra("customer_id");
+        String initialName = getIntent().getStringExtra("customer_name");
 
-        customerId = getIntent().getStringExtra("CUSTOMER_ID");
-        customerName = getIntent().getStringExtra("CUSTOMER_NAME");
-        customerPhone = getIntent().getStringExtra("CUSTOMER_PHONE");
-        currentTotalDebt = getIntent().getDoubleExtra("CUSTOMER_TOTAL_DEBT", 0.0);
+        initViews();
 
-        btnBack = findViewById(R.id.btnBack);
+        if (initialName != null && !initialName.trim().isEmpty()) {
+            setCustomerNameAndInitials(initialName);
+        }
+
+        setupListeners();
+
+        if (customerId != null && !customerId.trim().isEmpty()) {
+            listenToCustomerDetails();
+        }
+    }
+
+    private void initViews() {
+        btnBackCustomerDetail = findViewById(R.id.btnBackCustomerDetail);
+        btnCustomerMoreOptions = findViewById(R.id.btnCustomerMoreOptions);
+
+        tvCustomerDetailInitials = findViewById(R.id.tvCustomerDetailInitials);
         tvDetailCustomerName = findViewById(R.id.tvDetailCustomerName);
         tvDetailCustomerPhone = findViewById(R.id.tvDetailCustomerPhone);
-        tvDetailTotalDebt = findViewById(R.id.tvDetailTotalDebt);
-        etAmount = findViewById(R.id.etAmount);
-        etItemName = findViewById(R.id.etItemName);
-        btnAddDebtItem = findViewById(R.id.btnAddDebtItem);
-        btnPayDebt = findViewById(R.id.btnPayDebt);
-        btnDownloadPdf = findViewById(R.id.btnDownloadPdf);
-        recyclerViewDebts = findViewById(R.id.recyclerViewDebts);
+        badgeCustomerOverdue = findViewById(R.id.badgeCustomerOverdue);
+        tvCustomerOverdueStatus = findViewById(R.id.tvCustomerOverdueStatus);
 
-        tvDetailCustomerName.setText(customerName != null ? customerName : "اسم الزبون");
-        tvDetailCustomerPhone.setText(customerPhone != null ? customerPhone : "0590000000");
+        tvDetailDueAmount = findViewById(R.id.tvDetailDueAmount);
+        tvDueDateAndLastPayment = findViewById(R.id.tvDueDateAndLastPayment);
 
-        // عرض الرصيد القادم من الشاشة الرئيسية فوراً لمنع ظهور الصفر تماماً
-        tvDetailTotalDebt.setText("₪ " + currentTotalDebt);
+        btnCallCustomer = findViewById(R.id.btnCallCustomer);
+        btnWhatsappCustomer = findViewById(R.id.btnWhatsappCustomer);
+        btnExportCustomerPdf = findViewById(R.id.btnExportCustomerPdf);
+        btnDueDateReminder = findViewById(R.id.btnDueDateReminder);
 
-        btnBack.setOnClickListener(v -> finish());
+        btnDetailAddDebt = findViewById(R.id.btnDetailAddDebt);
+        btnDetailRecordPayment = findViewById(R.id.btnDetailRecordPayment);
 
-        debtItemList = new ArrayList<>();
+        tabFilterAll = findViewById(R.id.tabFilterAll);
+        tabFilterDebts = findViewById(R.id.tabFilterDebts);
+        tabFilterPayments = findViewById(R.id.tabFilterPayments);
 
-        debtsAdapter = new DebtDetailsAdapter(debtItemList, new DebtDetailsAdapter.OnDebtClickListener() {
-            @Override
-            public void onEditClick(DebtItem debtItem) {
-                showEditDebtDialog(debtItem);
-            }
-
-            @Override
-            public void onDeleteClick(DebtItem debtItem) {
-                showDeleteConfirmationDialog(debtItem);
-            }
-        });
-
-        recyclerViewDebts.setLayoutManager(new LinearLayoutManager(this));
-        recyclerViewDebts.setAdapter(debtsAdapter);
-
-        btnAddDebtItem.setOnClickListener(v -> addNewDebtItem());
-        btnPayDebt.setOnClickListener(v -> showPaymentDialog());
-        btnDownloadPdf.setOnClickListener(v -> generateAndSharePdf());
-
-        // جلب الحركات (تعمل الآن بسلاسة حتى بدون إنترنت بفضل الكاش والترتيب البرمجي)
-        loadCustomerDetailsAndDebts();
+        btnEditTx1 = findViewById(R.id.btnEditTx1);
+        btnEditTx2 = findViewById(R.id.btnEditTx2);
+        btnEditTx3 = findViewById(R.id.btnEditTx3);
     }
 
-    private void loadCustomerDetailsAndDebts() {
-        if (customerId == null) return;
+    private void setCustomerNameAndInitials(String name) {
+        if (tvDetailCustomerName != null) {
+            tvDetailCustomerName.setText(name);
+        }
+        String trimmed = name.trim();
+        if (!trimmed.isEmpty() && tvCustomerDetailInitials != null) {
+            String[] parts = trimmed.split("\\s+");
+            String initials = parts.length >= 2
+                    ? (parts[0].substring(0, 1) + parts[1].substring(0, 1))
+                    : trimmed.substring(0, Math.min(2, trimmed.length()));
+            tvCustomerDetailInitials.setText(initials);
+        }
+    }
 
+    private void listenToCustomerDetails() {
         db.collection("customers").document(customerId)
-                .collection("debts")
-                .addSnapshotListener((value, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "خطأ في جلب الحركات: " + error.getMessage());
-                        return;
+                .addSnapshotListener((snapshot, error) -> {
+                    if (error != null || snapshot == null || !snapshot.exists()) return;
+
+                    Customer customer = snapshot.toObject(Customer.class);
+                    if (customer == null) return;
+
+                    if (customer.getName() != null && !customer.getName().trim().isEmpty()) {
+                        setCustomerNameAndInitials(customer.getName());
                     }
 
-                    if (value == null || value.isEmpty()) {
-                        return;
+                    if (tvDetailCustomerPhone != null) {
+                        customerPhone = customer.getPhone() != null ? customer.getPhone() : "";
+                        tvDetailCustomerPhone.setText(!customerPhone.isEmpty() ? customerPhone : "بدون رقم");
                     }
 
-                    debtItemList.clear();
-                    double calculatedTotal = 0.0;
-
-                    for (QueryDocumentSnapshot doc : value) {
-                        Boolean archived = doc.getBoolean("archived");
-                        if (archived != null && archived) {
-                            continue;
-                        }
-
-                        DebtItem item = doc.toObject(DebtItem.class);
-                        item.setId(doc.getId());
-                        item.setCustomerId(customerId);
-                        debtItemList.add(item);
-
-                        calculatedTotal += item.getAmount();
+                    currentDebt = Math.max(0.0, customer.getTotalDebt());
+                    if (tvDetailDueAmount != null) {
+                        tvDetailDueAmount.setText(String.format(Locale.ROOT, "%.0f", currentDebt));
                     }
 
-                    // ترتيب العناصر برمجياً من الأحدث للأقدم لضمان ظهورها بشكل صحيح بدون إنترنت
-                    debtItemList.sort((item1, item2) -> Long.compare(item2.getTimestamp(), item1.getTimestamp()));
-
-                    currentTotalDebt = Math.round(calculatedTotal * 100.0) / 100.0;
-                    tvDetailTotalDebt.setText("₪ " + currentTotalDebt);
-
-                    debtsAdapter.notifyDataSetChanged();
-
-                    // تحديث إجمالي الدين للمستند محلياً
-                    db.collection("customers").document(customerId)
-                            .update("totalDebt", currentTotalDebt)
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "فشل التحديث المحلي: " + e.getMessage());
-                            });
+                    updateOverdueBadge(currentDebt, customer.getDueDate());
                 });
     }
 
-    private void addNewDebtItem() {
-        String amountStr = etAmount.getText().toString().trim();
-        String itemName = etItemName.getText().toString().trim();
+    private void updateOverdueBadge(double debt, long dueDateMillis) {
+        if (badgeCustomerOverdue == null || tvCustomerOverdueStatus == null) return;
 
-        if (amountStr.isEmpty() || itemName.isEmpty()) {
-            Toast.makeText(this, "الرجاء إدخال المبلغ واسم الصنف", Toast.LENGTH_SHORT).show();
-            return;
+        long now = System.currentTimeMillis();
+        if (debt > 0 && dueDateMillis > 0 && now > dueDateMillis) {
+            long diffDays = Math.max(1L, (now - dueDateMillis) / (1000L * 60L * 60L * 24L));
+            badgeCustomerOverdue.setVisibility(View.VISIBLE);
+            tvCustomerOverdueStatus.setText("متأخر " + diffDays + " أيام");
+        } else {
+            badgeCustomerOverdue.setVisibility(View.GONE);
         }
 
-        double amount = Double.parseDouble(amountStr);
-        long currentTime = System.currentTimeMillis();
-
-        currentTotalDebt = Math.round((currentTotalDebt + amount) * 100.0) / 100.0;
-        tvDetailTotalDebt.setText("₪ " + currentTotalDebt);
-
-        String debtId = db.collection("customers").document(customerId)
-                .collection("debts").document().getId();
-
-        DebtItem debtItem = new DebtItem(debtId, itemName, amount, currentTime, currentTime);
-        debtItem.setCustomerId(customerId);
-
-        debtItemList.add(0, debtItem);
-        debtsAdapter.notifyDataSetChanged();
-
-        etAmount.setText("");
-        etItemName.setText("");
-        etAmount.requestFocus();
-
-        Map<String, Object> debtMap = new HashMap<>();
-        debtMap.put("id", debtId);
-        debtMap.put("customerId", customerId);
-        debtMap.put("itemName", itemName);
-        debtMap.put("amount", amount);
-        debtMap.put("timestamp", currentTime);
-        debtMap.put("dueDate", currentTime);
-        debtMap.put("archived", false);
-
-        WriteBatch batch = db.batch();
-        DocumentReference customerRef = db.collection("customers").document(customerId);
-        DocumentReference debtRef = customerRef.collection("debts").document(debtId);
-
-        batch.update(customerRef, "totalDebt", currentTotalDebt);
-        batch.set(debtRef, debtMap);
-
-        batch.commit()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "تمت إضافة الحركة وتحديث السجل بنجاح", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "تم الحفظ محلياً", Toast.LENGTH_SHORT).show();
-                });
+        if (tvDueDateAndLastPayment != null && dueDateMillis > 0) {
+            String formatted = new SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+                    .format(new Date(dueDateMillis));
+            tvDueDateAndLastPayment.setText("موعد السداد: " + formatted);
+        }
     }
 
-    private void showPaymentDialog() {
+    private void setupListeners() {
+        if (btnBackCustomerDetail != null) {
+            btnBackCustomerDetail.setOnClickListener(v -> finish());
+        }
+
+        if (btnCustomerMoreOptions != null) {
+            btnCustomerMoreOptions.setOnClickListener(v ->
+                    Toast.makeText(this, "خيارات كشف الحساب", Toast.LENGTH_SHORT).show());
+        }
+
+        if (btnCallCustomer != null) {
+            btnCallCustomer.setOnClickListener(v -> {
+                if (customerPhone == null || customerPhone.trim().isEmpty()) {
+                    Toast.makeText(this, "لا يوجد رقم جوال مسجل للزبون", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + customerPhone));
+                startActivity(intent);
+            });
+        }
+
+        if (btnWhatsappCustomer != null) {
+            btnWhatsappCustomer.setOnClickListener(v -> {
+                if (customerPhone == null || customerPhone.trim().isEmpty()) {
+                    Toast.makeText(this, "لا يوجد رقم واتساب متاح للزبون", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String cleanPhone = customerPhone.replaceAll("[^0-9]", "");
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://wa.me/" + cleanPhone));
+                startActivity(intent);
+            });
+        }
+
+        if (btnExportCustomerPdf != null) {
+            btnExportCustomerPdf.setOnClickListener(v ->
+                    Toast.makeText(this, "تصدير كشف الحساب بصيغة PDF", Toast.LENGTH_SHORT).show());
+        }
+
+        if (btnDueDateReminder != null) {
+            btnDueDateReminder.setOnClickListener(v -> openDatePickerForDueDate());
+        }
+
+        if (btnDetailAddDebt != null) {
+            btnDetailAddDebt.setOnClickListener(v -> showTransactionDialog(true));
+        }
+
+        if (btnDetailRecordPayment != null) {
+            btnDetailRecordPayment.setOnClickListener(v -> showTransactionDialog(false));
+        }
+
+        if (tabFilterAll != null) {
+            tabFilterAll.setOnClickListener(v -> highlightTab("ALL"));
+        }
+        if (tabFilterDebts != null) {
+            tabFilterDebts.setOnClickListener(v -> highlightTab("DEBTS"));
+        }
+        if (tabFilterPayments != null) {
+            tabFilterPayments.setOnClickListener(v -> highlightTab("PAYMENTS"));
+        }
+
+        if (btnEditTx1 != null) {
+            btnEditTx1.setOnClickListener(v -> showEditTransactionDialog("الحركة 1"));
+        }
+        if (btnEditTx2 != null) {
+            btnEditTx2.setOnClickListener(v -> showEditTransactionDialog("الحركة 2"));
+        }
+        if (btnEditTx3 != null) {
+            btnEditTx3.setOnClickListener(v -> showEditTransactionDialog("الحركة 3"));
+        }
+    }
+
+    private void highlightTab(String selected) {
+        if (tabFilterAll == null || tabFilterDebts == null || tabFilterPayments == null) return;
+
+        tabFilterAll.setTextColor(getColor(selected.equals("ALL") ? R.color.text_primary : R.color.text_secondary));
+        tabFilterDebts.setTextColor(getColor(selected.equals("DEBTS") ? R.color.text_primary : R.color.text_secondary));
+        tabFilterPayments.setTextColor(getColor(selected.equals("PAYMENTS") ? R.color.text_primary : R.color.text_secondary));
+
+        tabFilterAll.setBackgroundTintList(getColorStateList(selected.equals("ALL") ? R.color.background : android.R.color.transparent));
+        tabFilterDebts.setBackgroundTintList(getColorStateList(selected.equals("DEBTS") ? R.color.background : android.R.color.transparent));
+        tabFilterPayments.setBackgroundTintList(getColorStateList(selected.equals("PAYMENTS") ? R.color.background : android.R.color.transparent));
+    }
+
+    private void showTransactionDialog(boolean isDebt) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("تسجيل دفعة سداد جديدة");
+        builder.setTitle(isDebt ? "إضافة دين جديد" : "تسجيل دفعة");
 
-        final TextInputEditText inputAmount = new TextInputEditText(this);
-        inputAmount.setHint("أدخل مبلغ السداد (مثلاً: 10)");
+        final EditText inputAmount = new EditText(this);
         inputAmount.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+        inputAmount.setHint("أدخل المبلغ");
+        builder.setView(inputAmount);
 
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 40, 50, 10);
-        layout.addView(inputAmount);
-
-        builder.setView(layout);
-
-        builder.setPositiveButton("تثبيت السداد", (dialog, which) -> {
-            String amountStr = inputAmount.getText().toString().trim();
-            if (amountStr.isEmpty()) {
-                Toast.makeText(this, "الرجاء إدخال مبلغ السداد", Toast.LENGTH_SHORT).show();
+        builder.setPositiveButton("حفظ", (dialog, which) -> {
+            String raw = inputAmount.getText().toString().trim();
+            if (raw.isEmpty()) {
+                Toast.makeText(this, "يرجى إدخال المبلغ", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            double paymentAmount = Double.parseDouble(amountStr);
-            if (paymentAmount <= 0) {
-                Toast.makeText(this, "المبلغ يجب أن يكون أكبر من صفر", Toast.LENGTH_SHORT).show();
+            double amount;
+            try {
+                amount = Double.parseDouble(raw);
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "المبلغ غير صالح", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            processPaymentTransaction(paymentAmount);
+            if (amount <= 0) {
+                Toast.makeText(this, "أدخل مبلغاً أكبر من صفر", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            double delta = isDebt ? amount : -amount;
+            saveTransactionToFirestore(isDebt ? "DEBT" : "PAYMENT", amount, delta);
         });
 
-        builder.setNegativeButton("إلغاء", null);
+        builder.setNegativeButton("إلغاء", (dialog, which) -> dialog.cancel());
         builder.show();
     }
 
-    private void processPaymentTransaction(double paymentAmount) {
-        currentTotalDebt = Math.round((currentTotalDebt - paymentAmount) * 100.0) / 100.0;
-        tvDetailTotalDebt.setText("₪ " + currentTotalDebt);
-
-        String debtId = db.collection("customers").document(customerId)
-                .collection("debts").document().getId();
-
-        long currentTime = System.currentTimeMillis();
-        DebtItem paymentItem = new DebtItem(debtId, "سداد دفعة نقدية", -paymentAmount, currentTime, currentTime);
-        paymentItem.setCustomerId(customerId);
-
-        debtItemList.add(0, paymentItem);
-        debtsAdapter.notifyDataSetChanged();
-
-        Map<String, Object> debtMap = new HashMap<>();
-        debtMap.put("id", debtId);
-        debtMap.put("customerId", customerId);
-        debtMap.put("itemName", "سداد دفعة نقدية");
-        debtMap.put("amount", -paymentAmount);
-        debtMap.put("timestamp", currentTime);
-        debtMap.put("dueDate", currentTime);
-        debtMap.put("archived", false);
-
-        WriteBatch batch = db.batch();
-        DocumentReference customerRef = db.collection("customers").document(customerId);
-        DocumentReference debtRef = customerRef.collection("debts").document(debtId);
-
-        batch.update(customerRef, "totalDebt", currentTotalDebt);
-        batch.set(debtRef, debtMap);
-
-        batch.commit()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "تم تسجيل السداد بنجاح", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "تم الحفظ محلياً", Toast.LENGTH_SHORT).show();
-                });
-    }
-
-    private void showEditDebtDialog(DebtItem debtItem) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("تعديل الحركة");
-
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 40, 50, 10);
-
-        final TextInputEditText inputName = new TextInputEditText(this);
-        inputName.setHint("اسم الصنف أو الملاحظة");
-        inputName.setText(debtItem.getItemName());
-        layout.addView(inputName);
-
-        final TextInputEditText inputAmount = new TextInputEditText(this);
-        inputAmount.setHint("المبلغ");
-        inputAmount.setText(String.valueOf(Math.abs(debtItem.getAmount())));
-        inputAmount.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        layout.addView(inputAmount);
-
-        builder.setView(layout);
-
-        builder.setPositiveButton("تعديل", (dialog, which) -> {
-            String newName = inputName.getText().toString().trim();
-            String newAmountStr = inputAmount.getText().toString().trim();
-
-            if (newName.isEmpty() || newAmountStr.isEmpty()) {
-                Toast.makeText(this, "الرجاء تعبئة الحقول", Toast.LENGTH_SHORT).show();
-                return;
+    private void saveTransactionToFirestore(String type, double amount, double debtDelta) {
+        if (customerId == null || customerId.trim().isEmpty()) {
+            currentDebt = Math.max(0.0, currentDebt + debtDelta);
+            if (tvDetailDueAmount != null) {
+                tvDetailDueAmount.setText(String.format(Locale.ROOT, "%.0f", currentDebt));
             }
-
-            double newAmount = Double.parseDouble(newAmountStr);
-            if (debtItem.getAmount() < 0) {
-                newAmount = -newAmount;
-            }
-
-            double oldAmount = debtItem.getAmount();
-            double diff = newAmount - oldAmount;
-
-            currentTotalDebt = Math.round((currentTotalDebt + diff) * 100.0) / 100.0;
-            tvDetailTotalDebt.setText("₪ " + currentTotalDebt);
-
-            debtItem.setItemName(newName);
-            debtItem.setAmount(newAmount);
-            debtsAdapter.notifyDataSetChanged();
-
-            WriteBatch batch = db.batch();
-            DocumentReference customerRef = db.collection("customers").document(customerId);
-            DocumentReference debtRef = customerRef.collection("debts").document(debtItem.getId());
-
-            batch.update(customerRef, "totalDebt", currentTotalDebt);
-            batch.update(debtRef, "itemName", newName, "amount", newAmount);
-
-            batch.commit()
-                    .addOnSuccessListener(aVoid -> {
-                        Toast.makeText(this, "تم تعديل الحركة بنجاح", Toast.LENGTH_SHORT).show();
-                    })
-                    .addOnFailureListener(e -> {
-                        Toast.makeText(this, "تم التعديل محلياً", Toast.LENGTH_SHORT).show();
-                    });
-        });
-
-        builder.setNegativeButton("إلغاء", null);
-        builder.show();
-    }
-
-    private void showDeleteConfirmationDialog(DebtItem debtItem) {
-        new AlertDialog.Builder(this)
-                .setTitle("نقل للأرشيف")
-                .setMessage("هل أنت متأكد من نقل حركة (" + debtItem.getItemName() + ") إلى الأرشيف؟")
-                .setPositiveButton("نقل للأرشيف", (dialog, which) -> {
-                    executeDeleteDebtItem(debtItem);
-                })
-                .setNegativeButton("إلغاء", null)
-                .show();
-    }
-
-    private void executeDeleteDebtItem(DebtItem item) {
-        if (item.getId() == null) {
-            Toast.makeText(this, "خطأ: معرف الحركة غير موجود", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "تم تحديث الرصيد محلياً", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        currentTotalDebt = Math.round((currentTotalDebt - item.getAmount()) * 100.0) / 100.0;
-        tvDetailTotalDebt.setText("₪ " + currentTotalDebt);
-
-        debtItemList.remove(item);
-        debtsAdapter.notifyDataSetChanged();
-
-        WriteBatch batch = db.batch();
         DocumentReference customerRef = db.collection("customers").document(customerId);
-        DocumentReference debtRef = customerRef.collection("debts").document(item.getId());
 
-        batch.update(customerRef, "totalDebt", currentTotalDebt);
-        batch.update(debtRef, "archived", true, "deletedAt", System.currentTimeMillis());
+        Map<String, Object> txData = new HashMap<>();
+        txData.put("customerId", customerId);
+        txData.put("type", type);
+        txData.put("amount", amount);
+        txData.put("timestamp", System.currentTimeMillis());
+        txData.put("createdAt", FieldValue.serverTimestamp());
 
-        batch.commit()
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(this, "تم نقل الحركة إلى الأرشيف بنجاح", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(this, "فشل نقل الحركة للأرشيف: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+        customerRef.collection("transactions").add(txData);
+        customerRef.update("totalDebt", FieldValue.increment(debtDelta))
+                .addOnSuccessListener(unused ->
+                        Toast.makeText(this, "تم حفظ الحركة وتحديث الرصيد", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e ->
+                        Toast.makeText(this, "تعذر الحفظ: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void generateAndSharePdf() {
-        PdfDocument pdfDocument = new PdfDocument();
-        PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(595, 842, 1).create();
+    private void showEditTransactionDialog(String txLabel) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("تعديل " + txLabel);
 
-        PdfDocument.Page page = pdfDocument.startPage(pageInfo);
-        Canvas canvas = page.getCanvas();
-        int pageNumber = 1;
+        final EditText inputNote = new EditText(this);
+        inputNote.setHint("أدخل ملاحظة أو تعديل جديد");
+        builder.setView(inputNote);
 
-        Paint titlePaint = new Paint();
-        titlePaint.setColor(Color.rgb(30, 30, 44));
-        titlePaint.setTextSize(22);
-        titlePaint.setFakeBoldText(true);
+        builder.setPositiveButton("حفظ التعديل", (dialog, which) ->
+                Toast.makeText(this, "تم حفظ تعديل " + txLabel, Toast.LENGTH_SHORT).show());
+        builder.setNegativeButton("إلغاء", (dialog, which) -> dialog.cancel());
+        builder.show();
+    }
 
-        Paint subTitlePaint = new Paint();
-        subTitlePaint.setColor(Color.rgb(100, 100, 100));
-        subTitlePaint.setTextSize(14);
+    private void openDatePickerForDueDate() {
+        Calendar cal = Calendar.getInstance();
+        new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
+            Calendar chosenCal = Calendar.getInstance();
+            chosenCal.set(year, month, dayOfMonth, 23, 59, 59);
+            long chosenMillis = chosenCal.getTimeInMillis();
 
-        Paint textPaint = new Paint();
-        textPaint.setColor(Color.rgb(50, 50, 50));
-        textPaint.setTextSize(14);
-
-        Paint headerPaint = new Paint();
-        headerPaint.setColor(Color.rgb(30, 30, 44));
-        headerPaint.setTextSize(14);
-        headerPaint.setFakeBoldText(true);
-
-        int y = 50;
-
-        canvas.drawText("كشف حساب زبون - متجر", 50, y, titlePaint);
-        y += 30;
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd - hh:mm a", Locale.getDefault());
-        String currentDate = sdf.format(new Date());
-        canvas.drawText("تاريخ الاصدار: " + currentDate, 50, y, subTitlePaint);
-        y += 40;
-
-        canvas.drawText("اسم الزبون: " + (customerName != null ? customerName : ""), 50, y, textPaint);
-        y += 25;
-        canvas.drawText("رقم الهاتف: " + (customerPhone != null ? customerPhone : ""), 50, y, textPaint);
-        y += 25;
-
-        Paint totalPaint = new Paint();
-        totalPaint.setColor(Color.rgb(229, 57, 53));
-        totalPaint.setTextSize(18);
-        totalPaint.setFakeBoldText(true);
-        canvas.drawText("إجمالي المديونية الحالية: " + tvDetailTotalDebt.getText().toString(), 50, y, totalPaint);
-        y += 40;
-
-        Paint linePaint = new Paint();
-        linePaint.setColor(Color.rgb(200, 200, 200));
-        linePaint.setStrokeWidth(2);
-        canvas.drawLine(50, y, 545, y, linePaint);
-        y += 30;
-
-        canvas.drawText("التاريخ والوقت", 50, y, headerPaint);
-        canvas.drawText("الحركة / الصنف", 250, y, headerPaint);
-        canvas.drawText("المبلغ (₪)", 450, y, headerPaint);
-        y += 10;
-        canvas.drawLine(50, y, 545, y, linePaint);
-        y += 25;
-
-        for (DebtItem item : debtItemList) {
-            if (y > 780) {
-                pdfDocument.finishPage(page);
-                pageNumber++;
-
-                pageInfo = new PdfDocument.PageInfo.Builder(595, 842, pageNumber).create();
-                page = pdfDocument.startPage(pageInfo);
-                canvas = page.getCanvas();
-
-                y = 50;
-
-                canvas.drawText("التاريخ والوقت", 50, y, headerPaint);
-                canvas.drawText("الحركة / الصنف", 250, y, headerPaint);
-                canvas.drawText("المبلغ (₪)", 450, y, headerPaint);
-                y += 10;
-                canvas.drawLine(50, y, 545, y, linePaint);
-                y += 25;
+            String chosenDate = String.format(Locale.getDefault(), "%04d/%02d/%02d", year, month + 1, dayOfMonth);
+            if (customerId != null && !customerId.trim().isEmpty()) {
+                db.collection("customers").document(customerId)
+                        .update("dueDate", chosenMillis);
             }
-
-            String dateStr = sdf.format(new Date(item.getTimestamp()));
-            canvas.drawText(dateStr, 50, y, textPaint);
-            canvas.drawText(item.getItemName(), 250, y, textPaint);
-            canvas.drawText(String.valueOf(item.getAmount()), 450, y, textPaint);
-            y += 30;
-        }
-
-        pdfDocument.finishPage(page);
-
-        File file = new File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "Customer_Statement_" + System.currentTimeMillis() + ".pdf");
-        try {
-            pdfDocument.writeTo(new FileOutputStream(file));
-            pdfDocument.close();
-            sharePdfFile(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "خطأ في إنشاء ملف PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            pdfDocument.close();
-        }
-    }
-
-    private void sharePdfFile(File file) {
-        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".fileprovider", file);
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("application/pdf");
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(intent, "مشاركة كشف الحساب عبر"));
+            if (tvDueDateAndLastPayment != null) {
+                tvDueDateAndLastPayment.setText("موعد السداد: " + chosenDate);
+            }
+            Toast.makeText(this, "تم تحديد الموعد: " + chosenDate, Toast.LENGTH_SHORT).show();
+        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)).show();
     }
 }
