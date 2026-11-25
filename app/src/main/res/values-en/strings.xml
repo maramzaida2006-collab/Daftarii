@@ -282,4 +282,28 @@
     <string name="notif_no_whatsapp">Couldn\'t open WhatsApp</string>
     <string name="notif_channel_name">Due dates</string>
     <string name="notif_channel_description">Reminders when a customer\'s due date is near or missed</string>
+
+    <!-- Edit transaction (bottom sheet) -->
+    <string name="edit_tx_title">Edit transaction</string>
+    <string name="edit_tx_type_debt">Debt</string>
+    <string name="edit_tx_type_payment">Payment</string>
+    <string name="edit_tx_amount">Amount</string>
+    <string name="edit_tx_note">Description</string>
+    <string name="edit_tx_history">Edit history</string>
+    <string name="edit_tx_archive">Archive</string>
+    <string name="edit_tx_save">Save changes</string>
+    <string name="edit_tx_balance_diff">Balance will change by: %1$s</string>
+    <string name="edit_tx_no_balance_change">The balance won\'t change</string>
+    <string name="edit_tx_amount_invalid">Invalid amount</string>
+    <string name="edit_tx_note_too_long">Description is too long (200 characters max)</string>
+    <string name="edit_tx_history_created">Created with ₪ %1$s</string>
+    <string name="edit_tx_history_amount">Amount: ₪ %1$s → ₪ %2$s</string>
+    <string name="edit_tx_history_note">Description: "%1$s" → "%2$s"</string>
+    <string name="edit_tx_history_both">Amount and description: ₪ %1$s → ₪ %2$s</string>
+    <string name="edit_tx_saved">Changes saved</string>
+    <string name="edit_tx_saved_offline">Saved on the phone, will sync when you\'re online</string>
+    <string name="error_amount_empty">Enter the amount</string>
+    <string name="error_amount_invalid">Invalid amount (e.g. 45.50)</string>
+    <string name="error_amount_not_positive">The amount must be more than zero</string>
+    <string name="error_amount_too_large">The amount is too large</string>
 </resources>

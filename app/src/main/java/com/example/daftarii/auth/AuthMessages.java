@@ -63,4 +63,16 @@ public final class AuthMessages {
             default:    return R.string.error_shop_name_long;
         }
     }
+
+    /** مبلغ حركة (إضافة أو تعديل). */
+    @Nullable @StringRes
+    public static Integer amountError(Validators.Result r) {
+        switch (r) {
+            case OK:           return null;
+            case EMPTY:        return R.string.error_amount_empty;
+            case NOT_POSITIVE: return R.string.error_amount_not_positive;
+            case TOO_LARGE:    return R.string.error_amount_too_large;
+            default:           return R.string.error_amount_invalid;
+        }
+    }
 }
