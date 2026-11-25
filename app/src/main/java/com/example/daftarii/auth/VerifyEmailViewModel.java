@@ -1,25 +1,27 @@
 package com.example.daftarii.auth;
 
+import android.app.Application;
 import android.os.CountDownTimer;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.AndroidViewModel;
 
 import com.example.daftarii.R;
 import com.example.daftarii.logic.AuthError;
 import com.example.daftarii.util.Event;
 
 /** منطق شاشة "فعّل بريدك". */
-public class VerifyEmailViewModel extends ViewModel {
+public class VerifyEmailViewModel extends AndroidViewModel {
 
-    public enum Nav { VERIFIED, BACK_TO_LOGIN, BACK_TO_REGISTER }
+    public enum Nav { VERIFIED, BACK_TO_LOGIN, BACK_TO_REGISTER, BACK_TO_GUEST_UPGRADE }
 
     /** المدة قبل ما يقدر يعيد الإرسال، عشان Firebase ما يحظره (too many requests). */
     public static final int RESEND_COOLDOWN_SECONDS = 45;
 
     private final AuthRepository repo = new AuthRepository();
+    private final SessionPrefs prefs;
 
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(false);
     /** الثواني الضايلة قبل ما يقدر يعيد الإرسال. 0 = بيقدر هلأ. */
@@ -29,7 +31,9 @@ public class VerifyEmailViewModel extends ViewModel {
 
     private CountDownTimer timer;
 
-    public VerifyEmailViewModel() {
+    public VerifyEmailViewModel(@NonNull Application app) {
+        super(app);
+        prefs = new SessionPrefs(app);
         // الرابط انبعت هلأ مع إنشاء الحساب، فبنبلّش العداد من أول
         startCooldown();
     }
@@ -52,6 +56,7 @@ public class VerifyEmailViewModel extends ViewModel {
             public void onSuccess(Boolean verified) {
                 loading.setValue(false);
                 if (Boolean.TRUE.equals(verified)) {
+                    prefs.setUpgradedGuestPending(false);
                     navigation.setValue(new Event<>(Nav.VERIFIED));
                 } else {
                     message.setValue(new Event<>(R.string.verify_not_yet));
@@ -88,12 +93,20 @@ public class VerifyEmailViewModel extends ViewModel {
 
     /** زر الرجوع: بيطلّع المستخدم، وبيقدر يسجّل دخول بعدين وبيرجع لهون إذا لسا ما فعّل. */
     public void back() {
+        if (prefs.isUpgradedGuestPending()) {
+            undoGuestUpgrade();
+            return;
+        }
         repo.signOut();
         navigation.setValue(new Event<>(Nav.BACK_TO_LOGIN));
     }
 
     /** "تغيير البريد الإلكتروني": بيمسح الحساب غير المفعّل وبيرجع لإنشاء حساب. */
     public void changeEmail() {
+        if (prefs.isUpgradedGuestPending()) {
+            undoGuestUpgrade();
+            return;
+        }
         loading.setValue(true);
         repo.deleteUnverifiedAccount(new AuthRepository.Callback<Void>() {
             @Override
@@ -130,5 +143,28 @@ public class VerifyEmailViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         if (timer != null) timer.cancel();
+    }
+
+    /**
+     * زائر حوّل لحساب ولسا ما فعّل، وبدّه يرجع أو يغيّر الإيميل:
+     * بنشيل الإيميل عن حسابه (بيرجع زائر بنفس البيانات) وبنرجعه على شاشة التحويل.
+     * ما بنحذف الحساب أبداً هون، لأنه بيانات الزائر عليه.
+     */
+    private void undoGuestUpgrade() {
+        loading.setValue(true);
+        repo.unlinkEmail(new AuthRepository.Callback<Void>() {
+            @Override
+            public void onSuccess(Void ignored) {
+                loading.setValue(false);
+                prefs.setUpgradedGuestPending(false);
+                navigation.setValue(new Event<>(Nav.BACK_TO_GUEST_UPGRADE));
+            }
+
+            @Override
+            public void onError(@NonNull AuthError error) {
+                loading.setValue(false);
+                message.setValue(new Event<>(AuthMessages.of(error)));
+            }
+        });
     }
 }

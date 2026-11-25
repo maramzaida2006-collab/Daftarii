@@ -111,6 +111,9 @@
                 </FrameLayout>
             </RelativeLayout>
 
+            <!-- شريط الزائر (سندس): بيبيّن بس للزائر. الكود بـ GuestBanner -->
+            <include layout="@layout/view_guest_banner" />
+
             <!-- 2. بطاقة إجمالي المستحق (Plum Card) -->
             <LinearLayout
                 android:id="@+id/cardTotalDue"

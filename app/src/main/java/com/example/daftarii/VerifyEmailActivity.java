@@ -89,6 +89,10 @@ public class VerifyEmailActivity extends AppCompatActivity {
                 case BACK_TO_REGISTER:
                     target = RegisterActivity.class;
                     break;
+                case BACK_TO_GUEST_UPGRADE:
+                    // زائر حوّل وبدّه يغيّر الإيميل: رجع زائر وبنرجعه على شاشة التحويل
+                    target = GuestUpgradeActivity.class;
+                    break;
                 case BACK_TO_LOGIN:
                 default:
                     target = LoginActivity.class;

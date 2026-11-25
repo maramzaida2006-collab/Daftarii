@@ -208,4 +208,24 @@
     <string name="action_clear_search">Clear Search</string>
     <string name="no_overdue_customers">No overdue customers right now</string>
     <string name="no_follow_up_customers">No customers need follow-up right now</string>
+
+    <!-- Guest upgrade and home guest banner -->
+    <string name="guest_upgrade_title">Save your data with an account</string>
+    <string name="guest_upgrade_subtitle">Everything you recorded as a guest moves to your account automatically.</string>
+    <string name="guest_upgrade_expired_title">Your trial has ended</string>
+    <string name="guest_upgrade_expired_subtitle">Your 7 days are over. Create an account to continue, and everything you recorded comes with you.</string>
+    <string name="guest_upgrade_card_title">All your customers and transactions</string>
+    <string name="guest_upgrade_card_body">They move over completely, nothing is lost</string>
+    <string name="guest_upgrade_benefit_backup">Your data is safe if you lose or change your phone</string>
+    <string name="guest_upgrade_benefit_pin">Unlock with fingerprint and PIN</string>
+    <string name="guest_upgrade_benefit_reset">Reset your password by email</string>
+    <string name="guest_upgrade_submit">Create account and move data</string>
+    <string name="guest_upgrade_leave">Use another account</string>
+    <string name="guest_upgrade_leave_title">Leave guest mode?</string>
+    <string name="guest_upgrade_leave_message">If you leave without creating an account, you won\'t be able to get back to your guest data.</string>
+    <string name="guest_upgrade_leave_confirm">Leave</string>
+    <string name="guest_banner_title">You\'re using Daftari as a guest</string>
+    <string name="guest_banner_days">%1$d trial days left · Create an account to keep your data</string>
+    <string name="guest_banner_last_day">Last day of your trial · Create an account to keep your data</string>
+    <string name="guest_banner_action">Create account</string>
 </resources>

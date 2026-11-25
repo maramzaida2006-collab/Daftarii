@@ -204,6 +204,9 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
+        // شريط الزائر والأيام الضايلة. إذا خلصت التجربة بيوديه على تحويل الحساب (سندس)
+        if (GuestBanner.setup(this)) return;
+
         currentUserId = user.getUid();
         bindStoreHeader(user);
         loadCustomers();

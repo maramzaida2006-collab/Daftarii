@@ -6,7 +6,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -89,9 +88,8 @@ public class SplashActivity extends AppCompatActivity {
                 target = MainActivity.class;
                 break;
             case GUEST_EXPIRED:
-                // شاشة تحويل الزائر لحساب جاية بالدفعة 4. هلأ بنشرحله وبنوديه على الدخول.
-                Toast.makeText(this, R.string.guest_trial_expired, Toast.LENGTH_LONG).show();
-                target = LoginActivity.class;
+                // خلصت الـ 7 أيام: لازم يعمل حساب عشان يكمّل (بياناته بتضل)
+                target = GuestUpgradeActivity.class;
                 break;
             case LOGIN:
             default:

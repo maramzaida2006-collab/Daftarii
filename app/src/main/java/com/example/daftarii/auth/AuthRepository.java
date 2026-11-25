@@ -7,6 +7,8 @@ import com.example.daftarii.logic.AuthError;
 
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.FirebaseTooManyRequestsException;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
@@ -174,6 +176,48 @@ public class AuthRepository {
      * لشاشة التفعيل ("تغيير البريد"): بيمسح الحساب اللي لسا ما تفعّل وبيطلّع المستخدم.
      * هيك الإيميل الغلط ما بيضل محجوز.
      */
+    /**
+     * تحويل الزائر لحساب: بنربط إيميل وكلمة سر بنفس حساب الزائر (linkWithCredential).
+     * الـ uid ما بيتغيّر، فكل الزباين والحركات بتضل متل ما هي.
+     * بعدها بنحفظ اسم المحل وبنبعت رابط التفعيل، متل إنشاء الحساب العادي.
+     */
+    public void upgradeGuest(String shopName, String email, String password, Callback<Void> callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null || !user.isAnonymous()) {
+            callback.onError(AuthError.UNKNOWN);
+            return;
+        }
+        AuthCredential credential = EmailAuthProvider.getCredential(email.trim(), password);
+        user.linkWithCredential(credential)
+                .addOnSuccessListener(result -> {
+                    FirebaseUser linked = result.getUser() != null ? result.getUser() : user;
+                    UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
+                            .setDisplayName(shopName.trim())
+                            .build();
+                    linked.updateProfile(profile).addOnCompleteListener(ignored ->
+                            linked.sendEmailVerification()
+                                    .addOnSuccessListener(v -> callback.onSuccess(null))
+                                    .addOnFailureListener(e -> callback.onError(toAuthError(e))));
+                })
+                .addOnFailureListener(e -> callback.onError(toAuthError(e)));
+    }
+
+    /**
+     * عكس التحويل: بيشيل الإيميل عن حساب كان زائر، فبيرجع زائر بنفس الـ uid وبنفس البيانات.
+     * بنستخدمه بدل deleteUnverifiedAccount لما الزائر اللي حوّل بدّه يغيّر إيميله،
+     * لأنه حذف الحساب كان رح يضيّع بياناته.
+     */
+    public void unlinkEmail(Callback<Void> callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            callback.onError(AuthError.UNKNOWN);
+            return;
+        }
+        user.unlink(EmailAuthProvider.PROVIDER_ID)
+                .addOnSuccessListener(r -> callback.onSuccess(null))
+                .addOnFailureListener(e -> callback.onError(toAuthError(e)));
+    }
+
     public void deleteUnverifiedAccount(Callback<Void> callback) {
         FirebaseUser user = auth.getCurrentUser();
         if (user == null || user.isAnonymous() || user.isEmailVerified()) {

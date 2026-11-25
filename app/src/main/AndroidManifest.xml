@@ -60,6 +60,11 @@
         <activity
             android:name=".CreatePinActivity"
             android:exported="false" />
+        <!-- تحويل الزائر لحساب -->
+        <activity
+            android:name=".GuestUpgradeActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".CustomerDetailActivity"
             android:exported="false" />

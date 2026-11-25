@@ -245,4 +245,24 @@
     <string name="action_clear_search">مسح البحث</string>
     <string name="no_overdue_customers">لا يوجد زبائن متأخرون حالياً</string>
     <string name="no_follow_up_customers">لا يوجد زبائن بحاجة لمتابعة حالياً</string>
+
+    <!-- تحويل الزائر لحساب، وشريط الزائر بالرئيسية -->
+    <string name="guest_upgrade_title">احفظ بياناتك بحساب</string>
+    <string name="guest_upgrade_subtitle">كل اللي سجّلته كزائر رح ينتقل لحسابك تلقائياً.</string>
+    <string name="guest_upgrade_expired_title">خلصت فترة التجربة</string>
+    <string name="guest_upgrade_expired_subtitle">خلصت الـ 7 أيام. أنشئ حساب عشان تكمّل، وكل اللي سجّلته رح ينتقل معك.</string>
+    <string name="guest_upgrade_card_title">كل زباينك وحركاتك</string>
+    <string name="guest_upgrade_card_body">رح ينتقلوا كاملين بدون ما يضيع إشي</string>
+    <string name="guest_upgrade_benefit_backup">بياناتك محفوظة لو ضاع الجوال أو غيّرته</string>
+    <string name="guest_upgrade_benefit_pin">الدخول بالبصمة ورمز PIN</string>
+    <string name="guest_upgrade_benefit_reset">استرجاع كلمة السر عن طريق البريد</string>
+    <string name="guest_upgrade_submit">إنشاء الحساب ونقل البيانات</string>
+    <string name="guest_upgrade_leave">الدخول بحساب آخر</string>
+    <string name="guest_upgrade_leave_title">الخروج من وضع الزائر؟</string>
+    <string name="guest_upgrade_leave_message">إذا طلعت بدون ما تعمل حساب، ما رح تقدر ترجع لبيانات الزائر.</string>
+    <string name="guest_upgrade_leave_confirm">اطلع</string>
+    <string name="guest_banner_title">أنت داخل كزائر</string>
+    <string name="guest_banner_days">ضايلك %1$d أيام تجربة · أنشئ حساب عشان ما تضيع بياناتك</string>
+    <string name="guest_banner_last_day">آخر يوم بالتجربة · أنشئ حساب عشان ما تضيع بياناتك</string>
+    <string name="guest_banner_action">إنشاء حساب</string>
 </resources>
