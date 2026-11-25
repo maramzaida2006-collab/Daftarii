@@ -8,7 +8,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.daftarii.auth.GuestSessionHelper;
 import com.example.daftarii.auth.LoginViewModel;
 import com.example.daftarii.logic.StartRouter;
 import com.example.daftarii.util.LanguageManager;
@@ -17,33 +16,16 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import com.google.android.material.progressindicator.LinearProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseAuthInvalidUserException;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.SetOptions;
 
-import java.util.HashMap;
-import java.util.Map;
-
-/**
- * شاشة تسجيل الدخول.
- * تدعم التحقق من تفعيل البريد الإلكتروني، إرسال رابط التفعيل، تسجيل/تحديث بيانات المستخدم في Firestore،
- * ودخول الزائر لمرة واحدة فقط.
- */
+/** شاشة تسجيل الدخول. كل المنطق بـ LoginViewModel، وهون عرض بس. */
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel viewModel;
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-    private GuestSessionHelper guestSessionHelper;
 
     private TextInputLayout tilEmail, tilPassword;
     private TextInputEditText etEmail, etPassword;
     private MaterialCheckBox cbRememberMe;
-    private MaterialButton btnLogin, btnGuest, btnForgotPassword, btnGoToRegister;
-    private View btnLanguage;
+    private MaterialButton btnLogin, btnGuest;
     private LinearProgressIndicator progress;
 
     @Override
@@ -51,18 +33,8 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
-        guestSessionHelper = new GuestSessionHelper(this);
         viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 
-        bindViews();
-        bindInitialState();
-        setupListeners();
-        observe();
-    }
-
-    private void bindViews() {
         tilEmail = findViewById(R.id.tilLoginEmail);
         tilPassword = findViewById(R.id.tilLoginPassword);
         etEmail = findViewById(R.id.etLoginEmail);
@@ -70,257 +42,42 @@ public class LoginActivity extends AppCompatActivity {
         cbRememberMe = findViewById(R.id.cbRememberMe);
         btnLogin = findViewById(R.id.btnLogin);
         btnGuest = findViewById(R.id.btnGuest);
-        btnForgotPassword = findViewById(R.id.btnForgotPassword);
-        btnGoToRegister = findViewById(R.id.btnGoToRegister);
-        btnLanguage = findViewById(R.id.btnLanguage);
         progress = findViewById(R.id.progressLogin);
-    }
 
-    private void bindInitialState() {
-        if (cbRememberMe != null && viewModel != null) {
-            cbRememberMe.setChecked(viewModel.isRememberMe());
-        }
-        refreshGuestButtonState();
-    }
+        cbRememberMe.setChecked(viewModel.isRememberMe());
 
-    private void refreshGuestButtonState() {
-        if (btnGuest == null || guestSessionHelper == null) return;
-        boolean usedOnce = guestSessionHelper.hasUsedGuestOnce();
-        btnGuest.setEnabled(!usedOnce);
-        btnGuest.setAlpha(usedOnce ? 0.5f : 1.0f);
-    }
+        btnLogin.setOnClickListener(v -> viewModel.login(
+                text(etEmail), rawText(etPassword), cbRememberMe.isChecked()));
+        btnGuest.setOnClickListener(v -> viewModel.loginAsGuest());
+        findViewById(R.id.btnForgotPassword).setOnClickListener(v ->
+                startActivity(new Intent(this, ForgotPasswordActivity.class)));
+        findViewById(R.id.btnGoToRegister).setOnClickListener(v ->
+                startActivity(new Intent(this, RegisterActivity.class)));
+        // تغيير اللغة: أندرويد بيعيد فتح الشاشة باللغة الجديدة لحاله
+        findViewById(R.id.btnLanguage).setOnClickListener(v -> LanguageManager.toggle());
 
-    private void setupListeners() {
-        if (btnLogin != null) {
-            btnLogin.setOnClickListener(v -> attemptLoginWithEmailVerificationAndFirestore());
-        }
-
-        if (btnGuest != null) {
-            btnGuest.setOnClickListener(v -> signInAsGuestOnce());
-        }
-
-        if (btnForgotPassword != null) {
-            btnForgotPassword.setOnClickListener(v ->
-                    startActivity(new Intent(this, ForgotPasswordActivity.class)));
-        }
-
-        if (btnGoToRegister != null) {
-            btnGoToRegister.setOnClickListener(v ->
-                    startActivity(new Intent(this, RegisterActivity.class)));
-        }
-
-        if (btnLanguage != null) {
-            btnLanguage.setOnClickListener(v -> LanguageManager.toggle());
-        }
-    }
-
-    private void signInAsGuestOnce() {
-        if (guestSessionHelper.hasUsedGuestOnce()) {
-            refreshGuestButtonState();
-            Toast.makeText(
-                    this,
-                    "وضع الزائر متاح لمرة واحدة فقط. يرجى تسجيل الدخول أو إنشاء حساب",
-                    Toast.LENGTH_LONG
-            ).show();
-            return;
-        }
-
-        setLoadingState(true);
-
-        mAuth.signInAnonymously()
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful() || mAuth.getCurrentUser() == null) {
-                        setLoadingState(false);
-                        String err = (task.getException() != null && task.getException().getMessage() != null)
-                                ? task.getException().getMessage()
-                                : "تعذر تفعيل وضع الزائر";
-                        Toast.makeText(this, "فشل دخول الزائر: " + err, Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    FirebaseUser guestUser = mAuth.getCurrentUser();
-                    String uid = guestUser.getUid();
-                    long now = System.currentTimeMillis();
-
-                    guestSessionHelper.markGuestUsedOnce(uid);
-
-                    Map<String, Object> guestDoc = new HashMap<>();
-                    guestDoc.put("uid", uid);
-                    guestDoc.put("isAnonymous", true);
-                    guestDoc.put("emailVerified", false);
-                    guestDoc.put("guestUsedOnce", true);
-                    guestDoc.put("createdAt", now);
-                    guestDoc.put("lastLoginAt", now);
-
-                    db.collection("users")
-                            .document(uid)
-                            .set(guestDoc, SetOptions.merge())
-                            .addOnCompleteListener(dbTask -> {
-                                setLoadingState(false);
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                startActivity(intent);
-                                finish();
-                            });
-                });
-    }
-
-    private void attemptLoginWithEmailVerificationAndFirestore() {
-        String email = text(etEmail);
-        String password = rawText(etPassword);
-
-        if (tilEmail != null) tilEmail.setError(null);
-        if (tilPassword != null) tilPassword.setError(null);
-
-        if (email.isEmpty()) {
-            if (tilEmail != null) {
-                tilEmail.setError("الرجاء إدخال البريد الإلكتروني");
-            }
-            if (etEmail != null) etEmail.requestFocus();
-            return;
-        }
-
-        if (password.isEmpty()) {
-            if (tilPassword != null) {
-                tilPassword.setError("الرجاء إدخال كلمة المرور");
-            }
-            if (etPassword != null) etPassword.requestFocus();
-            return;
-        }
-
-        setLoadingState(true);
-
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(task -> {
-                    if (!task.isSuccessful()) {
-                        setLoadingState(false);
-                        Toast.makeText(this, resolveAuthErrorMessage(task.getException()), Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    if (user == null) {
-                        setLoadingState(false);
-                        Toast.makeText(this, "تعذر العثور على بيانات المستخدم", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    // إعادة تحميل بيانات المستخدم للتأكد من أحدث حالة لتفعيل البريد
-                    user.reload().addOnCompleteListener(reloadTask -> {
-                        if (!user.isEmailVerified()) {
-                            sendVerificationEmailAndRedirect(user);
-                            return;
-                        }
-                        syncUserToFirestoreAndProceed(user);
-                    });
-                });
-    }
-
-    private void sendVerificationEmailAndRedirect(FirebaseUser user) {
-        user.sendEmailVerification()
-                .addOnCompleteListener(verifyTask -> {
-                    setLoadingState(false);
-                    if (verifyTask.isSuccessful()) {
-                        Toast.makeText(
-                                this,
-                                "حسابك غير مفعّل. تم إرسال رابط التفعيل إلى بريدك الإلكتروني",
-                                Toast.LENGTH_LONG
-                        ).show();
-                    } else {
-                        Toast.makeText(
-                                this,
-                                "يرجى تفعيل بريدك الإلكتروني أولاً من الرابط المرسل إليك",
-                                Toast.LENGTH_LONG
-                        ).show();
-                    }
-
-                    Intent intent = new Intent(this, VerifyEmailActivity.class);
-                    intent.putExtra("USER_EMAIL", user.getEmail());
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                });
-    }
-
-    private void syncUserToFirestoreAndProceed(FirebaseUser user) {
-        String uid = user.getUid();
-        long now = System.currentTimeMillis();
-        boolean remember = cbRememberMe != null && cbRememberMe.isChecked();
-
-        Map<String, Object> userDoc = new HashMap<>();
-        userDoc.put("uid", uid);
-        userDoc.put("email", user.getEmail() != null ? user.getEmail() : "");
-        userDoc.put("emailVerified", user.isEmailVerified());
-        userDoc.put("isAnonymous", user.isAnonymous());
-        userDoc.put("rememberMe", remember);
-        userDoc.put("lastLoginAt", now);
-
-        if (user.getDisplayName() != null && !user.getDisplayName().trim().isEmpty()) {
-            userDoc.put("displayName", user.getDisplayName().trim());
-        }
-
-        db.collection("users")
-                .document(uid)
-                .set(userDoc, SetOptions.merge())
-                .addOnCompleteListener(dbTask -> {
-                    setLoadingState(false);
-                    if (!dbTask.isSuccessful()) {
-                        Toast.makeText(
-                                this,
-                                "تم تسجيل الدخول، وسيتم مزامنة بيانات الحساب مع Firestore تلقائياً",
-                                Toast.LENGTH_SHORT
-                        ).show();
-                    }
-
-                    Intent intent = new Intent(this, LockActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                    finish();
-                });
-    }
-
-    private void setLoadingState(boolean isLoading) {
-        if (progress != null) {
-            progress.setVisibility(isLoading ? View.VISIBLE : View.GONE);
-        }
-        if (btnLogin != null) {
-            btnLogin.setEnabled(!isLoading);
-        }
-        if (btnGuest != null) {
-            boolean usedOnce = guestSessionHelper != null && guestSessionHelper.hasUsedGuestOnce();
-            btnGuest.setEnabled(!isLoading && !usedOnce);
-        }
+        // التوجيه لما التطبيق يفتح صار بـ SplashActivity، فهون ما في فحص للجلسة.
+        observe();
     }
 
     private void observe() {
-        viewModel.getLoading().observe(this, loading -> setLoadingState(Boolean.TRUE.equals(loading)));
-
-        viewModel.getEmailError().observe(this, res -> {
-            if (tilEmail != null) {
-                tilEmail.setError(res == null ? null : getString(res));
-            }
+        viewModel.getLoading().observe(this, loading -> {
+            boolean on = Boolean.TRUE.equals(loading);
+            progress.setVisibility(on ? View.VISIBLE : View.GONE);
+            btnLogin.setEnabled(!on);
+            btnGuest.setEnabled(!on);
         });
-
-        viewModel.getPasswordError().observe(this, res -> {
-            if (tilPassword != null) {
-                tilPassword.setError(res == null ? null : getString(res));
-            }
-        });
-
+        viewModel.getEmailError().observe(this, res ->
+                tilEmail.setError(res == null ? null : getString(res)));
+        viewModel.getPasswordError().observe(this, res ->
+                tilPassword.setError(res == null ? null : getString(res)));
         viewModel.getMessage().observe(this, event -> {
-            if (event == null) return;
             Integer res = event.getIfNotHandled();
-            if (res != null) {
-                Toast.makeText(this, res, Toast.LENGTH_LONG).show();
-            }
+            if (res != null) Toast.makeText(this, res, Toast.LENGTH_LONG).show();
         });
-
         viewModel.getNavigation().observe(this, event -> {
-            if (event == null) return;
             StartRouter.Destination d = event.getIfNotHandled();
-            if (d != null) {
-                navigate(d);
-            }
+            if (d != null) navigate(d);
         });
     }
 
@@ -331,6 +88,7 @@ public class LoginActivity extends AppCompatActivity {
                 target = VerifyEmailActivity.class;
                 break;
             case HOME_GUEST:
+                // الزائر ما إله PIN ولا بصمة: على الرئيسية مباشرة
                 target = MainActivity.class;
                 break;
             case LOCK:
@@ -344,29 +102,13 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-    public static String resolveAuthErrorMessage(Exception exception) {
-        if (exception == null) {
-            return "فشل تسجيل الدخول";
-        }
-        if (exception instanceof FirebaseAuthInvalidUserException) {
-            String errorCode = ((FirebaseAuthInvalidUserException) exception).getErrorCode();
-            if ("ERROR_USER_DISABLED".equals(errorCode)) {
-                return "تم تعطيل حسابك من قبل الإدارة";
-            }
-            return "الحساب غير موجود أو تم تعطيله";
-        }
-        if (exception instanceof FirebaseAuthInvalidCredentialsException) {
-            return "البريد الإلكتروني أو كلمة المرور غير صحيحة";
-        }
-        String msg = exception.getMessage();
-        return (msg != null && !msg.trim().isEmpty()) ? "فشل الدخول: " + msg : "فشل تسجيل الدخول";
-    }
-
+    /** نص الحقل بدون مسافات بالأطراف (للإيميل). */
     private static String text(TextInputEditText et) {
-        return (et == null || et.getText() == null) ? "" : et.getText().toString().trim();
+        return et.getText() == null ? "" : et.getText().toString().trim();
     }
 
+    /** نص الحقل متل ما هو، بدون trim (لكلمة السر). */
     private static String rawText(TextInputEditText et) {
-        return (et == null || et.getText() == null) ? "" : et.getText().toString();
+        return et.getText() == null ? "" : et.getText().toString();
     }
 }

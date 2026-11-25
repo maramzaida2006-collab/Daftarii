@@ -55,6 +55,7 @@ public class LoginViewModel extends AndroidViewModel {
             public void onSuccess(Boolean verified) {
                 loading.setValue(false);
                 prefs.setRememberMe(rememberMe);
+                if (Boolean.TRUE.equals(verified)) repo.saveUserProfile(null, false);
                 navigation.setValue(new Event<>(Boolean.TRUE.equals(verified)
                         ? StartRouter.Destination.LOCK
                         : StartRouter.Destination.VERIFY_EMAIL));
@@ -74,6 +75,7 @@ public class LoginViewModel extends AndroidViewModel {
             @Override
             public void onSuccess(Void ignored) {
                 loading.setValue(false);
+                repo.saveUserProfile(null, true);
                 navigation.setValue(new Event<>(StartRouter.Destination.HOME_GUEST));
             }
 

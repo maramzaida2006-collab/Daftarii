@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.daftarii.logic.AuthError;
+
 import com.google.firebase.FirebaseNetworkException;
 import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.FirebaseAuth;
@@ -11,9 +12,14 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.FirebaseUserMetadata;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * المكان الوحيد بالتطبيق اللي بيحكي مع Firebase Authentication.
+ * المكان الوحيد بالتطبيق اللي بيحكي مع Firebase Authentication (ومع ملف المستخدم users/{uid}).
  * الشاشات ما بتستخدم FirebaseAuth مباشرة، بتمرّ من هون عن طريق الـ ViewModel.
  */
 public class AuthRepository {
@@ -179,6 +185,34 @@ public class AuthRepository {
             auth.signOut();
             callback.onSuccess(null);
         });
+    }
+
+    /**
+     * ملف المستخدم بـ Firestore: users/{uid}. حسابي وكشف الـ PDF بيقرأوا منه اسم المحل والإيميل.
+     * بنحفظه بعد الدخول وإنشاء الحساب ودخول الزائر. merge: ما بيمسح حقول تانية (متل تعديلات حسابي).
+     * ما بيوقف الدخول إذا فشل: الإنترنت لما يرجع Firestore بيكمّل الكتابة لحاله.
+     *
+     * @param shopName اسم المحل إذا معروف (وقت التسجيل). null: بناخده من displayName.
+     * @param isNew    حساب جديد (تسجيل أو زائر): بنحفظ createdAt.
+     */
+    public void saveUserProfile(@Nullable String shopName, boolean isNew) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) return;
+        long now = System.currentTimeMillis();
+        Map<String, Object> doc = new HashMap<>();
+        doc.put("uid", user.getUid());
+        doc.put("isAnonymous", user.isAnonymous());
+        doc.put("emailVerified", user.isEmailVerified());
+        doc.put("lastLoginAt", now);
+        if (isNew) doc.put("createdAt", now);
+        if (user.getEmail() != null) doc.put("email", user.getEmail());
+        String name = shopName != null ? shopName.trim() : user.getDisplayName();
+        if (name != null && !name.trim().isEmpty()) {
+            doc.put("shopName", name.trim());
+            doc.put("displayName", name.trim());
+        }
+        FirebaseFirestore.getInstance().collection("users").document(user.getUid())
+                .set(doc, SetOptions.merge());
     }
 
     public void signOut() {

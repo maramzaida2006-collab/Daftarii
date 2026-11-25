@@ -70,6 +70,7 @@ public class RegisterViewModel extends AndroidViewModel {
                 loading.setValue(false);
                 // اللي عمل حساب جديد بدّه يضل داخل بعد التفعيل
                 prefs.setRememberMe(true);
+                repo.saveUserProfile(shopName, true);
                 registered.setValue(new Event<>(true));
             }
 
