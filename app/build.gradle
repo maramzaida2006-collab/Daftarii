@@ -3,6 +3,8 @@ plugins {
     id("com.google.gms.google-services")
     // نسبة تغطية الاختبارات (JaCoCo)
     id 'jacoco'
+    // تقارير الكراش: أي كراش عند أي حدا بيوصل لـ Firebase Console ← Crashlytics
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -47,6 +49,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:34.15.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'androidx.biometric:biometric:1.1.0'
     // MVVM: ViewModel و LiveData
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.7'
