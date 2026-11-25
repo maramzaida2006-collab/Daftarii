@@ -1,0 +1,84 @@
+# بيشتغل لحاله مع كل PR ومع كل push على develop و master:
+# 1) بيعمل Build للتطبيق (إذا في ملف ناقص أو خطأ بالكود، بيفشل هون)
+# 2) بيشغّل اختبارات JUnit
+# 3) بيحسب نسبة تغطية الاختبارات لكلاسات logic (JaCoCo)
+# النتايج بتطلع بتبويب Actions، وعلى الـ PR نفسه (✅ أو ❌).
+name: Android CI
+
+on:
+  pull_request:
+  push:
+    branches: [ develop, master ]
+
+# إذا انرفع commit جديد على نفس الـ PR، بنوقف التشغيل القديم
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build + JUnit + Coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Java 21 (same as Android Studio's jbr-21)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Gradle (with cache)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      - name: Build the app
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Run JUnit tests
+        run: ./gradlew testDebugUnitTest --stacktrace
+
+      - name: Coverage report (logic classes)
+        run: ./gradlew jacocoLogicReport
+
+      - name: Coverage summary
+        if: always()
+        run: |
+          f=app/build/reports/jacoco/jacocoLogicReport/jacocoLogicReport.xml
+          if [ -f "$f" ]; then
+            python3 - "$f" >> "$GITHUB_STEP_SUMMARY" <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          root = ET.parse(sys.argv[1]).getroot()
+          print("## Test coverage (logic)")
+          print("| Class | Lines covered |")
+          print("|---|---|")
+          for pkg in root.findall("package"):
+              for c in pkg.findall("class"):
+                  name = c.get("name").split("/")[-1]
+                  if "$" in name:
+                      continue
+                  for k in c.findall("counter"):
+                      if k.get("type") == "LINE":
+                          cov, miss = int(k.get("covered")), int(k.get("missed"))
+                          print(f"| {name} | {100 * cov // max(1, cov + miss)}% |")
+          for k in root.findall("counter"):
+              if k.get("type") == "LINE":
+                  cov, miss = int(k.get("covered")), int(k.get("missed"))
+                  print(f"\n**Total: {100 * cov // max(1, cov + miss)}%** (target 70%)")
+          PY
+          fi
+
+      - name: Upload test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            app/build/reports/tests/
+            app/build/reports/jacoco/
+          retention-days: 14
