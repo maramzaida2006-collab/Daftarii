@@ -9,7 +9,6 @@
     <string name="btn_add_debt">إضافة الحركة الجديدة</string>
     <string name="history_label">سجل الحركات والديون</string>
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
 
     <!-- ===== اللغة ===== -->
     <!-- اسم اللغة التانية، بيظهر على زر تغيير اللغة -->
@@ -110,34 +109,34 @@
     <string name="biometric_prompt_use_pin">استخدام PIN</string>
 
     <!-- ===== الشاشة الرئيسية ===== -->
-    <string name="home_store_initial" translatable="false">ن</string>
-    <string name="home_greeting" translatable="false">مساء الخير</string>
-    <string name="home_store_name" translatable="false">سوبرماركت النور</string>
-    <string name="home_notifications_cd" translatable="false">الإشعارات</string>
-    <string name="home_total_due_label" translatable="false">إجمالي المستحق لك</string>
-    <string name="home_current_month" translatable="false">نوفمبر 2026</string>
+    <string name="home_store_initial">م</string>
+    <string name="home_greeting">مساء الخير</string>
+    <string name="home_store_name">محلّي</string>
+    <string name="home_notifications_cd">الإشعارات</string>
+    <string name="home_total_due_label">إجمالي المستحق لك</string>
+    <string name="home_current_month">نوفمبر 2026</string>
     <string name="home_sample_total_due" translatable="false">₪ 12,480</string>
-    <string name="home_collected_this_month" translatable="false">حُصّل هذا الشهر</string>
+    <string name="home_collected_this_month">حُصّل هذا الشهر</string>
     <string name="home_sample_collected" translatable="false">₪ 3,250</string>
-    <string name="home_debtor_customers" translatable="false">زبائن مدينون</string>
+    <string name="home_debtor_customers">زبائن مدينون</string>
     <string name="home_sample_debtors" translatable="false">38</string>
-    <string name="home_overdue_customers" translatable="false">متأخرون</string>
+    <string name="home_overdue_customers">متأخرون</string>
     <string name="home_sample_overdue" translatable="false">7</string>
 
     <!-- الإجراءات السريعة والأقسام -->
-    <string name="action_new_debt" translatable="false">دين جديد</string>
-    <string name="action_payment" translatable="false">دفعة</string>
-    <string name="action_new_customer" translatable="false">زبون جديد</string>
-    <string name="action_search" translatable="false">بحث</string>
-    <string name="section_follow_up" translatable="false">بحاجة لمتابعة</string>
-    <string name="action_view_all" translatable="false">عرض الكل</string>
-    <string name="section_customers" translatable="false">الزبائن</string>
-    <string name="filter_highest_debt" translatable="false">الأعلى ديناً</string>
+    <string name="action_new_debt">دين جديد</string>
+    <string name="action_payment">دفعة</string>
+    <string name="action_new_customer">زبون جديد</string>
+    <string name="action_search">بحث</string>
+    <string name="section_follow_up">بحاجة لمتابعة</string>
+    <string name="action_view_all">عرض الكل</string>
+    <string name="section_customers">الزبائن</string>
+    <string name="filter_highest_debt">الأعلى ديناً</string>
 
     <!-- شريط التنقل السفلي -->
-    <string name="nav_home" translatable="false">الرئيسية</string>
-    <string name="nav_reports" translatable="false">التقارير</string>
-    <string name="nav_profile" translatable="false">حسابي</string>
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_reports">التقارير</string>
+    <string name="nav_profile">حسابي</string>
     <string name="onboarding_skip">تخطي</string>
     <string name="onboarding_next">التالي</string>
     <string name="onboarding_start">ابدأ الآن</string>
