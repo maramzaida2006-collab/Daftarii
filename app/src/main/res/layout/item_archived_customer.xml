@@ -130,7 +130,7 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:layout_gravity="center"
-                android:src="@drawable/vector"
+                android:src="@drawable/svg__1_"
                 app:tint="#C0392B" />
         </FrameLayout>
     </LinearLayout>

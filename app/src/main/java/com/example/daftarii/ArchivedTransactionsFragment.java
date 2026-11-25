@@ -31,6 +31,7 @@ public class ArchivedTransactionsFragment extends Fragment
     private ArchivedTransactionsAdapter adapter;
     private FirebaseFirestore db;
     private ListenerRegistration listenerRegistration;
+    private List<Transaction> currentList = new ArrayList<>();
 
     @Nullable
     @Override
@@ -50,6 +51,17 @@ public class ArchivedTransactionsFragment extends Fragment
         adapter = new ArchivedTransactionsAdapter(this);
         rvArchive.setAdapter(adapter);
 
+        getParentFragmentManager().setFragmentResultListener(
+                "customer_restored",
+                getViewLifecycleOwner(),
+                (requestKey, bundle) -> {
+                    String restoredCustomerId = bundle.getString("customerId");
+                    if (restoredCustomerId != null && !restoredCustomerId.isEmpty()) {
+                        removeTransactionsByCustomerId(restoredCustomerId);
+                    }
+                }
+        );
+
         listenToArchivedTransactions();
     }
 
@@ -65,9 +77,7 @@ public class ArchivedTransactionsFragment extends Fragment
                         return;
                     }
                     if (snapshots != null) {
-                        List<Transaction> list = parseTransactions(snapshots.getDocuments());
-                        adapter.setTransactions(list);
-                        notifyActivityCount(list.size());
+                        updateList(parseTransactions(snapshots.getDocuments()));
                     }
                 });
     }
@@ -78,10 +88,34 @@ public class ArchivedTransactionsFragment extends Fragment
                 .get()
                 .addOnSuccessListener(snapshots -> {
                     if (!isAdded() || snapshots == null) return;
-                    List<Transaction> list = parseTransactions(snapshots.getDocuments());
-                    adapter.setTransactions(list);
-                    notifyActivityCount(list.size());
+                    updateList(parseTransactions(snapshots.getDocuments()));
                 });
+    }
+
+    private void updateList(List<Transaction> list) {
+        currentList = new ArrayList<>(list);
+        adapter.setTransactions(currentList);
+        notifyActivityCount(currentList.size());
+    }
+
+    private void removeTransactionLocally(String transactionId) {
+        List<Transaction> updated = new ArrayList<>();
+        for (Transaction tx : currentList) {
+            if (tx.getId() != null && !tx.getId().equals(transactionId)) {
+                updated.add(tx);
+            }
+        }
+        updateList(updated);
+    }
+
+    private void removeTransactionsByCustomerId(String customerId) {
+        List<Transaction> updated = new ArrayList<>();
+        for (Transaction tx : currentList) {
+            if (tx.getCustomerId() == null || !tx.getCustomerId().equals(customerId)) {
+                updated.add(tx);
+            }
+        }
+        updateList(updated);
     }
 
     private List<Transaction> parseTransactions(List<DocumentSnapshot> docs) {
@@ -116,8 +150,9 @@ public class ArchivedTransactionsFragment extends Fragment
             return;
         }
 
+        String transactionId = transaction.getId();
         DocumentReference customerRef = db.collection("customers").document(transaction.getCustomerId());
-        DocumentReference debtRef = customerRef.collection("debts").document(transaction.getId());
+        DocumentReference debtRef = customerRef.collection("debts").document(transactionId);
 
         db.runTransaction(firestoreTx -> {
             DocumentSnapshot customerSnap = firestoreTx.get(customerRef);
@@ -141,6 +176,7 @@ public class ArchivedTransactionsFragment extends Fragment
             return null;
         }).addOnSuccessListener(unused -> {
             if (isAdded()) {
+                removeTransactionLocally(transactionId);
                 Toast.makeText(requireContext(), "تم استرجاع الحركة وتحديث الرصيد", Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(e -> {
@@ -154,6 +190,7 @@ public class ArchivedTransactionsFragment extends Fragment
     public void onDeleteClick(Transaction transaction) {
         if (!isAdded() || transaction.getId() == null || transaction.getCustomerId() == null) return;
 
+        String transactionId = transaction.getId();
         new AlertDialog.Builder(requireContext())
                 .setTitle("حذف نهائي")
                 .setMessage("هل أنتِ متأكدة من حذف هذه الحركة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.")
@@ -161,10 +198,11 @@ public class ArchivedTransactionsFragment extends Fragment
                     db.collection("customers")
                             .document(transaction.getCustomerId())
                             .collection("debts")
-                            .document(transaction.getId())
+                            .document(transactionId)
                             .delete()
                             .addOnSuccessListener(unused -> {
                                 if (isAdded()) {
+                                    removeTransactionLocally(transactionId);
                                     Toast.makeText(requireContext(), "تم حذف الحركة نهائياً", Toast.LENGTH_SHORT).show();
                                 }
                             })
@@ -183,6 +221,7 @@ public class ArchivedTransactionsFragment extends Fragment
         super.onDestroyView();
         if (listenerRegistration != null) {
             listenerRegistration.remove();
+            listenerRegistration = null;
         }
     }
 }

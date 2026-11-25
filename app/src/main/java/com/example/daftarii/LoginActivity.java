@@ -8,6 +8,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.example.daftarii.auth.GuestSessionHelper;
 import com.example.daftarii.auth.LoginViewModel;
 import com.example.daftarii.logic.StartRouter;
 import com.example.daftarii.util.LanguageManager;
@@ -28,13 +29,15 @@ import java.util.Map;
 
 /**
  * شاشة تسجيل الدخول.
- * تدعم التحقق من تفعيل البريد الإلكتروني، إرسال رابط التفعيل، وتسجيل/تحديث بيانات المستخدم في Firestore.
+ * تدعم التحقق من تفعيل البريد الإلكتروني، إرسال رابط التفعيل، تسجيل/تحديث بيانات المستخدم في Firestore،
+ * ودخول الزائر لمرة واحدة فقط.
  */
 public class LoginActivity extends AppCompatActivity {
 
     private LoginViewModel viewModel;
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
+    private GuestSessionHelper guestSessionHelper;
 
     private TextInputLayout tilEmail, tilPassword;
     private TextInputEditText etEmail, etPassword;
@@ -50,6 +53,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+        guestSessionHelper = new GuestSessionHelper(this);
         viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 
         bindViews();
@@ -76,6 +80,14 @@ public class LoginActivity extends AppCompatActivity {
         if (cbRememberMe != null && viewModel != null) {
             cbRememberMe.setChecked(viewModel.isRememberMe());
         }
+        refreshGuestButtonState();
+    }
+
+    private void refreshGuestButtonState() {
+        if (btnGuest == null || guestSessionHelper == null) return;
+        boolean usedOnce = guestSessionHelper.hasUsedGuestOnce();
+        btnGuest.setEnabled(!usedOnce);
+        btnGuest.setAlpha(usedOnce ? 0.5f : 1.0f);
     }
 
     private void setupListeners() {
@@ -84,7 +96,7 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         if (btnGuest != null) {
-            btnGuest.setOnClickListener(v -> viewModel.loginAsGuest());
+            btnGuest.setOnClickListener(v -> signInAsGuestOnce());
         }
 
         if (btnForgotPassword != null) {
@@ -100,6 +112,57 @@ public class LoginActivity extends AppCompatActivity {
         if (btnLanguage != null) {
             btnLanguage.setOnClickListener(v -> LanguageManager.toggle());
         }
+    }
+
+    private void signInAsGuestOnce() {
+        if (guestSessionHelper.hasUsedGuestOnce()) {
+            refreshGuestButtonState();
+            Toast.makeText(
+                    this,
+                    "وضع الزائر متاح لمرة واحدة فقط. يرجى تسجيل الدخول أو إنشاء حساب",
+                    Toast.LENGTH_LONG
+            ).show();
+            return;
+        }
+
+        setLoadingState(true);
+
+        mAuth.signInAnonymously()
+                .addOnCompleteListener(task -> {
+                    if (!task.isSuccessful() || mAuth.getCurrentUser() == null) {
+                        setLoadingState(false);
+                        String err = (task.getException() != null && task.getException().getMessage() != null)
+                                ? task.getException().getMessage()
+                                : "تعذر تفعيل وضع الزائر";
+                        Toast.makeText(this, "فشل دخول الزائر: " + err, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    FirebaseUser guestUser = mAuth.getCurrentUser();
+                    String uid = guestUser.getUid();
+                    long now = System.currentTimeMillis();
+
+                    guestSessionHelper.markGuestUsedOnce(uid);
+
+                    Map<String, Object> guestDoc = new HashMap<>();
+                    guestDoc.put("uid", uid);
+                    guestDoc.put("isAnonymous", true);
+                    guestDoc.put("emailVerified", false);
+                    guestDoc.put("guestUsedOnce", true);
+                    guestDoc.put("createdAt", now);
+                    guestDoc.put("lastLoginAt", now);
+
+                    db.collection("users")
+                            .document(uid)
+                            .set(guestDoc, SetOptions.merge())
+                            .addOnCompleteListener(dbTask -> {
+                                setLoadingState(false);
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                                finish();
+                            });
+                });
     }
 
     private void attemptLoginWithEmailVerificationAndFirestore() {
@@ -224,7 +287,8 @@ public class LoginActivity extends AppCompatActivity {
             btnLogin.setEnabled(!isLoading);
         }
         if (btnGuest != null) {
-            btnGuest.setEnabled(!isLoading);
+            boolean usedOnce = guestSessionHelper != null && guestSessionHelper.hasUsedGuestOnce();
+            btnGuest.setEnabled(!isLoading && !usedOnce);
         }
     }
 

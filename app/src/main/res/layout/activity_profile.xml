@@ -544,6 +544,22 @@
                 </LinearLayout>
             </LinearLayout>
 
+            <!-- زر تسجيل الخروج -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="14dp"
+                android:layout_marginBottom="8dp"
+                android:fontFamily="@font/readex_pro_semibold"
+                android:text="تسجيل الخروج"
+                android:textAllCaps="false"
+                android:textColor="@color/debt_fg"
+                android:textSize="14sp"
+                app:backgroundTint="@color/debt_bg"
+                app:cornerRadius="20dp"
+                app:elevation="0dp" />
+
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

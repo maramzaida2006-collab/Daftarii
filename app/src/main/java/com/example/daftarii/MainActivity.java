@@ -167,11 +167,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         navTabReports.setOnClickListener(v ->
-                Toast.makeText(this, "شاشة التقارير قيد التفعيل", Toast.LENGTH_SHORT).show()
+                startActivity(new Intent(MainActivity.this, ReportsActivity.class))
         );
 
         navTabProfile.setOnClickListener(v ->
-                Toast.makeText(this, "شاشة الحساب قيد التفعيل", Toast.LENGTH_SHORT).show()
+                startActivity(new Intent(MainActivity.this, ProfileActivity.class))
         );
     }
 

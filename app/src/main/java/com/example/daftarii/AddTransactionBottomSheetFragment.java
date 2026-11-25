@@ -20,8 +20,8 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.WriteBatch;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -179,7 +179,7 @@ public class AddTransactionBottomSheetFragment extends BottomSheetDialogFragment
 
         String name = selectedCustomer.getName() != null ? selectedCustomer.getName().trim() : "";
         tvAvatar.setText(buildInitials(name));
-        tvCustomerInfo.setText(String.format(Locale.getDefault(), "%s · الرصيد ₪ %.2f", name, selectedCustomer.getTotalDebt()));
+        tvCustomerInfo.setText(String.format(Locale.US, "%s · الرصيد ₪ %.2f", name, selectedCustomer.getTotalDebt()));
         selectedDueDateMillis = selectedCustomer.getDueDate();
         updateDateTexts();
     }
@@ -223,6 +223,7 @@ public class AddTransactionBottomSheetFragment extends BottomSheetDialogFragment
             ivDebt.setColorFilter(mutedColor);
             tvDebtLabel.setTextColor(mutedColor);
 
+            balanceBar.setBackgroundColor(Color.parseColor("#E8F6EE"));
             tvBalanceAfter.setTextColor(greenColor);
             if (balanceBar.getChildCount() >= 3 && balanceBar.getChildAt(2) instanceof TextView) {
                 ((TextView) balanceBar.getChildAt(2)).setTextColor(darkGreenText);
@@ -339,7 +340,7 @@ public class AddTransactionBottomSheetFragment extends BottomSheetDialogFragment
 
         double signedChange = isDebt ? entered : -entered;
         double afterBalance = Math.round((currentDebt + signedChange) * 100.0) / 100.0;
-        tvBalanceAfter.setText(String.format(Locale.getDefault(), "₪ %.2f", afterBalance));
+        tvBalanceAfter.setText(String.format(Locale.US, "₪ %.2f", afterBalance));
     }
 
     private void validateAndSaveTransaction() {
@@ -361,45 +362,51 @@ public class AddTransactionBottomSheetFragment extends BottomSheetDialogFragment
             desc = isDebt ? "دين" : "سداد دفعة نقدية";
         }
 
-        double signedAmount = isDebt ? parsedAmount : -parsedAmount;
-        double updatedTotalDebt = Math.round((selectedCustomer.getTotalDebt() + signedAmount) * 100.0) / 100.0;
+        double signedAmount = isDebt ? Math.abs(parsedAmount) : -Math.abs(parsedAmount);
+        String txType = isDebt ? "DEBT" : "PAYMENT";
 
         btnSave.setEnabled(false);
 
         DocumentReference customerRef = db.collection("customers").document(selectedCustomer.getId());
         DocumentReference debtRef = customerRef.collection("debts").document();
 
-        Map<String, Object> customerUpdates = new HashMap<>();
-        customerUpdates.put("totalDebt", updatedTotalDebt);
-        customerUpdates.put("dueDate", selectedDueDateMillis);
-
         Map<String, Object> debtMap = new HashMap<>();
         debtMap.put("id", debtRef.getId());
         debtMap.put("customerId", selectedCustomer.getId());
         debtMap.put("itemName", desc);
+        debtMap.put("type", txType);
         debtMap.put("amount", signedAmount);
         debtMap.put("timestamp", selectedTxTimestamp);
         debtMap.put("dueDate", selectedDueDateMillis);
         debtMap.put("archived", false);
 
-        WriteBatch batch = db.batch();
-        batch.update(customerRef, customerUpdates);
-        batch.set(debtRef, debtMap);
+        db.runTransaction(transaction -> {
+            DocumentSnapshot customerSnap = transaction.get(customerRef);
+            double currentServerDebt = 0.0;
+            if (customerSnap.exists() && customerSnap.getDouble("totalDebt") != null) {
+                currentServerDebt = customerSnap.getDouble("totalDebt");
+            }
+            double updatedTotalDebt = Math.round((currentServerDebt + signedAmount) * 100.0) / 100.0;
 
-        batch.commit()
-                .addOnSuccessListener(unused -> {
-                    if (isAdded()) {
-                        Toast.makeText(requireContext(), "تم حفظ الحركة وتحديث الرصيد في Firestore", Toast.LENGTH_SHORT).show();
-                        dismiss();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if (isAdded()) {
-                        btnSave.setEnabled(true);
-                        Toast.makeText(requireContext(), "تم الحفظ محلياً وسيتم المزامنة تلقائياً", Toast.LENGTH_SHORT).show();
-                        dismiss();
-                    }
-                });
+            transaction.set(debtRef, debtMap);
+            if (customerSnap.exists()) {
+                Map<String, Object> customerUpdates = new HashMap<>();
+                customerUpdates.put("totalDebt", updatedTotalDebt);
+                customerUpdates.put("dueDate", selectedDueDateMillis);
+                transaction.update(customerRef, customerUpdates);
+            }
+            return null;
+        }).addOnSuccessListener(unused -> {
+            if (isAdded()) {
+                Toast.makeText(requireContext(), "تم حفظ الحركة وتحديث الرصيد في Firestore", Toast.LENGTH_SHORT).show();
+                dismiss();
+            }
+        }).addOnFailureListener(e -> {
+            if (isAdded()) {
+                btnSave.setEnabled(true);
+                Toast.makeText(requireContext(), "تعذر حفظ الحركة: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private Double parseDoubleSafe(String value) {

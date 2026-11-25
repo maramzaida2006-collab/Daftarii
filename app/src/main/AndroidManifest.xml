@@ -17,6 +17,15 @@
         android:theme="@style/Theme.Supermarket"
         tools:targetApi="33">
         <activity
+            android:name=".StatementPreviewActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ReportsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ArchiveActivity"
             android:exported="false" />
         <activity
@@ -30,8 +39,7 @@
             android:exported="false" />
         <activity
             android:name=".LoginActivity"
-            android:exported="false" />
-        <!-- شاشة البداية: أول شاشة بتفتح، وبتقرر وين يروح المستخدم (StartRouter) -->
+            android:exported="false" /> <!-- شاشة البداية: أول شاشة بتفتح، وبتقرر وين يروح المستخدم (StartRouter) -->
         <activity
             android:name=".SplashActivity"
             android:exported="true"
@@ -44,8 +52,7 @@
         </activity>
         <activity
             android:name=".OnboardingActivity"
-            android:exported="false" />
-        <!-- شاشة القفل: كلها plum -->
+            android:exported="false" /> <!-- شاشة القفل: كلها plum -->
         <activity
             android:name=".LockActivity"
             android:exported="false"
@@ -58,9 +65,7 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
-
-        <!-- بيحفظ لغة التطبيق اللي اختارها المستخدم (لأندرويد أقدم من 13) -->
+            android:exported="false" /> <!-- بيحفظ لغة التطبيق اللي اختارها المستخدم (لأندرويد أقدم من 13) -->
         <service
             android:name="androidx.appcompat.app.AppLocalesMetadataHolderService"
             android:enabled="false"
