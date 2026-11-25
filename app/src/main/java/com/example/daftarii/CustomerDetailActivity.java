@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class CustomerDetailActivity extends AppCompatActivity {
+public class CustomerDetailActivity extends AppCompatActivity implements EditTransactionSheet.Host {
 
     private static final String TAG = "CustomerDetailActivity";
     private static final int FILTER_ALL = 0;
@@ -588,77 +588,40 @@ public class CustomerDetailActivity extends AppCompatActivity {
                         Toast.makeText(this, "تم الحفظ محلياً", Toast.LENGTH_SHORT).show());
     }
 
+    /**
+     * تعديل حركة: Bottom Sheet حسب التصميم (EditTransactionSheet)، مع سجل التعديلات.
+     * الحفظ بـ Firestore بيصير جوا الـ Sheet (TransactionEditor)، وهون بس بنحدّث الشاشة.
+     */
     private void showEditDebtDialog(DebtItem debtItem) {
-        if (customerId == null || debtItem == null) return;
+        if (customerId == null || debtItem == null || debtItem.getId() == null) return;
+        EditTransactionSheet.newInstance(customerId, customerName, debtItem)
+                .show(getSupportFragmentManager(), "edit_transaction");
+    }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("تعديل الحركة");
+    @Override
+    public void onTransactionEdited(String debtId, String newNote, double newSignedAmount, double balanceDiff) {
+        DebtItem item = findDebt(debtId);
+        if (item != null) {
+            item.setItemName(newNote);
+            item.setAmount(newSignedAmount);
+        }
+        currentTotalDebt = Math.round((currentTotalDebt + balanceDiff) * 100.0) / 100.0;
+        tvDetailTotalDebt.setText("₪ " + formatAmount(currentTotalDebt));
+        refreshFilteredList();
+    }
 
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setPadding(50, 40, 50, 10);
+    @Override
+    public void onArchiveRequested(String debtId) {
+        DebtItem item = findDebt(debtId);
+        if (item != null) showDeleteConfirmationDialog(item);
+    }
 
-        final TextInputEditText inputName = new TextInputEditText(this);
-        inputName.setHint("اسم الصنف أو الملاحظة");
-        inputName.setText(debtItem.getItemName());
-        layout.addView(inputName);
-
-        final TextInputEditText inputAmount = new TextInputEditText(this);
-        inputAmount.setHint("المبلغ");
-        inputAmount.setText(String.valueOf(Math.abs(debtItem.getAmount())));
-        inputAmount.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        layout.addView(inputAmount);
-
-        builder.setView(layout);
-
-        builder.setPositiveButton("تعديل", (dialog, which) -> {
-            String newName = inputName.getText() != null ? inputName.getText().toString().trim() : "";
-            String newAmountStr = inputAmount.getText() != null ? inputAmount.getText().toString().trim() : "";
-
-            if (newName.isEmpty() || newAmountStr.isEmpty()) {
-                Toast.makeText(this, "الرجاء تعبئة الحقول", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            Double parsedNewAmount = parseDoubleSafe(newAmountStr);
-            if (parsedNewAmount == null || parsedNewAmount <= 0) {
-                Toast.makeText(this, "الرجاء إدخال مبلغ صحيح أكبر من صفر", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            double newAmount = Math.abs(parsedNewAmount);
-            if (debtItem.getAmount() < 0) {
-                newAmount = -newAmount;
-            }
-
-            double oldAmount = debtItem.getAmount();
-            double diff = newAmount - oldAmount;
-
-            currentTotalDebt = Math.round((currentTotalDebt + diff) * 100.0) / 100.0;
-            tvDetailTotalDebt.setText("₪ " + formatAmount(currentTotalDebt));
-
-            debtItem.setItemName(newName);
-            debtItem.setAmount(newAmount);
-            refreshFilteredList();
-
-            if (debtItem.getId() == null) return;
-
-            WriteBatch batch = db.batch();
-            DocumentReference customerRef = db.collection("customers").document(customerId);
-            DocumentReference debtRef = customerRef.collection("debts").document(debtItem.getId());
-
-            batch.update(customerRef, "totalDebt", currentTotalDebt);
-            batch.update(debtRef, "itemName", newName, "amount", newAmount);
-
-            batch.commit()
-                    .addOnSuccessListener(aVoid ->
-                            Toast.makeText(this, "تم تعديل الحركة بنجاح", Toast.LENGTH_SHORT).show())
-                    .addOnFailureListener(e ->
-                            Toast.makeText(this, "تم التعديل محلياً", Toast.LENGTH_SHORT).show());
-        });
-
-        builder.setNegativeButton("إلغاء", null);
-        builder.show();
+    private DebtItem findDebt(String debtId) {
+        if (debtId == null) return null;
+        for (DebtItem d : allDebtItems) {
+            if (debtId.equals(d.getId())) return d;
+        }
+        return null;
     }
 
     private void showDeleteConfirmationDialog(DebtItem debtItem) {

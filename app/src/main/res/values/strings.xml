@@ -300,4 +300,28 @@
     <string name="notif_no_whatsapp">ما قدرنا نفتح واتساب</string>
     <string name="notif_channel_name">مواعيد السداد</string>
     <string name="notif_channel_description">تذكير لما يقرب موعد سداد زبون أو يتأخر</string>
+
+    <!-- تعديل حركة (Bottom Sheet) -->
+    <string name="edit_tx_title">تعديل الحركة</string>
+    <string name="edit_tx_type_debt">دين</string>
+    <string name="edit_tx_type_payment">دفعة</string>
+    <string name="edit_tx_amount">المبلغ</string>
+    <string name="edit_tx_note">الوصف</string>
+    <string name="edit_tx_history">سجل التعديلات</string>
+    <string name="edit_tx_archive">أرشفة</string>
+    <string name="edit_tx_save">حفظ التعديل</string>
+    <string name="edit_tx_balance_diff">الرصيد رح يتعدّل بالفرق: %1$s</string>
+    <string name="edit_tx_no_balance_change">الرصيد ما رح يتغيّر</string>
+    <string name="edit_tx_amount_invalid">المبلغ مش صحيح</string>
+    <string name="edit_tx_note_too_long">الوصف طويل كتير (200 حرف بالكتير)</string>
+    <string name="edit_tx_history_created">إنشاء الحركة بمبلغ ₪ %1$s</string>
+    <string name="edit_tx_history_amount">المبلغ: ₪ %1$s ← ₪ %2$s</string>
+    <string name="edit_tx_history_note">الوصف: "%1$s" ← "%2$s"</string>
+    <string name="edit_tx_history_both">المبلغ والوصف: ₪ %1$s ← ₪ %2$s</string>
+    <string name="edit_tx_saved">انحفظ التعديل</string>
+    <string name="edit_tx_saved_offline">انحفظ على الجوال، وبيترفع لما يرجع النت</string>
+    <string name="error_amount_empty">اكتب المبلغ</string>
+    <string name="error_amount_invalid">المبلغ مش صحيح (مثلاً 45.50)</string>
+    <string name="error_amount_not_positive">المبلغ لازم يكون أكبر من صفر</string>
+    <string name="error_amount_too_large">المبلغ كبير كتير</string>
 </resources>
