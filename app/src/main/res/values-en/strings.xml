@@ -228,4 +228,36 @@
     <string name="guest_banner_days">%1$d trial days left · Create an account to keep your data</string>
     <string name="guest_banner_last_day">Last day of your trial · Create an account to keep your data</string>
     <string name="guest_banner_action">Create account</string>
+
+    <!-- Notifications -->
+    <string name="notif_screen_title">Notifications</string>
+    <string name="notif_mark_all_read">Mark all read</string>
+    <string name="notif_tab_all">All</string>
+    <string name="notif_tab_payments">Payments</string>
+    <string name="notif_tab_system">System</string>
+    <string name="notif_today">Today</string>
+    <string name="notif_yesterday">Yesterday</string>
+    <string name="notif_empty_title">No notifications</string>
+    <string name="notif_empty_body">When a customer\'s due date is near or missed, it shows up here.</string>
+    <string name="notif_overdue_title">%1$s missed the due date</string>
+    <plurals name="notif_overdue_body">
+        <item quantity="one">%1$d day past the due date. Balance ₪ %2$s</item>
+        <item quantity="other">%1$d days past the due date. Balance ₪ %2$s</item>
+    </plurals>
+    <string name="notif_today_title">Payment due today</string>
+    <string name="notif_today_body">%1$s\'s payment is due today, ₪ %2$s.</string>
+    <string name="notif_tomorrow_title">Payment due soon</string>
+    <string name="notif_tomorrow_body">%1$s\'s payment is due tomorrow, ₪ %2$s.</string>
+    <string name="notif_trial_title">Your trial is ending soon</string>
+    <string name="notif_trial_body">%1$d days left. Create an account to keep your data.</string>
+    <string name="notif_trial_body_last">Last day of your trial. Create an account to keep your data.</string>
+    <string name="notif_unknown_customer">Customer</string>
+    <string name="notif_action_whatsapp">WhatsApp reminder</string>
+    <string name="notif_action_open">View account</string>
+    <string name="notif_action_upgrade">Create account</string>
+    <string name="notif_whatsapp_message">Hi %1$s, a friendly reminder about your payment. Balance due: ₪ %2$s. Thank you, %3$s</string>
+    <string name="notif_no_phone">This customer has no phone number</string>
+    <string name="notif_no_whatsapp">Couldn\'t open WhatsApp</string>
+    <string name="notif_channel_name">Due dates</string>
+    <string name="notif_channel_description">Reminders when a customer\'s due date is near or missed</string>
 </resources>

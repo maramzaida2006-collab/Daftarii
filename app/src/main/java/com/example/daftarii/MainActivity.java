@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.daftarii.auth.PinStore;
+import com.example.daftarii.notifications.NotificationBell;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -133,12 +134,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupListeners() {
-        btnNotifications.setOnClickListener(v -> {
-            if (viewUnreadDot != null) {
-                viewUnreadDot.setVisibility(View.GONE);
-            }
-            showOverdueNotificationsDialog();
-        });
+        // الجرس بيفتح شاشة الإشعارات، والنقطة بتبيّن بس إذا في إشعار مش مقروء.
+        // الربط بـ NotificationBell (سندس)، بينادى بـ checkUserAuthAndLoad.
 
         // فتح البوتوم شيت الموحّد للحركة (دين جديد / دفعة)
         btnNewDebt.setOnClickListener(v -> openTransactionSheet(true));
@@ -206,6 +203,8 @@ public class MainActivity extends AppCompatActivity {
 
         // شريط الزائر والأيام الضايلة. إذا خلصت التجربة بيوديه على تحويل الحساب (سندس)
         if (GuestBanner.setup(this)) return;
+        // جرس الإشعارات: بيفتح شاشة الإشعارات، وبيحدّث النقطة، وبيجدول الفحص اليومي (سندس)
+        NotificationBell.setup(this, btnNotifications, viewUnreadDot);
 
         currentUserId = user.getUid();
         bindStoreHeader(user);
@@ -320,9 +319,7 @@ public class MainActivity extends AppCompatActivity {
         tvDebtorsCount.setText(String.valueOf(debtorsCount));
         tvOverdueCount.setText(String.valueOf(overdueCount));
 
-        if (viewUnreadDot != null) {
-            viewUnreadDot.setVisibility(overdueCount > 0 ? View.VISIBLE : View.GONE);
-        }
+        // النقطة الحمرا على الجرس صارت من NotificationBell (الإشعارات المش مقروءة)، مش من عدد المتأخرين
 
         customersAdapter.notifyDataSetChanged();
         followUpAdapter.notifyDataSetChanged();

@@ -265,4 +265,40 @@
     <string name="guest_banner_days">ضايلك %1$d أيام تجربة · أنشئ حساب عشان ما تضيع بياناتك</string>
     <string name="guest_banner_last_day">آخر يوم بالتجربة · أنشئ حساب عشان ما تضيع بياناتك</string>
     <string name="guest_banner_action">إنشاء حساب</string>
+
+    <!-- الإشعارات -->
+    <string name="notif_screen_title">الإشعارات</string>
+    <string name="notif_mark_all_read">قراءة الكل</string>
+    <string name="notif_tab_all">الكل</string>
+    <string name="notif_tab_payments">السداد</string>
+    <string name="notif_tab_system">النظام</string>
+    <string name="notif_today">اليوم</string>
+    <string name="notif_yesterday">أمس</string>
+    <string name="notif_empty_title">ما في إشعارات</string>
+    <string name="notif_empty_body">لما يقرب موعد سداد زبون أو يتأخر، رح يطلع هون.</string>
+    <string name="notif_overdue_title">%1$s تأخر عن السداد</string>
+    <plurals name="notif_overdue_body">
+        <item quantity="zero">موعد السداد كان اليوم. الرصيد ₪ %2$s</item>
+        <item quantity="one">مضى يوم على موعد السداد. الرصيد ₪ %2$s</item>
+        <item quantity="two">مضى يومين على موعد السداد. الرصيد ₪ %2$s</item>
+        <item quantity="few">مضى %1$d أيام على موعد السداد. الرصيد ₪ %2$s</item>
+        <item quantity="many">مضى %1$d يوم على موعد السداد. الرصيد ₪ %2$s</item>
+        <item quantity="other">مضى %1$d يوم على موعد السداد. الرصيد ₪ %2$s</item>
+    </plurals>
+    <string name="notif_today_title">موعد سداد اليوم</string>
+    <string name="notif_today_body">موعد سداد %1$s اليوم، المبلغ ₪ %2$s.</string>
+    <string name="notif_tomorrow_title">موعد سداد قريب</string>
+    <string name="notif_tomorrow_body">موعد سداد %1$s بكرة، المبلغ ₪ %2$s.</string>
+    <string name="notif_trial_title">فترة التجربة قربت تخلص</string>
+    <string name="notif_trial_body">ضايلك %1$d أيام. أنشئ حساب عشان ما تضيع بياناتك.</string>
+    <string name="notif_trial_body_last">آخر يوم بالتجربة. أنشئ حساب عشان ما تضيع بياناتك.</string>
+    <string name="notif_unknown_customer">زبون</string>
+    <string name="notif_action_whatsapp">تذكير واتساب</string>
+    <string name="notif_action_open">عرض الحساب</string>
+    <string name="notif_action_upgrade">إنشاء حساب</string>
+    <string name="notif_whatsapp_message">مرحبا %1$s، تذكير لطيف بموعد السداد. الرصيد المستحق ₪ %2$s. مع الشكر، %3$s</string>
+    <string name="notif_no_phone">ما في رقم جوال لهاد الزبون</string>
+    <string name="notif_no_whatsapp">ما قدرنا نفتح واتساب</string>
+    <string name="notif_channel_name">مواعيد السداد</string>
+    <string name="notif_channel_description">تذكير لما يقرب موعد سداد زبون أو يتأخر</string>
 </resources>

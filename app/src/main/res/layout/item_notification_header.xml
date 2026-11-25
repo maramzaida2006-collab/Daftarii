@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- عنوان مجموعة بقائمة الإشعارات: اليوم / أمس / التاريخ -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tvNotifHeader"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:accessibilityHeading="true"
+    android:fontFamily="@font/readex_pro_medium"
+    android:paddingStart="4dp"
+    android:paddingTop="14dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="6dp"
+    android:textColor="@color/text_secondary"
+    android:textSize="12sp" />

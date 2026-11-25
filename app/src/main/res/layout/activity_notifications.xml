@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- شاشة الإشعارات: رجوع، العنوان، "قراءة الكل"، تبويبات (الكل / السداد / النظام)، والقائمة.
+     حسب تصميم Notifications. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="22dp"
+        android:paddingTop="22dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="12dp">
+
+        <ImageButton
+            android:id="@+id/btnNotificationsBack"
+            style="@style/Daftari.BackButton" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:accessibilityHeading="true"
+            android:fontFamily="@font/alexandria_semibold"
+            android:text="@string/notif_screen_title"
+            android:textColor="@color/text_primary"
+            android:textSize="20sp" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMarkAllRead"
+            style="@style/Daftari.Button.Link"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/notif_mark_all_read"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <!-- التبويبات -->
+    <LinearLayout
+        android:id="@+id/notifTabs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="22dp"
+        android:layout_marginEnd="22dp"
+        android:background="@drawable/shape_r16"
+        android:backgroundTint="@color/outline"
+        android:orientation="horizontal"
+        android:padding="4dp">
+
+        <TextView
+            android:id="@+id/tabAll"
+            style="@style/Daftari.Tab"
+            android:text="@string/notif_tab_all" />
+
+        <TextView
+            android:id="@+id/tabPayments"
+            style="@style/Daftari.Tab"
+            android:text="@string/notif_tab_payments" />
+
+        <TextView
+            android:id="@+id/tabSystem"
+            style="@style/Daftari.Tab"
+            android:text="@string/notif_tab_system" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvNotifications"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingStart="22dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="22dp"
+            android:paddingBottom="24dp" />
+
+        <!-- ما في إشعارات -->
+        <LinearLayout
+            android:id="@+id/notifEmpty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="32dp"
+            android:visibility="gone">
+
+            <FrameLayout
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:background="@drawable/shape_r24"
+                android:backgroundTint="@color/lavender_soft">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_gravity="center"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_bell"
+                    app:tint="@color/violet" />
+            </FrameLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:fontFamily="@font/readex_pro_semibold"
+                android:text="@string/notif_empty_title"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:gravity="center"
+                android:text="@string/notif_empty_body"
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>
