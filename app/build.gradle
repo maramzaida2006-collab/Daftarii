@@ -1,6 +1,10 @@
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
+    // نسبة تغطية الاختبارات (JaCoCo)
+    id 'jacoco'
+    // تقارير الكراش: أي كراش عند أي حدا بيوصل لـ Firebase Console ← Crashlytics
+    id 'com.google.firebase.crashlytics'
 }
 
 android {
@@ -18,6 +22,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            // بيخلّي اختبارات JUnit تسجّل أي سطور اشتغلت (لتقرير jacocoLogicReport)
+            enableUnitTestCoverage true
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -41,6 +49,7 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:34.15.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-crashlytics'
     implementation 'androidx.biometric:biometric:1.1.0'
     // MVVM: ViewModel و LiveData
     implementation 'androidx.lifecycle:lifecycle-viewmodel:2.8.7'
@@ -50,4 +59,28 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore'
     // صفحات الترحيب اللي بتتقلّب بالسحب
     implementation 'androidx.viewpager2:viewpager2:1.1.0'
+}
+
+// ===== تقرير تغطية الاختبارات لكلاسات logic =====
+// التشغيل: ./gradlew jacocoLogicReport
+// التقرير: app/build/reports/jacoco/jacocoLogicReport/html/index.html
+// بنقيس logic بس لأنه هو المنطق اللي عليه اختبارات JUnit (الهدف 70%).
+tasks.register('jacocoLogicReport', JacocoReport) {
+    group = 'verification'
+    description = 'Coverage of com.example.daftarii.logic by JUnit tests'
+    dependsOn 'testDebugUnitTest'
+
+    reports {
+        xml.required = true
+        html.required = true
+    }
+
+    classDirectories.setFrom(fileTree(layout.buildDirectory.dir('intermediates/javac/debug')) {
+        include '**/com/example/daftarii/logic/**/*.class'
+    })
+    sourceDirectories.setFrom(files('src/main/java'))
+    executionData.setFrom(fileTree(layout.buildDirectory) {
+        include 'outputs/unit_test_code_coverage/debugUnitTest/*.exec'
+        include 'jacoco/testDebugUnitTest.exec'
+    })
 }
