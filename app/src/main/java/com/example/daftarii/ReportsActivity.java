@@ -46,6 +46,7 @@ public class ReportsActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
 
         initViews();
+        highlightPeriodTab(selectedPeriod);
         setupListeners();
         listenToReportsFromFirestore();
     }
@@ -102,7 +103,7 @@ public class ReportsActivity extends AppCompatActivity {
 
         if (navReportsTabActive != null) {
             navReportsTabActive.setOnClickListener(v -> {
-                // نحن بالفعل في شاشة التقارير
+                highlightPeriodTab(selectedPeriod);
             });
         }
 
@@ -123,13 +124,21 @@ public class ReportsActivity extends AppCompatActivity {
     private void highlightPeriodTab(String selected) {
         if (tabThisMonth == null || tabThreeMonths == null || tabThisYear == null) return;
 
-        tabThisMonth.setTextColor(getColor(selected.equals("THIS_MONTH") ? R.color.text_primary : R.color.text_secondary));
-        tabThreeMonths.setTextColor(getColor(selected.equals("THREE_MONTHS") ? R.color.text_primary : R.color.text_secondary));
-        tabThisYear.setTextColor(getColor(selected.equals("THIS_YEAR") ? R.color.text_primary : R.color.text_secondary));
+        boolean isMonth = "THIS_MONTH".equals(selected);
+        boolean isThreeMonths = "THREE_MONTHS".equals(selected);
+        boolean isYear = "THIS_YEAR".equals(selected);
 
-        tabThisMonth.setBackgroundTintList(getColorStateList(selected.equals("THIS_MONTH") ? R.color.background : android.R.color.transparent));
-        tabThreeMonths.setBackgroundTintList(getColorStateList(selected.equals("THREE_MONTHS") ? R.color.background : android.R.color.transparent));
-        tabThisYear.setBackgroundTintList(getColorStateList(selected.equals("THIS_YEAR") ? R.color.background : android.R.color.transparent));
+        tabThisMonth.setBackgroundResource(isMonth ? R.drawable.shape_r16 : 0);
+        tabThreeMonths.setBackgroundResource(isThreeMonths ? R.drawable.shape_r16 : 0);
+        tabThisYear.setBackgroundResource(isYear ? R.drawable.shape_r16 : 0);
+
+        tabThisMonth.setBackgroundTintList(isMonth ? getColorStateList(R.color.background) : null);
+        tabThreeMonths.setBackgroundTintList(isThreeMonths ? getColorStateList(R.color.background) : null);
+        tabThisYear.setBackgroundTintList(isYear ? getColorStateList(R.color.background) : null);
+
+        tabThisMonth.setTextColor(getColor(isMonth ? R.color.text_primary : R.color.text_secondary));
+        tabThreeMonths.setTextColor(getColor(isThreeMonths ? R.color.text_primary : R.color.text_secondary));
+        tabThisYear.setTextColor(getColor(isYear ? R.color.text_primary : R.color.text_secondary));
     }
 
     private void listenToReportsFromFirestore() {
@@ -168,8 +177,15 @@ public class ReportsActivity extends AppCompatActivity {
     }
 
     private void updateStatsUi() {
+        double multiplier = 1.0;
+        if ("THREE_MONTHS".equals(selectedPeriod)) {
+            multiplier = 1.0;
+        } else if ("THIS_YEAR".equals(selectedPeriod)) {
+            multiplier = 1.0;
+        }
+
         if (tvStatNewDebtsAmount != null) {
-            tvStatNewDebtsAmount.setText(String.format(Locale.ROOT, "%.0f", totalDebtsBalance));
+            tvStatNewDebtsAmount.setText(String.format(Locale.ROOT, "%.0f", totalDebtsBalance * multiplier));
         }
         if (tvStatNewDebtsCount != null) {
             tvStatNewDebtsCount.setText("إجمالي الزبائن: " + totalCustomers);
