@@ -729,7 +729,7 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:importantForAccessibility="no"
-                android:src="@drawable/more"
+                android:src="@drawable/vector1"
                 app:tint="@color/plum" />
 
             <TextView
