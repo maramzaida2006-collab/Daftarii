@@ -306,4 +306,20 @@
     <string name="error_amount_invalid">Invalid amount (e.g. 45.50)</string>
     <string name="error_amount_not_positive">The amount must be more than zero</string>
     <string name="error_amount_too_large">The amount is too large</string>
+
+    <!-- Profile: security and account -->
+    <string name="pin_changed">PIN changed</string>
+    <string name="profile_badge_guest">Guest · %1$d days left</string>
+    <string name="profile_badge_not_verified">Email not verified</string>
+    <string name="profile_change_password_title">Change password</string>
+    <string name="profile_change_password_message">We\'ll send a password reset link to %1$s</string>
+    <string name="profile_change_password_send">Send link</string>
+    <string name="profile_change_password_sent">Link sent, check your email</string>
+    <string name="profile_logout_button">Log out</string>
+    <string name="profile_logout_title">Log out?</string>
+    <string name="profile_logout_message">Your PIN and fingerprint will be removed from this phone. Your data stays saved in your account.</string>
+    <string name="profile_logout_confirm">Log out</string>
+    <string name="profile_logout_guest_title">You\'re a guest</string>
+    <string name="profile_logout_guest_message">If you leave without creating an account, you can\'t get back to your data. Create an account and everything moves with you.</string>
+    <string name="profile_logout_anyway">Leave anyway</string>
 </resources>

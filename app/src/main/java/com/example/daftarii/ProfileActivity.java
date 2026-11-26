@@ -55,6 +55,8 @@ public class ProfileActivity extends AppCompatActivity {
         setupListeners();
         refreshArchiveCount();
         updateLanguageLabel();
+        // قسم الأمان والحساب: البصمة، PIN، كلمة السر، الإشعارات، تسجيل الخروج (سندس)
+        ProfileSecurity.setup(this);
     }
 
     @Override
@@ -63,6 +65,7 @@ public class ProfileActivity extends AppCompatActivity {
         refreshArchiveCount();
         updateLanguageLabel();
         syncSwitchStates();
+        ProfileSecurity.refresh(this);
     }
 
     private void initViews() {

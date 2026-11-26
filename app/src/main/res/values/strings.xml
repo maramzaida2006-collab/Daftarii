@@ -324,4 +324,20 @@
     <string name="error_amount_invalid">المبلغ مش صحيح (مثلاً 45.50)</string>
     <string name="error_amount_not_positive">المبلغ لازم يكون أكبر من صفر</string>
     <string name="error_amount_too_large">المبلغ كبير كتير</string>
+
+    <!-- حسابي: قسم الأمان والحساب -->
+    <string name="pin_changed">تغيّر رمز الدخول</string>
+    <string name="profile_badge_guest">زائر · ضايلك %1$d أيام</string>
+    <string name="profile_badge_not_verified">البريد مش مفعّل</string>
+    <string name="profile_change_password_title">تغيير كلمة السر</string>
+    <string name="profile_change_password_message">رح نبعت رابط لتغيير كلمة السر على %1$s</string>
+    <string name="profile_change_password_send">ابعت الرابط</string>
+    <string name="profile_change_password_sent">بعتنالك الرابط، شوف بريدك</string>
+    <string name="profile_logout_button">تسجيل الخروج</string>
+    <string name="profile_logout_title">تسجيل الخروج؟</string>
+    <string name="profile_logout_message">رح ينمسح رمز الدخول والبصمة عن هاد الجوال. بياناتك بتضل محفوظة بحسابك.</string>
+    <string name="profile_logout_confirm">اطلع</string>
+    <string name="profile_logout_guest_title">انت داخل كزائر</string>
+    <string name="profile_logout_guest_message">إذا طلعت بدون ما تعمل حساب، ما رح تقدر ترجع لبياناتك. اعمل حساب وكل إشي بينتقل معك.</string>
+    <string name="profile_logout_anyway">اطلع على كل حال</string>
 </resources>

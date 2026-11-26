@@ -15,12 +15,35 @@ import java.util.concurrent.TimeUnit;
 public final class NotificationScheduler {
 
     private static final String WORK_NAME = "due_reminders_daily";
+    private static final String PREFS = "daftari_notifications_meta";
+    private static final String KEY_ENABLED = "reminders_enabled";
     private static final int HOUR = 9;
 
     private NotificationScheduler() {}
 
+    /** إشعارات الجوال اليومية شغّالة؟ (مفتاح "الإشعارات" بحسابي). افتراضياً آه. */
+    public static boolean isEnabled(Context context) {
+        return context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getBoolean(KEY_ENABLED, true);
+    }
+
+    /** من حسابي: تشغيل أو إيقاف الفحص اليومي. شاشة الإشعارات بالتطبيق بتضل شغّالة بالحالتين. */
+    public static void setEnabled(Context context, boolean enabled) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit().putBoolean(KEY_ENABLED, enabled).apply();
+        if (enabled) {
+            schedule(context);
+        } else {
+            cancel(context);
+        }
+    }
+
+    /** مع تسجيل الخروج أو إيقاف الإشعارات. */
+    public static void cancel(Context context) {
+        WorkManager.getInstance(context.getApplicationContext()).cancelUniqueWork(WORK_NAME);
+    }
+
     /** آمن نناديه كل ما التطبيق يفتح: KEEP ما بيعمل جدولة جديدة إذا في وحدة. */
     public static void schedule(Context context) {
+        if (!isEnabled(context)) return;
         NotificationHelper.createChannel(context);
         Constraints constraints = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)

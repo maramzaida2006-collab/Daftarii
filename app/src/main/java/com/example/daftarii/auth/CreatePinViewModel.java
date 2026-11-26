@@ -19,7 +19,7 @@ import com.example.daftarii.util.Event;
  */
 public class CreatePinViewModel extends AndroidViewModel {
 
-    public enum Nav { DONE, BACK_TO_LOGIN }
+    public enum Nav { DONE, BACK_TO_LOGIN, CLOSE, CHANGED }
 
     /** شوي وقت بعد آخر رقم، عشان المستخدم يشوف النقطة الرابعة تتعبّى. */
     private static final long STEP_DELAY_MS = 180;
@@ -32,6 +32,8 @@ public class CreatePinViewModel extends AndroidViewModel {
     private final StringBuilder input = new StringBuilder();
     private String firstPin;
     private boolean busy;
+    /** تغيير PIN من حسابي: الرجوع بيسكّر الشاشة (ما بيطلّعه من الحساب)، والحفظ بيرجعه لحسابي. */
+    private boolean changeMode;
 
     private final MutableLiveData<Integer> step = new MutableLiveData<>(1);
     private final MutableLiveData<Integer> filled = new MutableLiveData<>(0);
@@ -82,11 +84,17 @@ public class CreatePinViewModel extends AndroidViewModel {
      * زر الرجوع: من خطوة التأكيد بيرجع للخطوة الأولى.
      * من الخطوة الأولى بيطلّع المستخدم (ما في دخول بدون PIN) وبيرجعه على تسجيل الدخول.
      */
+    public void setChangeMode(boolean changeMode) {
+        this.changeMode = changeMode;
+    }
+
     public void onBack() {
         handler.removeCallbacksAndMessages(null);
         busy = false;
         if (Integer.valueOf(2).equals(step.getValue())) {
             resetTo(1);
+        } else if (changeMode) {
+            navigation.setValue(new Event<>(Nav.CLOSE));
         } else {
             repo.signOut();
             navigation.setValue(new Event<>(Nav.BACK_TO_LOGIN));
@@ -120,7 +128,7 @@ public class CreatePinViewModel extends AndroidViewModel {
         store.setBiometricEnabled(uid, Boolean.TRUE.equals(biometricOn.getValue()));
         input.setLength(0);
         firstPin = null;
-        navigation.setValue(new Event<>(Nav.DONE));
+        navigation.setValue(new Event<>(changeMode ? Nav.CHANGED : Nav.DONE));
     }
 
     private void resetTo(int newStep) {

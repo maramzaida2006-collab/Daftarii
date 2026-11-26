@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,6 +18,9 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 
 /** إنشاء رمز الدخول (4 أرقام) بخطوتين، وخيار البصمة. كل المنطق بـ CreatePinViewModel. */
 public class CreatePinActivity extends AppCompatActivity {
+
+    /** true: تغيير PIN من حسابي (الرجوع بيسكّر الشاشة بدل ما يطلّع من الحساب). */
+    public static final String EXTRA_CHANGE_PIN = "change_pin";
 
     private CreatePinViewModel viewModel;
     private TextView tvStep, tvTitle, tvSubtitle, tvError;
@@ -33,6 +37,7 @@ public class CreatePinActivity extends AppCompatActivity {
             goTo(LoginActivity.class);
             return;
         }
+        viewModel.setChangeMode(getIntent().getBooleanExtra(EXTRA_CHANGE_PIN, false));
 
         tvStep = findViewById(R.id.tvPinStep);
         tvTitle = findViewById(R.id.tvPinTitle);
@@ -94,6 +99,15 @@ public class CreatePinActivity extends AppCompatActivity {
         viewModel.getNavigation().observe(this, event -> {
             CreatePinViewModel.Nav nav = event.getIfNotHandled();
             if (nav == null) return;
+            if (nav == CreatePinViewModel.Nav.CHANGED) {
+                Toast.makeText(this, R.string.pin_changed, Toast.LENGTH_SHORT).show();
+                finish();
+                return;
+            }
+            if (nav == CreatePinViewModel.Nav.CLOSE) {
+                finish();
+                return;
+            }
             goTo(nav == CreatePinViewModel.Nav.DONE ? MainActivity.class : LoginActivity.class);
         });
     }
