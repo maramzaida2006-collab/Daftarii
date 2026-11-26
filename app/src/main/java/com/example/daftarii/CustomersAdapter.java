@@ -1,5 +1,6 @@
 package com.example.daftarii;
 
+import com.example.daftarii.data.CustomerRepository;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.LayoutInflater;
@@ -73,15 +74,10 @@ public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.Cust
                         if (customer.getId() == null) return;
 
                         // تحديث حالة الأرشفة بدلاً من المسح نهائياً
-                        FirebaseFirestore.getInstance().collection("customers")
-                                .document(customer.getId())
-                                .update("archived", true, "deletedAt", System.currentTimeMillis())
-                                .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(v.getContext(), v.getContext().getString(R.string.detail_customer_archived), Toast.LENGTH_SHORT).show();
-                                })
-                                .addOnFailureListener(e -> {
-                                    Toast.makeText(v.getContext(), v.getContext().getString(R.string.archive_failed), Toast.LENGTH_SHORT).show();
-                                });
+                        CustomerRepository.archive(customer.getId(), ok -> {
+                            if (!ok) Toast.makeText(v.getContext(), v.getContext().getString(R.string.archive_failed), Toast.LENGTH_SHORT).show();
+                        });
+                        Toast.makeText(v.getContext(), v.getContext().getString(R.string.detail_customer_archived), Toast.LENGTH_SHORT).show();
                     })
                     .setNegativeButton(R.string.action_cancel, null)
                     .show();

@@ -1,5 +1,13 @@
 package com.example.daftarii;
 
+import com.google.firebase.firestore.ListenerRegistration;
+import com.example.daftarii.logic.Validators;
+import com.example.daftarii.logic.TransactionType;
+import com.example.daftarii.logic.Money;
+import com.example.daftarii.logic.BalanceCalculator;
+import com.example.daftarii.data.TransactionRepository;
+import com.example.daftarii.data.CustomerRepository;
+import com.example.daftarii.auth.AuthMessages;
 import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.graphics.Canvas;
@@ -66,6 +74,7 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
     private int currentFilterMode = FILTER_ALL;
 
     private final List<DebtItem> allDebtItems = new ArrayList<>();
+    private ListenerRegistration customerListener, transactionsListener;
     private final List<DebtItem> debtItemList = new ArrayList<>();
     private DebtDetailsAdapter debtsAdapter;
 
@@ -88,7 +97,6 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
         setupClickListeners();
         applyFilterTab(FILTER_ALL);
 
-        loadCustomerDetailsAndDebts();
     }
 
     private void bindViews() {
@@ -321,12 +329,8 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
                     updateDueDateLabel();
 
                     if (customerId != null && !customerId.isEmpty()) {
-                        db.collection("customers").document(customerId)
-                                .update("dueDate", currentDueDateMillis)
-                                .addOnSuccessListener(unused ->
-                                        Toast.makeText(this, getString(R.string.detail_due_updated), Toast.LENGTH_SHORT).show())
-                                .addOnFailureListener(e ->
-                                        Toast.makeText(this, getString(R.string.saved_offline), Toast.LENGTH_SHORT).show());
+                        CustomerRepository.updateDueDate(customerId, currentDueDateMillis, ok -> { });
+                        Toast.makeText(this, getString(R.string.detail_due_updated), Toast.LENGTH_SHORT).show();
                     }
                 },
                 cal.get(Calendar.YEAR),
@@ -358,93 +362,56 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
                 .setTitle(R.string.detail_archive_customer_title)
                 .setMessage(R.string.detail_archive_customer_message)
                 .setPositiveButton(R.string.action_archive, (dialog, which) -> {
-                    Map<String, Object> updates = new HashMap<>();
-                    updates.put("archived", true);
-                    updates.put("deletedAt", System.currentTimeMillis());
-
-                    db.collection("customers").document(customerId)
-                            .update(updates)
-                            .addOnSuccessListener(unused -> {
-                                Toast.makeText(this, getString(R.string.detail_customer_archived), Toast.LENGTH_SHORT).show();
-                                finish();
-                            })
-                            .addOnFailureListener(e ->
-                                    Toast.makeText(this, getString(R.string.archive_failed), Toast.LENGTH_SHORT).show());
+                    CustomerRepository.archive(customerId, ok -> { });
+                    Toast.makeText(this, getString(R.string.detail_customer_archived), Toast.LENGTH_SHORT).show();
+                    finish();
                 })
                 .setNegativeButton(R.string.action_cancel, null)
                 .show();
     }
 
-    private Double parseDoubleSafe(String value) {
-        if (value == null || value.isEmpty() || value.equals(".") || value.equals("-") || value.equals("-.")) {
-            return null;
-        }
-        try {
-            double parsed = Double.parseDouble(value);
-            if (Double.isNaN(parsed) || Double.isInfinite(parsed)) {
-                return null;
-            }
-            return parsed;
-        } catch (NumberFormatException e) {
-            return null;
-        }
-    }
-
+    /**
+     * الزبون وحركاته لحظة بلحظة (users/{uid}/...). الرصيد بيجي من الزبون نفسه
+     * (بيتحدّث بـ increment مع كل حركة)، مش بينحسب هون. الـ listeners بتنشال بـ onStop.
+     */
     private void loadCustomerDetailsAndDebts() {
         if (customerId == null) return;
+        stopListening();
+        customerListener = CustomerRepository.listenOne(customerId, c -> {
+            currentDueDateMillis = c.getDueDate();
+            updateDueDateLabel();
+            currentTotalDebt = c.getTotalDebt();
+            tvDetailTotalDebt.setText("₪ " + formatAmount(currentTotalDebt));
+            if (c.getName() != null) {
+                customerName = c.getName();
+                tvDetailCustomerName.setText(customerName);
+            }
+            customerPhone = c.getPhone();
+        });
+        transactionsListener = TransactionRepository.listenForCustomer(customerId, items -> {
+            allDebtItems.clear();
+            allDebtItems.addAll(items);
+            refreshFilteredList();
+        });
+    }
 
-        db.collection("customers").document(customerId)
-                .addSnapshotListener((docSnap, docErr) -> {
-                    if (docErr == null && docSnap != null && docSnap.exists()) {
-                        Long due = docSnap.getLong("dueDate");
-                        if (due != null && due > 0) {
-                            currentDueDateMillis = due;
-                            updateDueDateLabel();
-                        }
-                    }
-                });
+    private void stopListening() {
+        if (customerListener != null) customerListener.remove();
+        if (transactionsListener != null) transactionsListener.remove();
+        customerListener = null;
+        transactionsListener = null;
+    }
 
-        db.collection("customers").document(customerId)
-                .collection("debts")
-                .addSnapshotListener((value, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "خطأ في جلب الحركات: " + error.getMessage());
-                        return;
-                    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadCustomerDetailsAndDebts();
+    }
 
-                    if (value == null) {
-                        return;
-                    }
-
-                    allDebtItems.clear();
-                    double calculatedTotal = 0.0;
-
-                    for (QueryDocumentSnapshot doc : value) {
-                        Boolean archived = doc.getBoolean("archived");
-                        if (archived != null && archived) {
-                            continue;
-                        }
-
-                        DebtItem item = doc.toObject(DebtItem.class);
-                        if (item == null) continue;
-                        item.setId(doc.getId());
-                        item.setCustomerId(customerId);
-                        allDebtItems.add(item);
-
-                        calculatedTotal += item.getAmount();
-                    }
-
-                    allDebtItems.sort((item1, item2) -> Long.compare(item2.getTimestamp(), item1.getTimestamp()));
-
-                    currentTotalDebt = Math.round(calculatedTotal * 100.0) / 100.0;
-                    tvDetailTotalDebt.setText("₪ " + formatAmount(currentTotalDebt));
-
-                    refreshFilteredList();
-
-                    db.collection("customers").document(customerId)
-                            .update("totalDebt", currentTotalDebt)
-                            .addOnFailureListener(e -> Log.e(TAG, "فشل التحديث المحلي: " + e.getMessage()));
-                });
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopListening();
     }
 
     private void addNewDebtItem() {
@@ -452,62 +419,29 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
             Toast.makeText(this, getString(R.string.archive_customer_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
-
         String amountStr = etAmount.getText() != null ? etAmount.getText().toString().trim() : "";
         String itemName = etItemName.getText() != null ? etItemName.getText().toString().trim() : "";
-
         if (amountStr.isEmpty() || itemName.isEmpty()) {
             Toast.makeText(this, getString(R.string.detail_enter_amount_and_item), Toast.LENGTH_SHORT).show();
             return;
         }
-
-        Double parsedAmount = parseDoubleSafe(amountStr);
-        if (parsedAmount == null || parsedAmount <= 0) {
-            Toast.makeText(this, getString(R.string.error_amount_not_positive), Toast.LENGTH_SHORT).show();
+        if (Validators.note(itemName) != Validators.Result.OK) {
+            Toast.makeText(this, getString(R.string.edit_tx_note_too_long), Toast.LENGTH_SHORT).show();
             return;
         }
-
-        double amount = Math.abs(parsedAmount);
-        long currentTime = System.currentTimeMillis();
-
-        currentTotalDebt = Math.round((currentTotalDebt + amount) * 100.0) / 100.0;
-        tvDetailTotalDebt.setText("₪ " + formatAmount(currentTotalDebt));
-
-        String debtId = db.collection("customers").document(customerId)
-                .collection("debts").document().getId();
-
-        DebtItem debtItem = new DebtItem(debtId, itemName, amount, currentTime, currentTime);
-        debtItem.setCustomerId(customerId);
-
-        allDebtItems.add(0, debtItem);
-        refreshFilteredList();
-
+        Validators.Result r = Validators.amount(amountStr);
+        if (r != Validators.Result.OK) {
+            Integer err = AuthMessages.amountError(r);
+            Toast.makeText(this, getString(err != null ? err : R.string.error_amount_invalid), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // الحركة + الرصيد بـ increment بنفس الـ batch. القائمة والرصيد بيتحدّثوا من الـ listener
+        TransactionRepository.add(customerId, customerName, TransactionType.DEBT,
+                Money.parseToAgorot(amountStr), itemName, System.currentTimeMillis(), ok -> { });
         etAmount.setText("");
         etItemName.setText("");
         etAmount.requestFocus();
-
-        Map<String, Object> debtMap = new HashMap<>();
-        debtMap.put("id", debtId);
-        debtMap.put("customerId", customerId);
-        debtMap.put("itemName", itemName);
-        debtMap.put("type", "DEBT");
-        debtMap.put("amount", amount);
-        debtMap.put("timestamp", currentTime);
-        debtMap.put("dueDate", currentDueDateMillis > 0 ? currentDueDateMillis : currentTime);
-        debtMap.put("archived", false);
-
-        WriteBatch batch = db.batch();
-        DocumentReference customerRef = db.collection("customers").document(customerId);
-        DocumentReference debtRef = customerRef.collection("debts").document(debtId);
-
-        batch.update(customerRef, "totalDebt", currentTotalDebt);
-        batch.set(debtRef, debtMap);
-
-        batch.commit()
-                .addOnSuccessListener(aVoid ->
-                        Toast.makeText(this, getString(R.string.tx_saved), Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, getString(R.string.saved_offline), Toast.LENGTH_SHORT).show());
+        Toast.makeText(this, getString(R.string.tx_saved), Toast.LENGTH_SHORT).show();
     }
 
     private void showPaymentDialog() {
@@ -537,55 +471,36 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
                 return;
             }
 
-            Double parsedPayment = parseDoubleSafe(amountStr);
-            if (parsedPayment == null || parsedPayment <= 0) {
-                Toast.makeText(this, getString(R.string.error_amount_not_positive), Toast.LENGTH_SHORT).show();
+            Validators.Result r = Validators.amount(amountStr);
+            if (r != Validators.Result.OK) {
+                Integer err = AuthMessages.amountError(r);
+                Toast.makeText(this, getString(err != null ? err : R.string.error_amount_invalid), Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            processPaymentTransaction(Math.abs(parsedPayment));
+            long payment = Money.parseToAgorot(amountStr);
+            long balance = Math.round(currentTotalDebt * 100);
+            // قرار الـ PO: دفعة أكبر من الرصيد مسموحة مع تحذير
+            if (BalanceCalculator.isOverpayment(balance, TransactionType.PAYMENT, payment)) {
+                new AlertDialog.Builder(this)
+                        .setTitle(R.string.tx_overpayment_title)
+                        .setMessage(getString(R.string.tx_overpayment_message,
+                                Money.format(payment), Money.format(Math.max(balance, 0))))
+                        .setPositiveButton(R.string.tx_overpayment_confirm, (d, w) -> processPaymentTransaction(payment))
+                        .setNegativeButton(R.string.action_cancel, null)
+                        .show();
+                return;
+            }
+            processPaymentTransaction(payment);
         });
 
         builder.setNegativeButton(R.string.action_cancel, null);
         builder.show();
     }
 
-    private void processPaymentTransaction(double paymentAmount) {
-        currentTotalDebt = Math.round((currentTotalDebt - paymentAmount) * 100.0) / 100.0;
-        tvDetailTotalDebt.setText("₪ " + formatAmount(currentTotalDebt));
-
-        String debtId = db.collection("customers").document(customerId)
-                .collection("debts").document().getId();
-
-        long currentTime = System.currentTimeMillis();
-        DebtItem paymentItem = new DebtItem(debtId, getString(R.string.tx_default_payment_note), -paymentAmount, currentTime, currentTime);
-        paymentItem.setCustomerId(customerId);
-
-        allDebtItems.add(0, paymentItem);
-        refreshFilteredList();
-
-        Map<String, Object> debtMap = new HashMap<>();
-        debtMap.put("id", debtId);
-        debtMap.put("customerId", customerId);
-        debtMap.put("itemName", getString(R.string.tx_default_payment_note));
-        debtMap.put("type", "PAYMENT");
-        debtMap.put("amount", -paymentAmount);
-        debtMap.put("timestamp", currentTime);
-        debtMap.put("dueDate", currentDueDateMillis > 0 ? currentDueDateMillis : currentTime);
-        debtMap.put("archived", false);
-
-        WriteBatch batch = db.batch();
-        DocumentReference customerRef = db.collection("customers").document(customerId);
-        DocumentReference debtRef = customerRef.collection("debts").document(debtId);
-
-        batch.update(customerRef, "totalDebt", currentTotalDebt);
-        batch.set(debtRef, debtMap);
-
-        batch.commit()
-                .addOnSuccessListener(aVoid ->
-                        Toast.makeText(this, getString(R.string.detail_payment_saved), Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, getString(R.string.saved_offline), Toast.LENGTH_SHORT).show());
+    private void processPaymentTransaction(long paymentAgorot) {
+        TransactionRepository.add(customerId, customerName, TransactionType.PAYMENT, paymentAgorot,
+                getString(R.string.tx_default_payment_note), System.currentTimeMillis(), ok -> { });
+        Toast.makeText(this, getString(R.string.detail_payment_saved), Toast.LENGTH_SHORT).show();
     }
 
     /**
@@ -634,30 +549,16 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
                 .show();
     }
 
+    /** أرشفة حركة: الرصيد بيتعدّل بـ increment، والقائمة بتتحدّث من الـ listener. */
     private void executeDeleteDebtItem(DebtItem item) {
         if (customerId == null || item == null || item.getId() == null) {
             Toast.makeText(this, getString(R.string.archive_tx_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
-
-        currentTotalDebt = Math.round((currentTotalDebt - item.getAmount()) * 100.0) / 100.0;
-        tvDetailTotalDebt.setText("₪ " + formatAmount(currentTotalDebt));
-
-        allDebtItems.remove(item);
-        refreshFilteredList();
-
-        WriteBatch batch = db.batch();
-        DocumentReference customerRef = db.collection("customers").document(customerId);
-        DocumentReference debtRef = customerRef.collection("debts").document(item.getId());
-
-        batch.update(customerRef, "totalDebt", currentTotalDebt);
-        batch.update(debtRef, "archived", true, "deletedAt", System.currentTimeMillis());
-
-        batch.commit()
-                .addOnSuccessListener(aVoid ->
-                        Toast.makeText(this, getString(R.string.detail_tx_archived), Toast.LENGTH_SHORT).show())
-                .addOnFailureListener(e ->
-                        Toast.makeText(this, getString(R.string.archive_failed), Toast.LENGTH_SHORT).show());
+        TransactionRepository.archive(item.getId(), ok -> {
+            if (!ok) Toast.makeText(this, getString(R.string.archive_failed), Toast.LENGTH_SHORT).show();
+        });
+        Toast.makeText(this, getString(R.string.detail_tx_archived), Toast.LENGTH_SHORT).show();
     }
 
     private void generateAndSharePdf() {

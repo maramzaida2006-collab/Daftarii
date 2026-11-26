@@ -1,5 +1,6 @@
 package com.example.daftarii;
 
+import com.example.daftarii.data.CustomerRepository;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -34,6 +35,7 @@ public class ReportsActivity extends AppCompatActivity {
     private String selectedPeriod = "THIS_MONTH"; // THIS_MONTH, THREE_MONTHS, THIS_YEAR
 
     private double totalDebtsBalance = 0.0;
+    private com.google.firebase.firestore.ListenerRegistration reportsListener;
     private int totalCustomers = 0;
     private int overdueCustomers = 0;
     private double overdueAmount = 0.0;
@@ -142,38 +144,34 @@ public class ReportsActivity extends AppCompatActivity {
     }
 
     private void listenToReportsFromFirestore() {
-        db.collection("customers")
-                .addSnapshotListener((snapshots, error) -> {
-                    if (error != null || snapshots == null) return;
+        // زباين هالحساب بس (users/{uid}/customers). القديم كان بيقرأ زباين كل المستخدمين
+        if (reportsListener != null) reportsListener.remove();
+        reportsListener = CustomerRepository.listen(false, customers -> {
+            double sumDebts = 0.0;
+            int countOverdue = 0;
+            double sumOverdue = 0.0;
+            long now = System.currentTimeMillis();
+            for (Customer customer : customers) {
+                double debt = Math.max(0.0, customer.getTotalDebt());
+                sumDebts += debt;
+                long dueDate = customer.getDueDate();
+                if (debt > 0 && dueDate > 0 && now > dueDate) {
+                    countOverdue++;
+                    sumOverdue += debt;
+                }
+            }
+            totalDebtsBalance = sumDebts;
+            totalCustomers = customers.size();
+            overdueCustomers = countOverdue;
+            overdueAmount = sumOverdue;
+            updateStatsUi();
+        }, null);
+    }
 
-                    double sumDebts = 0.0;
-                    int countAll = 0;
-                    int countOverdue = 0;
-                    double sumOverdue = 0.0;
-                    long now = System.currentTimeMillis();
-
-                    for (DocumentSnapshot doc : snapshots.getDocuments()) {
-                        Customer customer = doc.toObject(Customer.class);
-                        if (customer == null || customer.isArchived()) continue;
-
-                        countAll++;
-                        double debt = Math.max(0.0, customer.getTotalDebt());
-                        sumDebts += debt;
-
-                        long dueDate = customer.getDueDate();
-                        if (debt > 0 && dueDate > 0 && now > dueDate) {
-                            countOverdue++;
-                            sumOverdue += debt;
-                        }
-                    }
-
-                    totalDebtsBalance = sumDebts;
-                    totalCustomers = countAll;
-                    overdueCustomers = countOverdue;
-                    overdueAmount = sumOverdue;
-
-                    updateStatsUi();
-                });
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (reportsListener != null) reportsListener.remove();
     }
 
     private void updateStatsUi() {

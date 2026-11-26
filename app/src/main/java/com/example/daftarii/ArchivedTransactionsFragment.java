@@ -1,5 +1,6 @@
 package com.example.daftarii;
 
+import com.example.daftarii.data.TransactionRepository;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,31 +66,15 @@ public class ArchivedTransactionsFragment extends Fragment
         listenToArchivedTransactions();
     }
 
+    /**
+     * الحركات المؤرشفة لهالحساب بس (users/{uid}/transactions، archived = true).
+     * (القديم كان collectionGroup("debts") اللي بيجيب حركات كل المستخدمين.)
+     */
     private void listenToArchivedTransactions() {
-        listenerRegistration = db.collectionGroup("debts")
-                .whereEqualTo("archived", true)
-                .orderBy("deletedAt", Query.Direction.DESCENDING)
-                .addSnapshotListener((snapshots, error) -> {
-                    if (!isAdded()) return;
-                    if (error != null) {
-                        // في حال لم يتم إنشاء Index لـ orderBy مع whereEqualTo بعد، نجلب بدون orderBy مؤقتاً
-                        loadWithoutOrderFallback();
-                        return;
-                    }
-                    if (snapshots != null) {
-                        updateList(parseTransactions(snapshots.getDocuments()));
-                    }
-                });
-    }
-
-    private void loadWithoutOrderFallback() {
-        db.collectionGroup("debts")
-                .whereEqualTo("archived", true)
-                .get()
-                .addOnSuccessListener(snapshots -> {
-                    if (!isAdded() || snapshots == null) return;
-                    updateList(parseTransactions(snapshots.getDocuments()));
-                });
+        listenerRegistration = TransactionRepository.listenArchived(list -> {
+            if (!isAdded()) return;
+            updateList(list);
+        });
     }
 
     private void updateList(List<Transaction> list) {
@@ -151,39 +136,14 @@ public class ArchivedTransactionsFragment extends Fragment
         }
 
         String transactionId = transaction.getId();
-        DocumentReference customerRef = db.collection("customers").document(transaction.getCustomerId());
-        DocumentReference debtRef = customerRef.collection("debts").document(transactionId);
-
-        db.runTransaction(firestoreTx -> {
-            DocumentSnapshot customerSnap = firestoreTx.get(customerRef);
-            double currentDebt = 0.0;
-            if (customerSnap.exists() && customerSnap.getDouble("totalDebt") != null) {
-                currentDebt = customerSnap.getDouble("totalDebt");
-            }
-
-            boolean isPayment = "PAYMENT".equalsIgnoreCase(transaction.getType());
-            double delta = isPayment ? -Math.abs(transaction.getAmount()) : Math.abs(transaction.getAmount());
-            double updatedDebt = currentDebt + delta;
-
-            Map<String, Object> txUpdates = new HashMap<>();
-            txUpdates.put("archived", false);
-            txUpdates.put("deletedAt", 0L);
-
-            firestoreTx.update(debtRef, txUpdates);
-            if (customerSnap.exists()) {
-                firestoreTx.update(customerRef, "totalDebt", updatedDebt);
-            }
-            return null;
-        }).addOnSuccessListener(unused -> {
-            if (isAdded()) {
-                removeTransactionLocally(transactionId);
-                Toast.makeText(requireContext(), getString(R.string.archive_tx_restored), Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(e -> {
-            if (isAdded()) {
+        // بترجع تنحسب بالرصيد (increment بنفس الـ batch)
+        TransactionRepository.restore(transactionId, ok -> {
+            if (isAdded() && !ok) {
                 Toast.makeText(requireContext(), getString(R.string.archive_restore_failed), Toast.LENGTH_SHORT).show();
             }
         });
+        removeTransactionLocally(transactionId);
+        Toast.makeText(requireContext(), getString(R.string.archive_tx_restored), Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -195,22 +155,13 @@ public class ArchivedTransactionsFragment extends Fragment
                 .setTitle(R.string.archive_delete_title)
                 .setMessage(R.string.archive_delete_tx_message)
                 .setPositiveButton(R.string.action_delete, (dialog, which) -> {
-                    db.collection("customers")
-                            .document(transaction.getCustomerId())
-                            .collection("debts")
-                            .document(transactionId)
-                            .delete()
-                            .addOnSuccessListener(unused -> {
-                                if (isAdded()) {
-                                    removeTransactionLocally(transactionId);
-                                    Toast.makeText(requireContext(), getString(R.string.archive_tx_deleted), Toast.LENGTH_SHORT).show();
-                                }
-                            })
-                            .addOnFailureListener(e -> {
-                                if (isAdded()) {
-                                    Toast.makeText(requireContext(), getString(R.string.archive_delete_failed), Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                    TransactionRepository.deleteForever(transactionId, ok -> {
+                        if (isAdded()) {
+                            Toast.makeText(requireContext(), getString(ok ? R.string.archive_tx_deleted
+                                    : R.string.archive_delete_failed), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    removeTransactionLocally(transactionId);
                 })
                 .setNegativeButton(R.string.action_cancel, null)
                 .show();

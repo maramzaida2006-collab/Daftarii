@@ -1,5 +1,7 @@
 package com.example.daftarii;
 
+import com.example.daftarii.data.CustomerRepository;
+import com.example.daftarii.data.TransactionRepository;
 import com.example.daftarii.logic.AppLanguage;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -118,31 +120,10 @@ public class ProfileActivity extends AppCompatActivity {
     private void refreshArchiveCount() {
         if (tvArchiveCount == null) return;
 
-        db.collection("customers")
-                .get()
-                .addOnSuccessListener(customersSnap -> {
-                    if (customersSnap == null) return;
-
-                    final int[] totalArchived = {0};
-                    for (DocumentSnapshot custDoc : customersSnap.getDocuments()) {
-                        Boolean custArchived = custDoc.getBoolean("archived");
-                        if (Boolean.TRUE.equals(custArchived)) {
-                            totalArchived[0]++;
-                        }
-
-                        custDoc.getReference().collection("transactions")
-                                .whereEqualTo("archived", true)
-                                .get()
-                                .addOnSuccessListener(txSnap -> {
-                                    if (txSnap != null && !txSnap.isEmpty()) {
-                                        totalArchived[0] += txSnap.size();
-                                        tvArchiveCount.setText(String.valueOf(totalArchived[0]));
-                                    }
-                                });
-                    }
-
-                    tvArchiveCount.setText(String.valueOf(totalArchived[0]));
-                });
+        // زباين مؤرشفين + حركات مؤرشفة، لهالحساب بس (القديم كان بيقرأ زباين كل المستخدمين)
+        CustomerRepository.countArchived(customers ->
+                TransactionRepository.countArchived(transactions ->
+                        tvArchiveCount.setText(String.valueOf(customers + transactions))));
     }
 
     private void updateLanguageLabel() {

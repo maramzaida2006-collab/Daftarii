@@ -1,5 +1,13 @@
 package com.example.daftarii;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.example.daftarii.logic.Validators;
+import com.example.daftarii.logic.TransactionType;
+import com.example.daftarii.logic.Money;
+import com.example.daftarii.logic.BalanceCalculator;
+import com.example.daftarii.data.TransactionRepository;
+import com.example.daftarii.data.CustomerRepository;
+import com.example.daftarii.auth.AuthMessages;
 import android.app.DatePickerDialog;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -349,64 +357,55 @@ public class AddTransactionBottomSheetFragment extends BottomSheetDialogFragment
             return;
         }
 
+        // المبلغ بالأغورة: بيقبل أرقام عربية وفاصلة، وما بيعمل كراش
         String amountStr = etAmount.getText() != null ? etAmount.getText().toString().trim() : "";
-        Double parsedAmount = parseDoubleSafe(amountStr);
-        if (parsedAmount == null || parsedAmount <= 0) {
-            etAmount.setError(getString(R.string.error_amount_not_positive));
+        Validators.Result r = Validators.amount(amountStr);
+        if (r != Validators.Result.OK) {
+            Integer err = AuthMessages.amountError(r);
+            etAmount.setError(getString(err != null ? err : R.string.error_amount_not_positive));
             etAmount.requestFocus();
             return;
         }
+        long amount = Money.parseToAgorot(amountStr);
 
         String desc = etDescription.getText() != null ? etDescription.getText().toString().trim() : "";
         if (desc.isEmpty()) {
             desc = isDebt ? getString(R.string.tx_default_debt_note) : getString(R.string.tx_default_payment_note);
         }
+        // firestore.rules: الوصف 200 حرف بالكتير
+        if (Validators.note(desc) != Validators.Result.OK) {
+            etDescription.setError(getString(R.string.edit_tx_note_too_long));
+            return;
+        }
+        final String note = desc;
+        TransactionType type = isDebt ? TransactionType.DEBT : TransactionType.PAYMENT;
 
-        double signedAmount = isDebt ? Math.abs(parsedAmount) : -Math.abs(parsedAmount);
-        String txType = isDebt ? "DEBT" : "PAYMENT";
+        // قرار الـ PO: الدفعة الأكبر من الرصيد مسموحة، بس مع تحذير قبل الحفظ
+        long balance = Math.round(selectedCustomer.getTotalDebt() * 100);
+        if (BalanceCalculator.isOverpayment(balance, type, amount)) {
+            new MaterialAlertDialogBuilder(requireContext())
+                    .setTitle(R.string.tx_overpayment_title)
+                    .setMessage(getString(R.string.tx_overpayment_message,
+                            Money.format(amount), Money.format(Math.max(balance, 0))))
+                    .setPositiveButton(R.string.tx_overpayment_confirm, (d, w) -> save(type, amount, note))
+                    .setNegativeButton(R.string.action_cancel, null)
+                    .show();
+            return;
+        }
+        save(type, amount, note);
+    }
 
+    /** الحفظ: الحركة + رصيد الزبون بـ increment بنفس الـ batch (TransactionRepository). */
+    private void save(TransactionType type, long amount, String note) {
         btnSave.setEnabled(false);
-
-        DocumentReference customerRef = db.collection("customers").document(selectedCustomer.getId());
-        DocumentReference debtRef = customerRef.collection("debts").document();
-
-        Map<String, Object> debtMap = new HashMap<>();
-        debtMap.put("id", debtRef.getId());
-        debtMap.put("customerId", selectedCustomer.getId());
-        debtMap.put("itemName", desc);
-        debtMap.put("type", txType);
-        debtMap.put("amount", signedAmount);
-        debtMap.put("timestamp", selectedTxTimestamp);
-        debtMap.put("dueDate", selectedDueDateMillis);
-        debtMap.put("archived", false);
-
-        db.runTransaction(transaction -> {
-            DocumentSnapshot customerSnap = transaction.get(customerRef);
-            double currentServerDebt = 0.0;
-            if (customerSnap.exists() && customerSnap.getDouble("totalDebt") != null) {
-                currentServerDebt = customerSnap.getDouble("totalDebt");
-            }
-            double updatedTotalDebt = Math.round((currentServerDebt + signedAmount) * 100.0) / 100.0;
-
-            transaction.set(debtRef, debtMap);
-            if (customerSnap.exists()) {
-                Map<String, Object> customerUpdates = new HashMap<>();
-                customerUpdates.put("totalDebt", updatedTotalDebt);
-                customerUpdates.put("dueDate", selectedDueDateMillis);
-                transaction.update(customerRef, customerUpdates);
-            }
-            return null;
-        }).addOnSuccessListener(unused -> {
-            if (isAdded()) {
-                Toast.makeText(requireContext(), getString(R.string.tx_saved), Toast.LENGTH_SHORT).show();
-                dismiss();
-            }
-        }).addOnFailureListener(e -> {
-            if (isAdded()) {
-                btnSave.setEnabled(true);
-                Toast.makeText(requireContext(), getString(R.string.tx_save_failed), Toast.LENGTH_SHORT).show();
-            }
-        });
+        TransactionRepository.add(selectedCustomer.getId(), selectedCustomer.getName(), type, amount, note,
+                selectedTxTimestamp, ok -> { /* Firestore بيكمّل لحاله لما يرجع النت */ });
+        if (selectedDueDateMillis != selectedCustomer.getDueDate()) {
+            CustomerRepository.updateDueDate(selectedCustomer.getId(), selectedDueDateMillis, ok -> { });
+        }
+        // ما بنستنى السيرفر: بدون نت الحفظ بيصير محلياً، والشاشة ما بتعلق
+        Toast.makeText(requireContext(), getString(R.string.tx_saved), Toast.LENGTH_SHORT).show();
+        dismiss();
     }
 
     private Double parseDoubleSafe(String value) {

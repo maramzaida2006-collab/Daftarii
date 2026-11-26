@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.daftarii.auth.PinStore;
+import com.example.daftarii.data.CustomerRepository;
+import com.example.daftarii.data.TransactionRepository;
 import com.example.daftarii.notifications.NotificationBell;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -251,33 +253,16 @@ public class MainActivity extends AppCompatActivity {
             customersListener.remove();
         }
 
-        customersListener = db.collection("customers")
-                .whereEqualTo("userId", currentUserId)
-                .addSnapshotListener((value, error) -> {
-                    if (error != null) {
-                        if (mAuth.getCurrentUser() == null) {
-                            return;
-                        }
-                        Toast.makeText(this, getString(R.string.load_failed), Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    customerList.clear();
-                    if (value != null) {
-                        for (QueryDocumentSnapshot doc : value) {
-                            Boolean archived = doc.getBoolean("archived");
-                            if (archived != null && archived) {
-                                continue;
-                            }
-                            Customer customer = doc.toObject(Customer.class);
-                            if (customer == null) continue;
-                            customer.setId(doc.getId());
-                            customerList.add(customer);
-                        }
-                    }
-
-                    refreshListsAndSummary();
-                });
+        // users/{uid}/customers (المش مؤرشفين) لحظة بلحظة. المسارات بـ data/Db
+        customersListener = CustomerRepository.listen(false, customers -> {
+            customerList.clear();
+            customerList.addAll(customers);
+            refreshListsAndSummary();
+        }, error -> {
+            if (mAuth.getCurrentUser() != null) {
+                Toast.makeText(this, getString(R.string.load_failed), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void refreshListsAndSummary() {
@@ -337,56 +322,27 @@ public class MainActivity extends AppCompatActivity {
         calculateMonthlyCollected();
     }
 
+    /** المحصّل هالشهر: مجموع الدفعات (المش مؤرشفة) من أول الشهر. استعلام واحد بدل واحد لكل زبون. */
     private void calculateMonthlyCollected() {
         if (currentUserId == null || customerList.isEmpty()) {
             tvCollectedAmount.setText(String.format(Locale.getDefault(), "₪ %.2f", 0.0));
             return;
         }
-
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.DAY_OF_MONTH, 1);
         cal.set(Calendar.HOUR_OF_DAY, 0);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        long monthStartMillis = cal.getTimeInMillis();
-
-        final double[] monthlyCollected = {0.0};
-        final int[] remaining = {customerList.size()};
-
-        for (Customer c : customerList) {
-            if (c.getId() == null) {
-                if (--remaining[0] == 0) {
-                    tvCollectedAmount.setText(String.format(Locale.getDefault(), "₪ %.2f", monthlyCollected[0]));
-                }
-                continue;
+        long monthStart = cal.getTimeInMillis();
+        TransactionRepository.loadAll(all -> {
+            double collected = 0;
+            for (Transaction t : all) {
+                if ("PAYMENT".equals(t.getType()) && t.getTimestamp() >= monthStart) collected += t.getAmount();
             }
-
-            db.collection("customers").document(c.getId())
-                    .collection("debts")
-                    .whereGreaterThanOrEqualTo("timestamp", monthStartMillis)
-                    .get()
-                    .addOnSuccessListener(snapshots -> {
-                        for (QueryDocumentSnapshot doc : snapshots) {
-                            Boolean archived = doc.getBoolean("archived");
-                            if (archived != null && archived) continue;
-                            Double amt = doc.getDouble("amount");
-                            if (amt != null && amt < 0) {
-                                monthlyCollected[0] += Math.abs(amt);
-                            }
-                        }
-                        if (--remaining[0] == 0) {
-                            double rounded = Math.round(monthlyCollected[0] * 100.0) / 100.0;
-                            tvCollectedAmount.setText(String.format(Locale.getDefault(), "₪ %.2f", rounded));
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        if (--remaining[0] == 0) {
-                            double rounded = Math.round(monthlyCollected[0] * 100.0) / 100.0;
-                            tvCollectedAmount.setText(String.format(Locale.getDefault(), "₪ %.2f", rounded));
-                        }
-                    });
-        }
+            tvCollectedAmount.setText(String.format(Locale.getDefault(), "₪ %.2f",
+                    Math.round(collected * 100.0) / 100.0));
+        });
     }
 
     private void openNewCustomerSheet() {

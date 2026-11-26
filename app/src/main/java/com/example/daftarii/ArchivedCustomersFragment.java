@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.example.daftarii.data.CustomerRepository;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -64,35 +65,12 @@ public class ArchivedCustomersFragment extends Fragment
         return user != null ? user.getUid() : null;
     }
 
+    /** الزباين المؤرشفين (users/{uid}/customers، archived = true)، الأحدث أرشفة فوق. */
     private void listenToArchivedCustomers() {
-        String uid = getCurrentUserId();
-        if (uid == null) return;
-
-        listenerRegistration = db.collection("customers")
-                .whereEqualTo("userId", uid)
-                .whereEqualTo("archived", true)
-                .orderBy("deletedAt", Query.Direction.DESCENDING)
-                .addSnapshotListener((snapshots, error) -> {
-                    if (!isAdded()) return;
-                    if (error != null) {
-                        loadWithoutOrderFallback(uid);
-                        return;
-                    }
-                    if (snapshots != null) {
-                        updateList(parseCustomers(snapshots.getDocuments()));
-                    }
-                });
-    }
-
-    private void loadWithoutOrderFallback(String uid) {
-        db.collection("customers")
-                .whereEqualTo("userId", uid)
-                .whereEqualTo("archived", true)
-                .get()
-                .addOnSuccessListener(snapshots -> {
-                    if (!isAdded() || snapshots == null) return;
-                    updateList(parseCustomers(snapshots.getDocuments()));
-                });
+        listenerRegistration = CustomerRepository.listen(true, customers -> {
+            if (!isAdded()) return;
+            updateList(customers);
+        }, null);
     }
 
     private void updateList(List<Customer> list) {
@@ -127,53 +105,14 @@ public class ArchivedCustomersFragment extends Fragment
         }
 
         String customerId = customer.getId();
-        db.collection("customers")
-                .document(customerId)
-                .collection("debts")
-                .whereEqualTo("archived", true)
-                .get()
-                .addOnSuccessListener(debtSnapshots -> {
-                    WriteBatch batch = db.batch();
-
-                    Map<String, Object> customerUpdates = new HashMap<>();
-                    customerUpdates.put("archived", false);
-                    customerUpdates.put("deletedAt", 0L);
-                    batch.update(db.collection("customers").document(customerId), customerUpdates);
-
-                    for (QueryDocumentSnapshot debtDoc : debtSnapshots) {
-                        Map<String, Object> debtUpdates = new HashMap<>();
-                        debtUpdates.put("archived", false);
-                        debtUpdates.put("deletedAt", 0L);
-                        batch.update(debtDoc.getReference(), debtUpdates);
-                    }
-
-                    batch.commit()
-                            .addOnSuccessListener(unused -> {
-                                if (!isAdded()) return;
-                                removeCustomerLocally(customerId);
-                                Toast.makeText(
-                                        requireContext(),
-                                        getString(R.string.archive_customer_restored),
-                                        Toast.LENGTH_SHORT
-                                ).show();
-                            })
-                            .addOnFailureListener(e -> {
-                                if (!isAdded()) return;
-                                Toast.makeText(
-                                        requireContext(),
-                                        getString(R.string.archive_restore_failed),
-                                        Toast.LENGTH_SHORT
-                                ).show();
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    if (!isAdded()) return;
-                    Toast.makeText(
-                            requireContext(),
-                            getString(R.string.archive_load_failed),
-                            Toast.LENGTH_SHORT
-                    ).show();
-                });
+        // الزبون بيرجع للرئيسية مع حركاته ورصيده (الأرشفة ما غيّرت عليهم)
+        CustomerRepository.restore(customerId, ok -> {
+            if (isAdded() && !ok) {
+                Toast.makeText(requireContext(), getString(R.string.archive_restore_failed), Toast.LENGTH_SHORT).show();
+            }
+        });
+        removeCustomerLocally(customerId);
+        Toast.makeText(requireContext(), getString(R.string.archive_customer_restored), Toast.LENGTH_SHORT).show();
     }
 
     private void removeCustomerLocally(String customerId) {
@@ -200,32 +139,12 @@ public class ArchivedCustomersFragment extends Fragment
     }
 
     private void deleteCustomerWithDebts(String customerId) {
-        db.collection("customers")
-                .document(customerId)
-                .collection("debts")
-                .get()
-                .addOnSuccessListener(debtSnapshots -> {
-                    WriteBatch batch = db.batch();
-                    for (QueryDocumentSnapshot doc : debtSnapshots) {
-                        batch.delete(doc.getReference());
-                    }
-                    batch.delete(db.collection("customers").document(customerId));
-
-                    batch.commit()
-                            .addOnSuccessListener(unused -> {
-                                if (!isAdded()) return;
-                                removeCustomerLocally(customerId);
-                                Toast.makeText(requireContext(), getString(R.string.archive_customer_deleted), Toast.LENGTH_SHORT).show();
-                            })
-                            .addOnFailureListener(e -> {
-                                if (!isAdded()) return;
-                                Toast.makeText(requireContext(), getString(R.string.archive_delete_failed), Toast.LENGTH_SHORT).show();
-                            });
-                })
-                .addOnFailureListener(e -> {
-                    if (!isAdded()) return;
-                    Toast.makeText(requireContext(), getString(R.string.archive_load_failed), Toast.LENGTH_SHORT).show();
-                });
+        CustomerRepository.deleteForever(customerId, ok -> {
+            if (!isAdded()) return;
+            Toast.makeText(requireContext(), getString(ok ? R.string.archive_customer_deleted
+                    : R.string.archive_delete_failed), Toast.LENGTH_SHORT).show();
+        });
+        removeCustomerLocally(customerId);
     }
 
     @Override

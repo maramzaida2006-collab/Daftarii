@@ -464,4 +464,9 @@
     <string name="label_balance_due">الرصيد المستحق</string>
     <string name="statement_footer">صدر من تطبيق دفتري</string>
     <string name="greeting_morning">صباح الخير</string>
+    <string name="customer_phone_exists">هاد الرقم لزبون تاني عندك</string>
+    <string name="tx_overpayment_title">الدفعة أكبر من الرصيد</string>
+    <string name="tx_overpayment_message">الدفعة ₪ %1$s والرصيد ₪ %2$s. الفرق رح يصير رصيد للزبون. متأكد؟</string>
+    <string name="tx_overpayment_confirm">سجّل على كل حال</string>
+    <string name="customer_name_too_long">الاسم طويل كتير (50 حرف بالكتير)</string>
 </resources>

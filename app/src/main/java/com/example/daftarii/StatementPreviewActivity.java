@@ -1,5 +1,6 @@
 package com.example.daftarii;
 
+import com.example.daftarii.data.TransactionRepository;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -133,26 +134,12 @@ public class StatementPreviewActivity extends AppCompatActivity {
         rowsContainer.removeAllViews();
         if (customerId == null || customerId.isEmpty()) return;
 
-        db.collection("customers").document(customerId)
-                .collection("debts")
-                .get()
-                .addOnSuccessListener(snapshots -> {
-                    if (snapshots == null) return;
-
-                    List<DebtItem> items = new ArrayList<>();
+        // حركات الزبون المش مؤرشفة (users/{uid}/transactions)
+        TransactionRepository.loadForCustomer(customerId, loaded -> {
+                    if (isFinishing()) return;
+                    List<DebtItem> items = new ArrayList<>(loaded);
                     double sum = 0.0;
-
-                    for (QueryDocumentSnapshot doc : snapshots) {
-                        Boolean archived = doc.getBoolean("archived");
-                        if (Boolean.TRUE.equals(archived)) continue;
-
-                        DebtItem item = doc.toObject(DebtItem.class);
-                        if (item == null) continue;
-                        item.setId(doc.getId());
-                        item.setCustomerId(customerId);
-                        items.add(item);
-                        sum += item.getAmount();
-                    }
+                    for (DebtItem item : items) sum += item.getAmount();
 
                     // ترتيب تصاعدي لحساب الرصيد التراكمي بشكل صحيح
                     items.sort((a, b) -> Long.compare(a.getTimestamp(), b.getTimestamp()));
@@ -171,7 +158,7 @@ public class StatementPreviewActivity extends AppCompatActivity {
                     tvTotal.setText(String.format(Locale.US, "₪ %.2f", totalDebt));
 
                     LayoutInflater inflater = LayoutInflater.from(this);
-                    SimpleDateFormat rowDateFormat = new SimpleDateFormat("dd MMM", new Locale("ar"));
+                    SimpleDateFormat rowDateFormat = new SimpleDateFormat("dd MMM", Locale.getDefault());
 
                     for (RowDisplayData rowData : displayRows) {
                         View rowView = inflater.inflate(R.layout.item_statement_row, rowsContainer, false);

@@ -2,11 +2,11 @@ package com.example.daftarii;
 
 import androidx.annotation.NonNull;
 
+import com.example.daftarii.data.Db;
 import com.example.daftarii.logic.TransactionEdit;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.WriteBatch;
 
 import java.util.ArrayList;
@@ -15,11 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * قراءة وحفظ تعديل حركة بـ Firestore (البنية الحالية: customers/{id}/debts/{id}).
+ * قراءة وحفظ تعديل حركة بـ Firestore (users/{uid}/transactions، المسارات بـ data/Db).
  * - الرصيد بيتعدّل بـ FieldValue.increment (مش بقيمة محسوبة على الجوال)،
  *   فلو صار تعديلين ورا بعض أو من جهازين، ما بيضيع إشي.
  * - كل تعديل بينضاف لـ editHistory بنفس الـ batch.
- * إذا انتقلنا لـ users/{uid}/transactions، بس هاد الملف بيتغيّر.
  */
 public final class TransactionEditor {
 
@@ -30,13 +29,16 @@ public final class TransactionEditor {
     private TransactionEditor() {}
 
     private static DocumentReference debtRef(String customerId, String debtId) {
-        return FirebaseFirestore.getInstance().collection("customers").document(customerId)
-                .collection("debts").document(debtId);
+        return Db.transaction(Db.uid(), debtId);
     }
 
     /** سجل التعديلات المحفوظ على الحركة. فاضي إذا ما في، أو إذا فشل التحميل. */
     public static void loadHistory(@NonNull String customerId, @NonNull String debtId,
                                    @NonNull Callback<List<TransactionEdit.Entry>> callback) {
+        if (Db.uid() == null) {
+            callback.onResult(new ArrayList<>());
+            return;
+        }
         debtRef(customerId, debtId).get().addOnCompleteListener(task -> {
             List<TransactionEdit.Entry> out = new ArrayList<>();
             DocumentSnapshot doc = task.isSuccessful() ? task.getResult() : null;
@@ -68,15 +70,20 @@ public final class TransactionEditor {
         historyItem.put("oldNote", entry.oldNote);
         historyItem.put("newNote", entry.newNote);
 
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        WriteBatch batch = db.batch();
+        if (Db.uid() == null) {
+            callback.onResult(false);
+            return;
+        }
+        WriteBatch batch = Db.fs().batch();
+        // المبلغ بالأغورة وموجب دايماً (النوع ما بيتغيّر)، والرصيد بالأغورة كمان
         batch.update(debtRef(customerId, debtId),
-                "itemName", newNote,
-                "amount", newSignedAmount,
-                "editHistory", FieldValue.arrayUnion(historyItem));
-        if (balanceDiff != 0) {
-            batch.update(db.collection("customers").document(customerId),
-                    "totalDebt", FieldValue.increment(balanceDiff));
+                Db.F_NOTE, newNote,
+                Db.F_AMOUNT, entry.newAmount,
+                Db.F_HISTORY, FieldValue.arrayUnion(historyItem));
+        long diffAgorot = Math.round(balanceDiff * 100);
+        if (diffAgorot != 0) {
+            batch.update(Db.customer(Db.uid(), customerId),
+                    Db.F_BALANCE, FieldValue.increment(diffAgorot));
         }
         batch.commit().addOnCompleteListener(t -> callback.onResult(t.isSuccessful()));
     }

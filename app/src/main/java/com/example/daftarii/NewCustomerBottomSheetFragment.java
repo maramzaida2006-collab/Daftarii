@@ -1,5 +1,9 @@
 package com.example.daftarii;
 
+import com.example.daftarii.logic.Validators;
+import com.example.daftarii.logic.Money;
+import com.example.daftarii.data.CustomerRepository;
+import com.example.daftarii.auth.AuthMessages;
 import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -174,6 +178,12 @@ public class NewCustomerBottomSheetFragment extends BottomSheetDialogFragment {
         String phone = etPhone.getText() != null ? etPhone.getText().toString().trim() : "";
         String amountStr = etAmount.getText() != null ? etAmount.getText().toString().trim() : "";
 
+        // firestore.rules: الاسم 50 حرف بالكتير
+        if (Validators.customerName(name) == Validators.Result.TOO_LONG) {
+            etName.setError(getString(R.string.customer_name_too_long));
+            etName.requestFocus();
+            return;
+        }
         if (name.isEmpty()) {
             etName.setError(getString(R.string.customer_name_required));
             etName.requestFocus();
@@ -187,63 +197,34 @@ public class NewCustomerBottomSheetFragment extends BottomSheetDialogFragment {
             }
         }
 
-        double initialAmount = 0.0;
+        // المبلغ بالأغورة: بيقبل أرقام عربية وفاصلة، وما بيعمل كراش
+        long firstDebt = 0;
         if (!amountStr.isEmpty()) {
-            Double parsed = parseDoubleSafe(amountStr);
-            if (parsed == null || parsed < 0) {
-                Toast.makeText(requireContext(), getString(R.string.error_amount_invalid), Toast.LENGTH_SHORT).show();
+            Validators.Result r = Validators.amount(amountStr);
+            if (r != Validators.Result.OK) {
+                Integer err = AuthMessages.amountError(r);
+                etAmount.setError(getString(err != null ? err : R.string.error_amount_invalid));
                 return;
             }
-            initialAmount = Math.round(parsed * 100.0) / 100.0;
+            firstDebt = Money.parseToAgorot(amountStr);
         }
 
         btnSave.setEnabled(false);
-
-        String customerId = db.collection("customers").document().getId();
-        long now = System.currentTimeMillis();
-
-        Map<String, Object> customerMap = new HashMap<>();
-        customerMap.put("name", name);
-        customerMap.put("phone", phone);
-        customerMap.put("totalDebt", initialAmount);
-        customerMap.put("dueDate", selectedDueDateMillis);
-        customerMap.put("userId", userId);
-        customerMap.put("archived", false);
-        customerMap.put("deletedAt", 0L);
-
-        WriteBatch batch = db.batch();
-        DocumentReference customerRef = db.collection("customers").document(customerId);
-        batch.set(customerRef, customerMap);
-
-        if (initialAmount > 0) {
-            String debtId = customerRef.collection("debts").document().getId();
-            Map<String, Object> debtMap = new HashMap<>();
-            debtMap.put("id", debtId);
-            debtMap.put("customerId", customerId);
-            debtMap.put("itemName", getString(R.string.customer_first_debt_note));
-            debtMap.put("amount", initialAmount);
-            debtMap.put("timestamp", now);
-            debtMap.put("dueDate", selectedDueDateMillis);
-            debtMap.put("archived", false);
-
-            DocumentReference debtRef = customerRef.collection("debts").document(debtId);
-            batch.set(debtRef, debtMap);
-        }
-
-        batch.commit()
-                .addOnSuccessListener(unused -> {
-                    if (isAdded()) {
-                        Toast.makeText(requireContext(), getString(R.string.customer_saved), Toast.LENGTH_SHORT).show();
-                        dismiss();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    if (isAdded()) {
-                        btnSave.setEnabled(true);
-                        Toast.makeText(requireContext(), getString(R.string.saved_offline), Toast.LENGTH_SHORT).show();
-                        dismiss();
-                    }
-                });
+        final long debt = firstDebt;
+        // الرقم ما بيتكرر بين زباينك (بعد التنظيف: 059-123 4567 = 0591234567)
+        CustomerRepository.phoneExists(phone, exists -> {
+            if (!isAdded()) return;
+            if (exists) {
+                btnSave.setEnabled(true);
+                etPhone.setError(getString(R.string.customer_phone_exists));
+                return;
+            }
+            CustomerRepository.add(name, phone, selectedDueDateMillis, debt,
+                    getString(R.string.customer_first_debt_note), ok -> { /* Firestore بيكمّل لحاله */ });
+            // ما بنستنى السيرفر: بدون نت الحفظ بيصير محلياً، والشاشة ما بتعلق
+            Toast.makeText(requireContext(), getString(R.string.customer_saved), Toast.LENGTH_SHORT).show();
+            dismiss();
+        });
     }
 
     private Double parseDoubleSafe(String value) {
