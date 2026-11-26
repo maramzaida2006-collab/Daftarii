@@ -42,8 +42,8 @@ public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.Cust
     public void onBindViewHolder(@NonNull CustomerViewHolder holder, int position) {
         Customer customer = customerList.get(position);
         holder.tvName.setText(customer.getName());
-        holder.tvPhone.setText(customer.getPhone() != null && !customer.getPhone().isEmpty() ? customer.getPhone() : "بدون رقم");
-        holder.tvTotalDebt.setText(customer.getTotalDebt() + " شيكل");
+        holder.tvPhone.setText(customer.getPhone() != null && !customer.getPhone().isEmpty() ? customer.getPhone() : holder.itemView.getContext().getString(R.string.no_phone));
+        holder.tvTotalDebt.setText("₪ " + String.format(java.util.Locale.US, "%.2f", customer.getTotalDebt()));
 
         long currentTime = System.currentTimeMillis();
         long dueDate = customer.getDueDate();
@@ -67,9 +67,9 @@ public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.Cust
         // تعديل الضغط المطول ليصبح "أرشفة" بدلاً من "الحذف النهائي"
         holder.itemView.setOnLongClickListener(v -> {
             new AlertDialog.Builder(v.getContext())
-                    .setTitle("نقل إلى الأرشيف")
-                    .setMessage("هل أنت متأكد من نقل الزبون (" + customer.getName() + ") إلى الأرشيف؟ لن يتم حذفه نهائياً وستتمكن من استرجاعه لاحقاً.")
-                    .setPositiveButton("أرشفة", (dialog, which) -> {
+                    .setTitle(R.string.detail_archive_customer_title)
+                    .setMessage(v.getContext().getString(R.string.archive_customer_confirm, customer.getName()))
+                    .setPositiveButton(R.string.action_archive, (dialog, which) -> {
                         if (customer.getId() == null) return;
 
                         // تحديث حالة الأرشفة بدلاً من المسح نهائياً
@@ -77,13 +77,13 @@ public class CustomersAdapter extends RecyclerView.Adapter<CustomersAdapter.Cust
                                 .document(customer.getId())
                                 .update("archived", true, "deletedAt", System.currentTimeMillis())
                                 .addOnSuccessListener(aVoid -> {
-                                    Toast.makeText(v.getContext(), "تم نقل الزبون إلى الأرشيف بنجاح", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(v.getContext(), v.getContext().getString(R.string.detail_customer_archived), Toast.LENGTH_SHORT).show();
                                 })
                                 .addOnFailureListener(e -> {
-                                    Toast.makeText(v.getContext(), "فشل الأرشفة: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(v.getContext(), v.getContext().getString(R.string.archive_failed), Toast.LENGTH_SHORT).show();
                                 });
                     })
-                    .setNegativeButton("إلغاء", null)
+                    .setNegativeButton(R.string.action_cancel, null)
                     .show();
 
             return true;

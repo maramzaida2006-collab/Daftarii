@@ -39,7 +39,7 @@ public class DebtDetailsAdapter extends RecyclerView.Adapter<DebtDetailsAdapter.
     @Override
     public void onBindViewHolder(@NonNull DebtViewHolder holder, int position) {
         DebtItem debt = debtList.get(position);
-        holder.tvItemName.setText(debt.getItemName() != null ? debt.getItemName() : "بدون وصف");
+        holder.tvItemName.setText(debt.getItemName() != null ? debt.getItemName() : holder.itemView.getContext().getString(R.string.tx_untitled));
         holder.tvItemAmount.setText(debt.getAmount() + " ₪");
 
         String formattedDate = new SimpleDateFormat("yyyy/MM/dd - hh:mm a", Locale.getDefault()).format(new Date(debt.getTimestamp()));

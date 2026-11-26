@@ -64,6 +64,8 @@ public final class ProfileSecurity {
         }
 
         click(a, R.id.btnLogout, v -> confirmLogout(a));
+        // تصدير PDF بكل الزباين (من قسم البيانات)
+        click(a, R.id.rowExportPdf, v -> com.example.daftarii.reports.CustomersReportPdf.export(a));
         refresh(a);
     }
 
@@ -101,6 +103,54 @@ public final class ProfileSecurity {
 
         CompoundButton notifications = a.findViewById(R.id.switchNotifications);
         if (notifications != null) setSilently(notifications, NotificationScheduler.isEnabled(a));
+    }
+
+    /** "تعديل" جنب اسم المحل: نافذة فيها الاسم الحالي، وبعد الحفظ onDone بيحدّث الصفحة. */
+    public static void editShopName(@NonNull Activity a, @NonNull Runnable onDone) {
+        AuthRepository repo = new AuthRepository();
+        com.google.android.material.textfield.TextInputLayout til =
+                new com.google.android.material.textfield.TextInputLayout(a);
+        com.google.android.material.textfield.TextInputEditText input =
+                new com.google.android.material.textfield.TextInputEditText(til.getContext());
+        input.setSingleLine(true);
+        String current = repo.currentDisplayName();
+        if (current != null) input.setText(current);
+        til.setHint(a.getString(R.string.auth_label_shop_name));
+        til.addView(input);
+        int pad = Math.round(20 * a.getResources().getDisplayMetrics().density);
+        android.widget.FrameLayout box = new android.widget.FrameLayout(a);
+        box.setPadding(pad, pad / 2, pad, 0);
+        box.addView(til);
+
+        androidx.appcompat.app.AlertDialog dialog = new MaterialAlertDialogBuilder(a)
+                .setTitle(R.string.profile_edit_name_title)
+                .setView(box)
+                .setPositiveButton(R.string.action_save, null)
+                .setNegativeButton(R.string.action_cancel, null)
+                .create();
+        dialog.setOnShowListener(d -> dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)
+                .setOnClickListener(v -> {
+                    String name = input.getText() != null ? input.getText().toString().trim() : "";
+                    Integer err = com.example.daftarii.auth.AuthMessages.shopNameError(
+                            com.example.daftarii.logic.Validators.shopName(name));
+                    if (err != null) {
+                        til.setError(a.getString(err));
+                        return;
+                    }
+                    repo.updateShopName(name, new AuthRepository.Callback<Void>() {
+                        @Override
+                        public void onSuccess(Void ignored) {
+                            dialog.dismiss();
+                            onDone.run();
+                        }
+
+                        @Override
+                        public void onError(@NonNull AuthError error) {
+                            til.setError(a.getString(com.example.daftarii.auth.AuthMessages.of(error)));
+                        }
+                    });
+                }));
+        dialog.show();
     }
 
     private static void confirmPasswordReset(Activity a) {

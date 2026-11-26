@@ -259,6 +259,24 @@ public class AuthRepository {
                 .set(doc, SetOptions.merge());
     }
 
+    /** تعديل اسم المحل من حسابي: displayName بـ Firebase Auth، وملف users/{uid}. */
+    public void updateShopName(String shopName, Callback<Void> callback) {
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            callback.onError(AuthError.UNKNOWN);
+            return;
+        }
+        UserProfileChangeRequest profile = new UserProfileChangeRequest.Builder()
+                .setDisplayName(shopName.trim())
+                .build();
+        user.updateProfile(profile)
+                .addOnSuccessListener(v -> {
+                    saveUserProfile(shopName, false);
+                    callback.onSuccess(null);
+                })
+                .addOnFailureListener(e -> callback.onError(toAuthError(e)));
+    }
+
     public void signOut() {
         auth.signOut();
     }

@@ -8,7 +8,7 @@
     app:cardBackgroundColor="@android:color/white"
     app:cardCornerRadius="16dp"
     app:cardElevation="3dp"
-    app:strokeColor="#F1F5F9"
+    app:strokeColor="@color/surface_variant"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -29,7 +29,7 @@
                 android:layout_height="24dp"
                 android:layout_gravity="center"
                 android:src="@android:drawable/ic_menu_myplaces"
-                app:tint="#0F172A" />
+                app:tint="@color/text_primary" />
         </FrameLayout>
 
         <!-- Customer Name, Phone and Risk Indicator -->
@@ -59,8 +59,8 @@
                     android:id="@+id/tvCustomerName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="اسم الزبون"
-                    android:textColor="#0F172A"
+                    android:text="@string/label_customer_name"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -71,7 +71,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="0590000000"
-                android:textColor="#64748B"
+                android:textColor="@color/text_secondary"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -85,8 +85,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="إجمالي الدين"
-                android:textColor="#94A3B8"
+                android:text="@string/label_total_debt"
+                android:textColor="@color/text_secondary"
                 android:textSize="11sp" />
 
             <TextView
@@ -95,7 +95,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
                 android:text="0.0 ₪"
-                android:textColor="#DC2626"
+                android:textColor="@color/debt_fg"
                 android:textSize="15sp"
                 android:textStyle="bold" />
         </LinearLayout>

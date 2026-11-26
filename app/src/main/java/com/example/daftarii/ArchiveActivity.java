@@ -35,9 +35,9 @@ public class ArchiveActivity extends AppCompatActivity {
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             if (position == 0) {
-                tab.setText("الحركات (" + transactionsCount + ")");
+                tab.setText(getString(R.string.archive_tab_transactions, transactionsCount));
             } else {
-                tab.setText("الزبائن (" + customersCount + ")");
+                tab.setText(getString(R.string.archive_tab_customers, customersCount));
             }
         }).attach();
     }
@@ -46,7 +46,7 @@ public class ArchiveActivity extends AppCompatActivity {
         this.transactionsCount = count;
         TabLayout.Tab tab = tabLayout.getTabAt(0);
         if (tab != null) {
-            tab.setText("الحركات (" + transactionsCount + ")");
+            tab.setText(getString(R.string.archive_tab_transactions, transactionsCount));
         }
     }
 
@@ -54,7 +54,7 @@ public class ArchiveActivity extends AppCompatActivity {
         this.customersCount = count;
         TabLayout.Tab tab = tabLayout.getTabAt(1);
         if (tab != null) {
-            tab.setText("الزبائن (" + customersCount + ")");
+            tab.setText(getString(R.string.archive_tab_customers, customersCount));
         }
     }
 

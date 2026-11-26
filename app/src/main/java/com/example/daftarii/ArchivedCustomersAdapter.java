@@ -47,14 +47,14 @@ public class ArchivedCustomersAdapter extends RecyclerView.Adapter<ArchivedCusto
 
         String name = (customer.getName() != null && !customer.getName().trim().isEmpty())
                 ? customer.getName().trim()
-                : "زبون";
+                : holder.itemView.getContext().getString(R.string.notif_unknown_customer);
 
         holder.tvName.setText(name);
         holder.tvAvatar.setText(name.substring(0, 1));
 
         String phone = (customer.getPhone() != null && !customer.getPhone().trim().isEmpty())
                 ? customer.getPhone().trim()
-                : "بدون رقم";
+                : holder.itemView.getContext().getString(R.string.no_phone);
         holder.tvPhone.setText(phone);
 
         String formattedDebt = String.format(Locale.US, "%.2f", Math.max(0.0, customer.getTotalDebt()));

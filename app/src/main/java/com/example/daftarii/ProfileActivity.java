@@ -1,5 +1,6 @@
 package com.example.daftarii;
 
+import com.example.daftarii.logic.AppLanguage;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -24,8 +25,8 @@ import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private static final String PREFS_NAME = "daftarii_prefs";
-    private static final String KEY_DARK_MODE = "dark_mode";
+    private static final String PREFS_NAME = DaftariApp.PREFS;
+    private static final String KEY_DARK_MODE = DaftariApp.KEY_DARK_MODE;
     private static final String KEY_LANG = "app_lang";
 
     private FirebaseAuth auth;
@@ -108,7 +109,7 @@ public class ProfileActivity extends AppCompatActivity {
             if (tvProfileInitial != null) {
                 String source = (displayName != null && !displayName.trim().isEmpty())
                         ? displayName.trim()
-                        : (email != null && !email.trim().isEmpty() ? email.trim() : "د");
+                        : (email != null && !email.trim().isEmpty() ? email.trim() : getString(R.string.home_store_initial));
                 tvProfileInitial.setText(source.substring(0, 1).toUpperCase(Locale.ROOT));
             }
         }
@@ -146,29 +147,17 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void updateLanguageLabel() {
         if (tvCurrentLanguage == null) return;
-        String lang = prefs.getString(KEY_LANG, "ar");
-        tvCurrentLanguage.setText("en".equals(lang) ? "English" : "العربية");
+        // اسم اللغة بلغتها (English / العربية)، متل زر 🌐 بشاشة الدخول
+        tvCurrentLanguage.setText(LanguageManager.current() == AppLanguage.ENGLISH
+                ? R.string.lang_name_en : R.string.lang_name_ar);
     }
 
+    /**
+     * نفس طريقة زر 🌐 بشاشة الدخول (LanguageManager): أندرويد بيحفظ اللغة
+     * وبيعيد فتح كل الشاشات فيها. (الطريقة القديمة كانت بتغيّر هالشاشة بس، وبتنسى بعد ما يتسكّر التطبيق.)
+     */
     private void toggleLanguage() {
-        String currentLang = prefs.getString(KEY_LANG, "ar");
-        String nextLang = "ar".equals(currentLang) ? "en" : "ar";
-        prefs.edit().putString(KEY_LANG, nextLang).apply();
-
-        Locale locale = new Locale(nextLang);
-        Locale.setDefault(locale);
-        Configuration config = getResources().getConfiguration();
-        config.setLocale(locale);
-        config.setLayoutDirection(locale);
-        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
-
-        Toast.makeText(
-                this,
-                "en".equals(nextLang) ? "Language: English" : "تم التبديل إلى العربية",
-                Toast.LENGTH_SHORT
-        ).show();
-
-        recreate();
+        LanguageManager.toggle();
     }
 
     private void applyDarkMode(boolean enableDark) {
@@ -180,8 +169,7 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupListeners() {
         if (btnEditProfile != null) {
-            btnEditProfile.setOnClickListener(v ->
-                    Toast.makeText(this, "تعديل بيانات الحساب", Toast.LENGTH_SHORT).show());
+            btnEditProfile.setOnClickListener(v -> ProfileSecurity.editShopName(this, this::loadUserInfo));
         }
 
         if (rowArchive != null) {

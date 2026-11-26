@@ -50,9 +50,9 @@ public class ArchivedTransactionsAdapter extends RecyclerView.Adapter<ArchivedTr
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Transaction item = transactions.get(position);
 
-        holder.tvTitle.setText(item.getTitle() != null ? item.getTitle() : "حركة مالية");
+        holder.tvTitle.setText(item.getTitle() != null ? item.getTitle() : holder.itemView.getContext().getString(R.string.tx_untitled));
 
-        String dateText = formatArchivedDate(item.getDeletedAt());
+        String dateText = formatArchivedDate(holder.itemView.getContext(), item.getDeletedAt());
         String customerName = item.getCustomerName() != null ? item.getCustomerName() : "";
         holder.tvSubtitle.setText(
                 customerName.isEmpty() ? dateText : customerName + " · " + dateText
@@ -87,8 +87,8 @@ public class ArchivedTransactionsAdapter extends RecyclerView.Adapter<ArchivedTr
         return transactions.size();
     }
 
-    private String formatArchivedDate(long deletedAt) {
-        if (deletedAt <= 0) return "أُرشفت سابقاً";
+    private String formatArchivedDate(android.content.Context c, long deletedAt) {
+        if (deletedAt <= 0) return c.getString(R.string.archived_earlier);
 
         Calendar now = Calendar.getInstance();
         Calendar archivedCal = Calendar.getInstance();
@@ -101,12 +101,12 @@ public class ArchivedTransactionsAdapter extends RecyclerView.Adapter<ArchivedTr
         boolean yesterday = sameYear && now.get(Calendar.DAY_OF_YEAR) == archivedCal.get(Calendar.DAY_OF_YEAR);
 
         if (sameDay) {
-            return "أُرشفت اليوم";
+            return c.getString(R.string.archived_today);
         } else if (yesterday) {
-            return "أُرشفت أمس";
+            return c.getString(R.string.archived_yesterday);
         } else {
-            SimpleDateFormat sdf = new SimpleDateFormat("d MMMM", new Locale("ar"));
-            return "أُرشفت " + sdf.format(new Date(deletedAt));
+            SimpleDateFormat sdf = new SimpleDateFormat("d MMMM", Locale.getDefault());
+            return c.getString(R.string.archived_on, sdf.format(new Date(deletedAt)));
         }
     }
 

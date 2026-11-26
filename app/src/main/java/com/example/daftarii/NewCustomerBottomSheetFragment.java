@@ -105,7 +105,7 @@ public class NewCustomerBottomSheetFragment extends BottomSheetDialogFragment {
 
             if (checkedId == R.id.chipNone) {
                 selectedDueDateMillis = 0L;
-                tvDueHint.setText("بدون موعد سداد محدد");
+                tvDueHint.setText(R.string.customer_due_none);
             } else if (checkedId == R.id.chipWeek) {
                 applyPresetDueDays(7);
             } else if (checkedId == R.id.chipTwoWeeks) {
@@ -160,12 +160,12 @@ public class NewCustomerBottomSheetFragment extends BottomSheetDialogFragment {
     private void updateDueHintText(long dueMillis) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", new Locale("ar"));
         String formattedDate = sdf.format(new Date(dueMillis));
-        tvDueHint.setText("يعني " + formattedDate + " ، بنوصلك إشعار قبلها بيوم");
+        tvDueHint.setText(getString(R.string.customer_due_hint, formattedDate));
     }
 
     private void validateAndSaveCustomer() {
         if (mAuth.getCurrentUser() == null) {
-            Toast.makeText(requireContext(), "يرجى تسجيل الدخول أولاً", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.login_required), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -175,14 +175,14 @@ public class NewCustomerBottomSheetFragment extends BottomSheetDialogFragment {
         String amountStr = etAmount.getText() != null ? etAmount.getText().toString().trim() : "";
 
         if (name.isEmpty()) {
-            etName.setError("الرجاء إدخال اسم الزبون");
+            etName.setError(getString(R.string.customer_name_required));
             etName.requestFocus();
             return;
         }
 
         for (String existing : existingCustomerNames) {
             if (existing.equalsIgnoreCase(name)) {
-                Toast.makeText(requireContext(), "هذا الزبون موجود سابقاً!", Toast.LENGTH_LONG).show();
+                Toast.makeText(requireContext(), getString(R.string.customer_exists), Toast.LENGTH_LONG).show();
                 return;
             }
         }
@@ -191,7 +191,7 @@ public class NewCustomerBottomSheetFragment extends BottomSheetDialogFragment {
         if (!amountStr.isEmpty()) {
             Double parsed = parseDoubleSafe(amountStr);
             if (parsed == null || parsed < 0) {
-                Toast.makeText(requireContext(), "الرجاء إدخال مبلغ صحيح", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.error_amount_invalid), Toast.LENGTH_SHORT).show();
                 return;
             }
             initialAmount = Math.round(parsed * 100.0) / 100.0;
@@ -220,7 +220,7 @@ public class NewCustomerBottomSheetFragment extends BottomSheetDialogFragment {
             Map<String, Object> debtMap = new HashMap<>();
             debtMap.put("id", debtId);
             debtMap.put("customerId", customerId);
-            debtMap.put("itemName", "أول دين");
+            debtMap.put("itemName", getString(R.string.customer_first_debt_note));
             debtMap.put("amount", initialAmount);
             debtMap.put("timestamp", now);
             debtMap.put("dueDate", selectedDueDateMillis);
@@ -233,14 +233,14 @@ public class NewCustomerBottomSheetFragment extends BottomSheetDialogFragment {
         batch.commit()
                 .addOnSuccessListener(unused -> {
                     if (isAdded()) {
-                        Toast.makeText(requireContext(), "تم حفظ الزبون في Firestore بنجاح", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), getString(R.string.customer_saved), Toast.LENGTH_SHORT).show();
                         dismiss();
                     }
                 })
                 .addOnFailureListener(e -> {
                     if (isAdded()) {
                         btnSave.setEnabled(true);
-                        Toast.makeText(requireContext(), "تم الحفظ محلياً وسيتم المزامنة تلقائياً", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(requireContext(), getString(R.string.saved_offline), Toast.LENGTH_SHORT).show();
                         dismiss();
                     }
                 });

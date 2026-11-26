@@ -5,8 +5,7 @@
     android:id="@+id/profileRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background"
-    android:layoutDirection="rtl">
+    android:background="@color/background">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/scrollProfileContent"
@@ -487,7 +486,7 @@
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
                         android:fontFamily="@font/readex_pro_medium"
-                        android:text="اللغة / Language"
+                        android:text="@string/label_language"
                         android:textColor="@color/text_primary"
                         android:textSize="13sp" />
 
@@ -498,7 +497,7 @@
                         android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:fontFamily="@font/readex_pro_regular"
-                        android:text="العربية"
+                        tools:text="العربية"
                         android:textColor="@color/text_secondary"
                         android:textSize="12sp" />
 

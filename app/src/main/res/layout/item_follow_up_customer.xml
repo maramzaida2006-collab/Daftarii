@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/cardFollowUpItem"
     android:layout_width="164dp"
     android:layout_height="wrap_content"
@@ -8,7 +9,6 @@
     android:backgroundTint="@color/surface"
     android:clickable="true"
     android:focusable="true"
-    android:layoutDirection="rtl"
     android:orientation="vertical"
     android:padding="12dp">
 
@@ -32,7 +32,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:fontFamily="@font/alexandria_semibold"
-                android:text="أخ"
+                tools:text="أخ"
                 android:textColor="@color/debt_fg"
                 android:textSize="12sp" />
         </FrameLayout>
@@ -46,7 +46,7 @@
             android:ellipsize="end"
             android:fontFamily="@font/readex_pro_semibold"
             android:maxLines="1"
-            android:text="أحمد خليل"
+            tools:text="أحمد خليل"
             android:textColor="@color/text_primary"
             android:textSize="13sp" />
     </LinearLayout>
@@ -90,7 +90,7 @@
             android:ellipsize="end"
             android:fontFamily="@font/readex_pro_medium"
             android:maxLines="1"
-            android:text="متأخر 5 أيام"
+            tools:text="متأخر 5 أيام"
             android:textColor="@color/debt_fg"
             android:textSize="11sp" />
     </LinearLayout>

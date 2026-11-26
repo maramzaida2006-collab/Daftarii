@@ -2,7 +2,6 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layoutDirection="rtl"
     android:orientation="vertical">
 
     <!-- بانر التنبيه -->
@@ -19,7 +18,7 @@
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:src="@drawable/ic_info"
-            app:tint="#B7791F"
+            app:tint="@color/due_fg"
             xmlns:app="http://schemas.android.com/apk/res-auto" />
 
         <TextView
@@ -27,8 +26,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
-            android:text="الحركات المؤرشفة ما بتنحسب بالرصيد لحد ما تسترجعها"
-            android:textColor="#8A5A00"
+            android:text="@string/archive_tx_hint"
+            android:textColor="@color/due_fg"
             android:textSize="13sp" />
     </LinearLayout>
 

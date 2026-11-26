@@ -101,8 +101,8 @@ public class StatementPreviewActivity extends AppCompatActivity {
         tvTotal.setText(String.format(Locale.US, "₪ %.2f", totalDebt));
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", new Locale("ar"));
-        tvStatementDate.setText("كشف حساب زبون · " + dateFormat.format(new Date()));
-        tvPageCount.setText("صفحة 1 من 1");
+        tvStatementDate.setText(getString(R.string.statement_subtitle, dateFormat.format(new Date())));
+        tvPageCount.setText(getString(R.string.statement_page, 1, 1));
     }
 
     private void loadShopName() {
@@ -244,7 +244,7 @@ public class StatementPreviewActivity extends AppCompatActivity {
             pdfDocument.writeTo(fos);
             return outFile;
         } catch (IOException e) {
-            Toast.makeText(this, "تعذر إنشاء ملف PDF: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.statement_pdf_failed), Toast.LENGTH_SHORT).show();
             return null;
         } finally {
             pdfDocument.close();
@@ -264,13 +264,13 @@ public class StatementPreviewActivity extends AppCompatActivity {
         intent.setType("application/pdf");
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        startActivity(Intent.createChooser(intent, "مشاركة كشف الحساب"));
+        startActivity(Intent.createChooser(intent, getString(R.string.statement_share)));
     }
 
     private void printStatement() {
         PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
         if (printManager == null) {
-            Toast.makeText(this, "خدمة الطباعة غير متوفرة على هذا الجهاز", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.statement_print_unavailable), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -298,7 +298,7 @@ public class StatementPreviewActivity extends AppCompatActivity {
                                 WriteResultCallback callback) {
                 File pdfFile = createStatementPdfFile();
                 if (pdfFile == null) {
-                    callback.onWriteFailed("تعذر إنشاء ملف الطباعة");
+                    callback.onWriteFailed(getString(R.string.statement_pdf_failed));
                     return;
                 }
                 try (java.io.FileInputStream in = new java.io.FileInputStream(pdfFile);
@@ -315,7 +315,7 @@ public class StatementPreviewActivity extends AppCompatActivity {
             }
         };
 
-        printManager.print("كشف حساب " + (customerName != null ? customerName : ""), printAdapter, null);
+        printManager.print(getString(R.string.statement_print_job, customerName != null ? customerName : ""), printAdapter, null);
     }
 
     private static class RowDisplayData {

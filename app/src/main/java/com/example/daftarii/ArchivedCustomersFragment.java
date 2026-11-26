@@ -122,7 +122,7 @@ public class ArchivedCustomersFragment extends Fragment
     @Override
     public void onRestoreClick(Customer customer) {
         if (customer.getId() == null || customer.getId().isEmpty()) {
-            Toast.makeText(requireContext(), "تعذر تحديد بيانات الزبون", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.archive_customer_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -153,7 +153,7 @@ public class ArchivedCustomersFragment extends Fragment
                                 removeCustomerLocally(customerId);
                                 Toast.makeText(
                                         requireContext(),
-                                        "تم استرجاع الزبون وحركاته إلى القائمة الرئيسية",
+                                        getString(R.string.archive_customer_restored),
                                         Toast.LENGTH_SHORT
                                 ).show();
                             })
@@ -161,7 +161,7 @@ public class ArchivedCustomersFragment extends Fragment
                                 if (!isAdded()) return;
                                 Toast.makeText(
                                         requireContext(),
-                                        "فشل استرجاع الزبون: " + e.getMessage(),
+                                        getString(R.string.archive_restore_failed),
                                         Toast.LENGTH_SHORT
                                 ).show();
                             });
@@ -170,7 +170,7 @@ public class ArchivedCustomersFragment extends Fragment
                     if (!isAdded()) return;
                     Toast.makeText(
                             requireContext(),
-                            "تعذر الوصول لحركات الزبون: " + e.getMessage(),
+                            getString(R.string.archive_load_failed),
                             Toast.LENGTH_SHORT
                     ).show();
                 });
@@ -191,12 +191,11 @@ public class ArchivedCustomersFragment extends Fragment
         if (!isAdded() || customer.getId() == null || customer.getId().isEmpty()) return;
 
         new AlertDialog.Builder(requireContext())
-                .setTitle("حذف نهائي")
-                .setMessage("هل أنتِ متأكدة من حذف الزبون «" +
-                        (customer.getName() != null ? customer.getName() : "") +
-                        "» نهائياً مع حركاته؟ لا يمكن التراجع عن هذا الإجراء.")
-                .setPositiveButton("حذف", (dialog, which) -> deleteCustomerWithDebts(customer.getId()))
-                .setNegativeButton("إلغاء", null)
+                .setTitle(R.string.archive_delete_title)
+                .setMessage(getString(R.string.archive_delete_customer_message,
+                        customer.getName() != null ? customer.getName() : ""))
+                .setPositiveButton(R.string.action_delete, (dialog, which) -> deleteCustomerWithDebts(customer.getId()))
+                .setNegativeButton(R.string.action_cancel, null)
                 .show();
     }
 
@@ -216,16 +215,16 @@ public class ArchivedCustomersFragment extends Fragment
                             .addOnSuccessListener(unused -> {
                                 if (!isAdded()) return;
                                 removeCustomerLocally(customerId);
-                                Toast.makeText(requireContext(), "تم حذف الزبون نهائياً", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), getString(R.string.archive_customer_deleted), Toast.LENGTH_SHORT).show();
                             })
                             .addOnFailureListener(e -> {
                                 if (!isAdded()) return;
-                                Toast.makeText(requireContext(), "فشل الحذف: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(requireContext(), getString(R.string.archive_delete_failed), Toast.LENGTH_SHORT).show();
                             });
                 })
                 .addOnFailureListener(e -> {
                     if (!isAdded()) return;
-                    Toast.makeText(requireContext(), "تعذر الوصول لحركات الزبون: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), getString(R.string.archive_load_failed), Toast.LENGTH_SHORT).show();
                 });
     }
 

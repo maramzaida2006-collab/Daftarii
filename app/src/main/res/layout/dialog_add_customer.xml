@@ -11,8 +11,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="إضافة زبون ودين جديد"
-        android:textColor="#0F172A"
+        android:text="@string/add_customer_title"
+        android:textColor="@color/text_primary"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp" />
@@ -33,7 +33,7 @@
             android:id="@+id/etDialogName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="اسم الزبون (مثال: عمر)"
+            android:hint="@string/hint_customer_name_short"
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -53,7 +53,7 @@
             android:id="@+id/etDialogPhone"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="رقم الهاتف"
+            android:hint="@string/label_phone"
             android:inputType="phone"
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -74,7 +74,7 @@
             android:id="@+id/etDialogItemName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="الصنف أو الملاحظة الأولى..."
+            android:hint="@string/hint_first_debt_note"
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -94,7 +94,7 @@
             android:id="@+id/etDialogAmount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="المبلغ المديون به"
+            android:hint="@string/label_debt_amount"
             android:inputType="numberDecimal"
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -114,7 +114,7 @@
             android:id="@+id/etDialogDays"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="مهلة السداد بالأيام (افتراضي 7 أيام)"
+            android:hint="@string/label_due_days"
             android:inputType="number"
             android:textSize="14sp" />
     </com.google.android.material.textfield.TextInputLayout>

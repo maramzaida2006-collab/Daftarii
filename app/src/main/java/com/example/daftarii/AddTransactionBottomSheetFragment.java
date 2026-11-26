@@ -179,13 +179,13 @@ public class AddTransactionBottomSheetFragment extends BottomSheetDialogFragment
 
         String name = selectedCustomer.getName() != null ? selectedCustomer.getName().trim() : "";
         tvAvatar.setText(buildInitials(name));
-        tvCustomerInfo.setText(String.format(Locale.US, "%s · الرصيد ₪ %.2f", name, selectedCustomer.getTotalDebt()));
+        tvCustomerInfo.setText(getString(R.string.tx_customer_balance, name, String.format(Locale.US, "%.2f", selectedCustomer.getTotalDebt())));
         selectedDueDateMillis = selectedCustomer.getDueDate();
         updateDateTexts();
     }
 
     private String buildInitials(String name) {
-        if (name == null || name.trim().isEmpty()) return "ز";
+        if (name == null || name.trim().isEmpty()) return getString(R.string.customer_initial_fallback);
         String[] parts = name.trim().split("\\s+");
         if (parts.length >= 2) {
             return "" + parts[0].charAt(0) + parts[1].charAt(0);
@@ -274,13 +274,13 @@ public class AddTransactionBottomSheetFragment extends BottomSheetDialogFragment
         }
 
         new AlertDialog.Builder(requireContext())
-                .setTitle("اختر الزبون")
+                .setTitle(R.string.tx_choose_customer)
                 .setItems(names, (dialog, which) -> {
                     selectedCustomer = customers.get(which);
                     bindCustomerInfo();
                     recalculateBalanceAfter();
                 })
-                .setNegativeButton("إلغاء", null)
+                .setNegativeButton(R.string.action_cancel, null)
                 .show();
     }
 
@@ -328,7 +328,7 @@ public class AddTransactionBottomSheetFragment extends BottomSheetDialogFragment
             SimpleDateFormat dueFormat = new SimpleDateFormat("dd MMMM yyyy", new Locale("ar"));
             tvDueDate.setText(dueFormat.format(new Date(selectedDueDateMillis)));
         } else {
-            tvDueDate.setText("غير محدد");
+            tvDueDate.setText(R.string.due_not_set);
         }
     }
 
@@ -345,21 +345,21 @@ public class AddTransactionBottomSheetFragment extends BottomSheetDialogFragment
 
     private void validateAndSaveTransaction() {
         if (selectedCustomer == null || selectedCustomer.getId() == null || selectedCustomer.getId().isEmpty()) {
-            Toast.makeText(requireContext(), "يرجى اختيار زبون أولاً", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.tx_select_customer_first), Toast.LENGTH_SHORT).show();
             return;
         }
 
         String amountStr = etAmount.getText() != null ? etAmount.getText().toString().trim() : "";
         Double parsedAmount = parseDoubleSafe(amountStr);
         if (parsedAmount == null || parsedAmount <= 0) {
-            etAmount.setError("أدخل مبلغاً صحيحاً أكبر من صفر");
+            etAmount.setError(getString(R.string.error_amount_not_positive));
             etAmount.requestFocus();
             return;
         }
 
         String desc = etDescription.getText() != null ? etDescription.getText().toString().trim() : "";
         if (desc.isEmpty()) {
-            desc = isDebt ? "دين" : "سداد دفعة نقدية";
+            desc = isDebt ? getString(R.string.tx_default_debt_note) : getString(R.string.tx_default_payment_note);
         }
 
         double signedAmount = isDebt ? Math.abs(parsedAmount) : -Math.abs(parsedAmount);
@@ -398,13 +398,13 @@ public class AddTransactionBottomSheetFragment extends BottomSheetDialogFragment
             return null;
         }).addOnSuccessListener(unused -> {
             if (isAdded()) {
-                Toast.makeText(requireContext(), "تم حفظ الحركة وتحديث الرصيد في Firestore", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.tx_saved), Toast.LENGTH_SHORT).show();
                 dismiss();
             }
         }).addOnFailureListener(e -> {
             if (isAdded()) {
                 btnSave.setEnabled(true);
-                Toast.makeText(requireContext(), "تعذر حفظ الحركة: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.tx_save_failed), Toast.LENGTH_SHORT).show();
             }
         });
     }

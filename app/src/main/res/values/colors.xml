@@ -49,5 +49,11 @@
 
     <color name="error">#B3261E</color>
 
-
+    <!-- كشف PDF: ورق أبيض دايماً، حتى بالوضع الليلي -->
+    <color name="pdf_text">#1F1B2E</color>
+    <color name="pdf_text_secondary">#6B6678</color>
+    <color name="pdf_line">#ECE8E3</color>
+    <color name="pdf_paper">#FFFFFF</color>
+    <color name="pdf_accent">#5B4FC4</color>
+    <color name="pdf_debt">#B5473A</color>
 </resources>

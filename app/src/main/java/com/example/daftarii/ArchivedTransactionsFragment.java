@@ -146,7 +146,7 @@ public class ArchivedTransactionsFragment extends Fragment
     @Override
     public void onRestoreClick(Transaction transaction) {
         if (transaction.getId() == null || transaction.getCustomerId() == null) {
-            Toast.makeText(requireContext(), "تعذر تحديد بيانات الحركة", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireContext(), getString(R.string.archive_tx_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -177,11 +177,11 @@ public class ArchivedTransactionsFragment extends Fragment
         }).addOnSuccessListener(unused -> {
             if (isAdded()) {
                 removeTransactionLocally(transactionId);
-                Toast.makeText(requireContext(), "تم استرجاع الحركة وتحديث الرصيد", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.archive_tx_restored), Toast.LENGTH_SHORT).show();
             }
         }).addOnFailureListener(e -> {
             if (isAdded()) {
-                Toast.makeText(requireContext(), "فشل استرجاع الحركة: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), getString(R.string.archive_restore_failed), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -192,9 +192,9 @@ public class ArchivedTransactionsFragment extends Fragment
 
         String transactionId = transaction.getId();
         new AlertDialog.Builder(requireContext())
-                .setTitle("حذف نهائي")
-                .setMessage("هل أنتِ متأكدة من حذف هذه الحركة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.")
-                .setPositiveButton("حذف", (dialog, which) -> {
+                .setTitle(R.string.archive_delete_title)
+                .setMessage(R.string.archive_delete_tx_message)
+                .setPositiveButton(R.string.action_delete, (dialog, which) -> {
                     db.collection("customers")
                             .document(transaction.getCustomerId())
                             .collection("debts")
@@ -203,16 +203,16 @@ public class ArchivedTransactionsFragment extends Fragment
                             .addOnSuccessListener(unused -> {
                                 if (isAdded()) {
                                     removeTransactionLocally(transactionId);
-                                    Toast.makeText(requireContext(), "تم حذف الحركة نهائياً", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), getString(R.string.archive_tx_deleted), Toast.LENGTH_SHORT).show();
                                 }
                             })
                             .addOnFailureListener(e -> {
                                 if (isAdded()) {
-                                    Toast.makeText(requireContext(), "فشل الحذف: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(requireContext(), getString(R.string.archive_delete_failed), Toast.LENGTH_SHORT).show();
                                 }
                             });
                 })
-                .setNegativeButton("إلغاء", null)
+                .setNegativeButton(R.string.action_cancel, null)
                 .show();
     }
 

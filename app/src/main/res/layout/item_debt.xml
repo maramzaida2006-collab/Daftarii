@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+        xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,7 +9,7 @@
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp"
     app:cardBackgroundColor="@android:color/white"
-    app:strokeColor="#F1F5F9"
+    app:strokeColor="@color/surface_variant"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -24,7 +25,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="0.0 ₪"
-            android:textColor="#DC2626"
+            android:textColor="@color/debt_fg"
             android:textSize="16sp"
             android:textStyle="bold" />
 
@@ -41,8 +42,8 @@
                 android:id="@+id/tvDebtItemName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="اسم الصنف"
-                android:textColor="#0F172A"
+                android:text="@string/hint_item_name"
+                android:textColor="@color/text_primary"
                 android:textSize="15sp"
                 android:textStyle="bold" />
 
@@ -51,8 +52,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="2dp"
-                android:text="2026/09/09 - 12:00 ص"
-                android:textColor="#64748B"
+                tools:text="2026/09/09 - 12:00 ص"
+                android:textColor="@color/text_secondary"
                 android:textSize="11sp" />
         </LinearLayout>
 
@@ -69,7 +70,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="6dp"
                 android:src="@android:drawable/ic_menu_edit"
-                app:tint="#0F172A" />
+                app:tint="@color/text_primary" />
 
             <ImageView
                 android:id="@+id/btnDeleteDebt"
@@ -79,7 +80,7 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="6dp"
                 android:src="@android:drawable/ic_menu_delete"
-                app:tint="#DC2626" />
+                app:tint="@color/debt_fg" />
         </LinearLayout>
 
     </LinearLayout>

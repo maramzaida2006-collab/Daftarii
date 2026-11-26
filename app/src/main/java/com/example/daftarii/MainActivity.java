@@ -212,6 +212,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void bindStoreHeader(FirebaseUser user) {
+        // التحية حسب الوقت، والشهر الحالي (كانوا ثابتين "مساء الخير" و"نوفمبر 2026")
+        int hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY);
+        if (tvGreeting != null) {
+            tvGreeting.setText(hour >= 4 && hour < 12 ? R.string.greeting_morning : R.string.home_greeting);
+        }
+        TextView monthBadge = findViewById(R.id.tvMonthBadge);
+        if (monthBadge != null) {
+            monthBadge.setText(new java.text.SimpleDateFormat("MMMM yyyy", java.util.Locale.getDefault())
+                    .format(new java.util.Date()));
+        }
         String storeTitle = getString(R.string.home_store_name);
         if (user.isAnonymous()) {
             storeTitle = getString(R.string.guest_store_name_fallback, storeTitle);
@@ -248,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
                         if (mAuth.getCurrentUser() == null) {
                             return;
                         }
-                        Toast.makeText(this, "خطأ في التحميل من Firestore: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, getString(R.string.load_failed), Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -381,7 +391,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void openNewCustomerSheet() {
         if (currentUserId == null) {
-            Toast.makeText(this, "جاري تهيئة الحساب، يرجى الانتظار قليلاً...", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.account_loading), Toast.LENGTH_SHORT).show();
             return;
         }
         NewCustomerBottomSheetFragment sheet = NewCustomerBottomSheetFragment.newInstance(customerList);

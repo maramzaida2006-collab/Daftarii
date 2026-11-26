@@ -81,7 +81,7 @@ public class ReportsActivity extends AppCompatActivity {
     private void setupListeners() {
         if (btnReportsNotifications != null) {
             btnReportsNotifications.setOnClickListener(v ->
-                    Toast.makeText(this, "إشعارات التقارير", Toast.LENGTH_SHORT).show());
+                    startActivity(new android.content.Intent(this, NotificationsActivity.class)));
         }
 
         if (tabThisMonth != null) {
@@ -188,13 +188,13 @@ public class ReportsActivity extends AppCompatActivity {
             tvStatNewDebtsAmount.setText(String.format(Locale.ROOT, "%.0f", totalDebtsBalance * multiplier));
         }
         if (tvStatNewDebtsCount != null) {
-            tvStatNewDebtsCount.setText("إجمالي الزبائن: " + totalCustomers);
+            tvStatNewDebtsCount.setText(getString(R.string.reports_total_customers, totalCustomers));
         }
         if (tvStatOverdueCount != null) {
             tvStatOverdueCount.setText(String.valueOf(overdueCustomers));
         }
         if (tvStatOverdueTotal != null) {
-            tvStatOverdueTotal.setText(String.format(Locale.ROOT, "متأخر: %.0f", overdueAmount));
+            tvStatOverdueTotal.setText(getString(R.string.reports_overdue_amount, String.format(Locale.US, "%.0f", overdueAmount)));
         }
         if (tvStatNewCustomersCount != null) {
             tvStatNewCustomersCount.setText(String.valueOf(totalCustomers));

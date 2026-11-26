@@ -124,7 +124,7 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
     private void bindInitialCustomerHeader() {
         String safeName = (customerName != null && !customerName.trim().isEmpty())
                 ? customerName.trim()
-                : "اسم الزبون";
+                : getString(R.string.notif_unknown_customer);
         tvDetailCustomerName.setText(safeName);
         tvCustomerDetailInitials.setText(buildInitials(safeName));
 
@@ -154,9 +154,9 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
         if (tvDueDateAndLastPayment == null) return;
         if (currentDueDateMillis > 0) {
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", new Locale("ar"));
-            tvDueDateAndLastPayment.setText("موعد السداد: " + sdf.format(new Date(currentDueDateMillis)));
+            tvDueDateAndLastPayment.setText(getString(R.string.detail_due_date, sdf.format(new Date(currentDueDateMillis))));
         } else {
-            tvDueDateAndLastPayment.setText("موعد السداد: غير محدد");
+            tvDueDateAndLastPayment.setText(getString(R.string.detail_due_date, getString(R.string.due_not_set)));
         }
     }
 
@@ -273,7 +273,7 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
     private void callCustomer() {
         String phone = customerPhone != null ? customerPhone.trim() : "";
         if (phone.isEmpty()) {
-            Toast.makeText(this, "رقم هاتف الزبون غير متوفر", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.notif_no_phone), Toast.LENGTH_SHORT).show();
             return;
         }
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phone));
@@ -283,7 +283,7 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
     private void openWhatsappForCustomer() {
         String rawPhone = customerPhone != null ? customerPhone.trim().replaceAll("[^0-9]", "") : "";
         if (rawPhone.isEmpty()) {
-            Toast.makeText(this, "رقم هاتف الزبون غير متوفر", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.notif_no_phone), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -293,15 +293,15 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
             rawPhone = "970" + rawPhone.substring(1);
         }
 
-        String name = (customerName != null && !customerName.trim().isEmpty()) ? customerName.trim() : "عزيزي الزبون";
-        String msg = "مرحباً " + name + "، نذكركم بأن الرصيد المستحق الحالي هو: ₪ " + formatAmount(currentTotalDebt);
+        String name = (customerName != null && !customerName.trim().isEmpty()) ? customerName.trim() : "";
+        String msg = getString(R.string.detail_whatsapp_message, name, formatAmount(currentTotalDebt));
 
         try {
             String url = "https://wa.me/" + rawPhone + "?text=" + Uri.encode(msg);
             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
             startActivity(intent);
         } catch (Exception e) {
-            Toast.makeText(this, "تعذر فتح واتساب", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.notif_no_whatsapp), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -324,9 +324,9 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
                         db.collection("customers").document(customerId)
                                 .update("dueDate", currentDueDateMillis)
                                 .addOnSuccessListener(unused ->
-                                        Toast.makeText(this, "تم تحديث موعد السداد", Toast.LENGTH_SHORT).show())
+                                        Toast.makeText(this, getString(R.string.detail_due_updated), Toast.LENGTH_SHORT).show())
                                 .addOnFailureListener(e ->
-                                        Toast.makeText(this, "تم التحديث محلياً", Toast.LENGTH_SHORT).show());
+                                        Toast.makeText(this, getString(R.string.saved_offline), Toast.LENGTH_SHORT).show());
                     }
                 },
                 cal.get(Calendar.YEAR),
@@ -336,9 +336,9 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
     }
 
     private void showMoreOptionsDialog() {
-        String[] options = {"تحديث موعد السداد", "تصدير كشف الحساب PDF", "نقل الزبون إلى الأرشيف"};
+        String[] options = {getString(R.string.detail_option_due), getString(R.string.detail_option_pdf), getString(R.string.detail_option_archive)};
         new AlertDialog.Builder(this)
-                .setTitle(customerName != null ? customerName : "خيارات الزبون")
+                .setTitle(customerName != null ? customerName : getString(R.string.detail_options_title))
                 .setItems(options, (dialog, which) -> {
                     if (which == 0) {
                         showDueDatePicker();
@@ -348,16 +348,16 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
                         confirmArchiveCustomer();
                     }
                 })
-                .setNegativeButton("إغلاق", null)
+                .setNegativeButton(R.string.action_close, null)
                 .show();
     }
 
     private void confirmArchiveCustomer() {
         if (customerId == null || customerId.isEmpty()) return;
         new AlertDialog.Builder(this)
-                .setTitle("نقل الزبون للأرشيف")
-                .setMessage("هل تريدين نقل هذا الزبون إلى الأرشيف؟")
-                .setPositiveButton("نقل", (dialog, which) -> {
+                .setTitle(R.string.detail_archive_customer_title)
+                .setMessage(R.string.detail_archive_customer_message)
+                .setPositiveButton(R.string.action_archive, (dialog, which) -> {
                     Map<String, Object> updates = new HashMap<>();
                     updates.put("archived", true);
                     updates.put("deletedAt", System.currentTimeMillis());
@@ -365,13 +365,13 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
                     db.collection("customers").document(customerId)
                             .update(updates)
                             .addOnSuccessListener(unused -> {
-                                Toast.makeText(this, "تم نقل الزبون إلى الأرشيف", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, getString(R.string.detail_customer_archived), Toast.LENGTH_SHORT).show();
                                 finish();
                             })
                             .addOnFailureListener(e ->
-                                    Toast.makeText(this, "فشل نقل الزبون: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                                    Toast.makeText(this, getString(R.string.archive_failed), Toast.LENGTH_SHORT).show());
                 })
-                .setNegativeButton("إلغاء", null)
+                .setNegativeButton(R.string.action_cancel, null)
                 .show();
     }
 
@@ -449,7 +449,7 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
 
     private void addNewDebtItem() {
         if (customerId == null) {
-            Toast.makeText(this, "خطأ: معرف الزبون غير موجود", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.archive_customer_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -457,13 +457,13 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
         String itemName = etItemName.getText() != null ? etItemName.getText().toString().trim() : "";
 
         if (amountStr.isEmpty() || itemName.isEmpty()) {
-            Toast.makeText(this, "الرجاء إدخال المبلغ واسم الصنف", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.detail_enter_amount_and_item), Toast.LENGTH_SHORT).show();
             return;
         }
 
         Double parsedAmount = parseDoubleSafe(amountStr);
         if (parsedAmount == null || parsedAmount <= 0) {
-            Toast.makeText(this, "الرجاء إدخال مبلغ صحيح أكبر من صفر", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.error_amount_not_positive), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -505,22 +505,22 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
 
         batch.commit()
                 .addOnSuccessListener(aVoid ->
-                        Toast.makeText(this, "تمت إضافة الحركة وتحديث السجل بنجاح", Toast.LENGTH_SHORT).show())
+                        Toast.makeText(this, getString(R.string.tx_saved), Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "تم الحفظ محلياً", Toast.LENGTH_SHORT).show());
+                        Toast.makeText(this, getString(R.string.saved_offline), Toast.LENGTH_SHORT).show());
     }
 
     private void showPaymentDialog() {
         if (customerId == null) {
-            Toast.makeText(this, "خطأ: معرف الزبون غير موجود", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.archive_customer_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("تسجيل دفعة سداد جديدة");
+        builder.setTitle(R.string.detail_payment_title);
 
         final TextInputEditText inputAmount = new TextInputEditText(this);
-        inputAmount.setHint("أدخل مبلغ السداد (مثلاً: 10)");
+        inputAmount.setHint(R.string.detail_payment_hint);
         inputAmount.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
 
         LinearLayout layout = new LinearLayout(this);
@@ -530,23 +530,23 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
 
         builder.setView(layout);
 
-        builder.setPositiveButton("تثبيت السداد", (dialog, which) -> {
+        builder.setPositiveButton(R.string.detail_payment_confirm, (dialog, which) -> {
             String amountStr = inputAmount.getText() != null ? inputAmount.getText().toString().trim() : "";
             if (amountStr.isEmpty()) {
-                Toast.makeText(this, "الرجاء إدخال مبلغ السداد", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_amount_empty), Toast.LENGTH_SHORT).show();
                 return;
             }
 
             Double parsedPayment = parseDoubleSafe(amountStr);
             if (parsedPayment == null || parsedPayment <= 0) {
-                Toast.makeText(this, "المبلغ يجب أن يكون أكبر من صفر", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.error_amount_not_positive), Toast.LENGTH_SHORT).show();
                 return;
             }
 
             processPaymentTransaction(Math.abs(parsedPayment));
         });
 
-        builder.setNegativeButton("إلغاء", null);
+        builder.setNegativeButton(R.string.action_cancel, null);
         builder.show();
     }
 
@@ -558,7 +558,7 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
                 .collection("debts").document().getId();
 
         long currentTime = System.currentTimeMillis();
-        DebtItem paymentItem = new DebtItem(debtId, "سداد دفعة نقدية", -paymentAmount, currentTime, currentTime);
+        DebtItem paymentItem = new DebtItem(debtId, getString(R.string.tx_default_payment_note), -paymentAmount, currentTime, currentTime);
         paymentItem.setCustomerId(customerId);
 
         allDebtItems.add(0, paymentItem);
@@ -567,7 +567,7 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
         Map<String, Object> debtMap = new HashMap<>();
         debtMap.put("id", debtId);
         debtMap.put("customerId", customerId);
-        debtMap.put("itemName", "سداد دفعة نقدية");
+        debtMap.put("itemName", getString(R.string.tx_default_payment_note));
         debtMap.put("type", "PAYMENT");
         debtMap.put("amount", -paymentAmount);
         debtMap.put("timestamp", currentTime);
@@ -583,9 +583,9 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
 
         batch.commit()
                 .addOnSuccessListener(aVoid ->
-                        Toast.makeText(this, "تم تسجيل السداد بنجاح", Toast.LENGTH_SHORT).show())
+                        Toast.makeText(this, getString(R.string.detail_payment_saved), Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "تم الحفظ محلياً", Toast.LENGTH_SHORT).show());
+                        Toast.makeText(this, getString(R.string.saved_offline), Toast.LENGTH_SHORT).show());
     }
 
     /**
@@ -627,16 +627,16 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
     private void showDeleteConfirmationDialog(DebtItem debtItem) {
         if (debtItem == null) return;
         new AlertDialog.Builder(this)
-                .setTitle("نقل للأرشيف")
-                .setMessage("هل أنت متأكد من نقل حركة (" + debtItem.getItemName() + ") إلى الأرشيف؟")
-                .setPositiveButton("نقل للأرشيف", (dialog, which) -> executeDeleteDebtItem(debtItem))
-                .setNegativeButton("إلغاء", null)
+                .setTitle(R.string.detail_archive_tx_title)
+                .setMessage(getString(R.string.detail_archive_tx_message, debtItem.getItemName()))
+                .setPositiveButton(R.string.action_archive, (dialog, which) -> executeDeleteDebtItem(debtItem))
+                .setNegativeButton(R.string.action_cancel, null)
                 .show();
     }
 
     private void executeDeleteDebtItem(DebtItem item) {
         if (customerId == null || item == null || item.getId() == null) {
-            Toast.makeText(this, "خطأ: معرف الحركة غير موجود", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.archive_tx_not_found), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -655,9 +655,9 @@ public class CustomerDetailActivity extends AppCompatActivity implements EditTra
 
         batch.commit()
                 .addOnSuccessListener(aVoid ->
-                        Toast.makeText(this, "تم نقل الحركة إلى الأرشيف بنجاح", Toast.LENGTH_SHORT).show())
+                        Toast.makeText(this, getString(R.string.detail_tx_archived), Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e ->
-                        Toast.makeText(this, "فشل نقل الحركة للأرشيف: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                        Toast.makeText(this, getString(R.string.archive_failed), Toast.LENGTH_SHORT).show());
     }
 
     private void generateAndSharePdf() {
