@@ -469,4 +469,13 @@
     <string name="tx_overpayment_message">الدفعة ₪ %1$s والرصيد ₪ %2$s. الفرق رح يصير رصيد للزبون. متأكد؟</string>
     <string name="tx_overpayment_confirm">سجّل على كل حال</string>
     <string name="customer_name_too_long">الاسم طويل كتير (50 حرف بالكتير)</string>
+    <string name="reports_summary_month">حصّلت ₪ %1$s من أصل ₪ %2$s ديون جديدة هذا الشهر</string>
+    <string name="reports_summary_three">حصّلت ₪ %1$s من أصل ₪ %2$s ديون جديدة آخر 3 أشهر</string>
+    <string name="reports_summary_year">حصّلت ₪ %1$s من أصل ₪ %2$s ديون جديدة هذه السنة</string>
+    <string name="reports_tx_count">%1$d حركة</string>
+    <string name="reports_payment_count">%1$d دفعة</string>
+    <string name="reports_overdue_total">إجمالي ₪ %1$s</string>
+    <string name="reports_new_customers_month">هذا الشهر</string>
+    <string name="reports_new_customers_three">آخر 3 أشهر</string>
+    <string name="reports_new_customers_year">هذه السنة</string>
 </resources>

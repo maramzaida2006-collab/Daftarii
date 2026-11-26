@@ -81,6 +81,19 @@ public final class TransactionRepository {
         });
     }
 
+    /** كل الحركات المش مؤرشفة، لحظة بلحظة (التقارير). null إذا ما في مستخدم. لازم remove(). */
+    @Nullable
+    public static ListenerRegistration listenAll(@NonNull CustomerRepository.Listener<List<Transaction>> listener) {
+        String uid = Db.uid();
+        if (uid == null) return null;
+        return Db.transactions(uid).whereEqualTo(Db.F_ARCHIVED, false).addSnapshotListener((snap, e) -> {
+            if (e != null || snap == null) return;
+            List<Transaction> out = new ArrayList<>();
+            for (DocumentSnapshot d : snap.getDocuments()) out.add(Db.toTransaction(d));
+            listener.onChanged(out);
+        });
+    }
+
     /** الحركات المؤرشفة (شاشة الأرشيف)، الأحدث أرشفة فوق. */
     @Nullable
     public static ListenerRegistration listenArchived(@NonNull CustomerRepository.Listener<List<Transaction>> listener) {

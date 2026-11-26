@@ -32,6 +32,8 @@ public class ArchiveActivity extends AppCompatActivity {
 
         ArchivePagerAdapter pagerAdapter = new ArchivePagerAdapter(this);
         viewPager.setAdapter(pagerAdapter);
+        // التبويبين بينحمّلوا من الأول، عشان رقم "الزباين (n)" يكون صح قبل ما تفتحي التبويب
+        viewPager.setOffscreenPageLimit(1);
 
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             if (position == 0) {

@@ -151,7 +151,7 @@
                         android:layout_marginTop="4dp"
                         android:fontFamily="@font/alexandria_semibold"
                         android:lineSpacingExtra="2dp"
-                        android:text="@string/sample_collection_summary"
+                        tools:text="@string/sample_collection_summary"
                         android:textColor="@color/on_plum"
                         android:textSize="13sp" />
                 </LinearLayout>
@@ -177,7 +177,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:fontFamily="@font/alexandria_semibold"
-                            android:text="@string/sample_collection_percent"
+                            tools:text="@string/sample_collection_percent"
                             android:textColor="@color/on_plum"
                             android:textSize="14sp" />
                     </FrameLayout>
@@ -219,7 +219,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:fontFamily="@font/alexandria_semibold"
-                        android:text="@string/sample_stat_new_debts"
+                        tools:text="@string/sample_stat_new_debts"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp" />
 
@@ -229,7 +229,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:fontFamily="@font/readex_pro_regular"
-                        android:text="@string/sample_stat_new_debts_sub"
+                        tools:text="@string/sample_stat_new_debts_sub"
                         android:textColor="@color/text_secondary"
                         android:textSize="10sp" />
                 </LinearLayout>
@@ -260,7 +260,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:fontFamily="@font/alexandria_semibold"
-                        android:text="@string/sample_stat_collected"
+                        tools:text="@string/sample_stat_collected"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp" />
 
@@ -270,7 +270,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:fontFamily="@font/readex_pro_regular"
-                        android:text="@string/sample_stat_collected_sub"
+                        tools:text="@string/sample_stat_collected_sub"
                         android:textColor="@color/text_secondary"
                         android:textSize="10sp" />
                 </LinearLayout>
@@ -310,7 +310,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:fontFamily="@font/alexandria_semibold"
-                        android:text="@string/sample_stat_overdue"
+                        tools:text="@string/sample_stat_overdue"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp" />
 
@@ -320,7 +320,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:fontFamily="@font/readex_pro_regular"
-                        android:text="@string/sample_stat_overdue_sub"
+                        tools:text="@string/sample_stat_overdue_sub"
                         android:textColor="@color/text_secondary"
                         android:textSize="10sp" />
                 </LinearLayout>
@@ -351,7 +351,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:fontFamily="@font/alexandria_semibold"
-                        android:text="@string/sample_stat_new_customers"
+                        tools:text="@string/sample_stat_new_customers"
                         android:textColor="@color/text_primary"
                         android:textSize="18sp" />
 
@@ -361,7 +361,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp"
                         android:fontFamily="@font/readex_pro_regular"
-                        android:text="@string/sample_stat_new_customers_sub"
+                        tools:text="@string/sample_stat_new_customers_sub"
                         android:textColor="@color/text_secondary"
                         android:textSize="10sp" />
                 </LinearLayout>
@@ -429,7 +429,7 @@
                         android:textSize="10sp" />
                 </LinearLayout>
 
-                <!-- أعمدة الأشهر الستة (يونيو - نوفمبر) -->
+                <!-- أعمدة آخر 6 أشهر -->
                 <LinearLayout
                     android:id="@+id/monthlyBarsContainer"
                     android:layout_width="match_parent"
@@ -437,240 +437,7 @@
                     android:baselineAligned="false"
                     android:gravity="bottom"
                     android:orientation="horizontal">
-
-                    <!-- يونيو -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="bottom|center_horizontal"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:gravity="bottom|center_horizontal"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="48dp"
-                                android:layout_marginEnd="2dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/violet" />
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="58dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/peach" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:text="@string/month_jun"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="9sp" />
-                    </LinearLayout>
-
-                    <!-- يوليو -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="bottom|center_horizontal"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:gravity="bottom|center_horizontal"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="56dp"
-                                android:layout_marginEnd="2dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/violet" />
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="68dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/peach" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:text="@string/month_jul"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="9sp" />
-                    </LinearLayout>
-
-                    <!-- أغسطس -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="bottom|center_horizontal"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:gravity="bottom|center_horizontal"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="62dp"
-                                android:layout_marginEnd="2dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/violet" />
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="56dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/peach" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:text="@string/month_aug"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="9sp" />
-                    </LinearLayout>
-
-                    <!-- سبتمبر -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="bottom|center_horizontal"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:gravity="bottom|center_horizontal"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="52dp"
-                                android:layout_marginEnd="2dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/violet" />
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="74dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/peach" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:text="@string/month_sep"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="9sp" />
-                    </LinearLayout>
-
-                    <!-- أكتوبر -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="bottom|center_horizontal"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:gravity="bottom|center_horizontal"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="64dp"
-                                android:layout_marginEnd="2dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/violet" />
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="70dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/peach" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:text="@string/month_oct"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="9sp" />
-                    </LinearLayout>
-
-                    <!-- نوفمبر -->
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1"
-                        android:gravity="bottom|center_horizontal"
-                        android:orientation="vertical">
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:gravity="bottom|center_horizontal"
-                            android:orientation="horizontal">
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="68dp"
-                                android:layout_marginEnd="2dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/violet" />
-
-                            <View
-                                android:layout_width="9dp"
-                                android:layout_height="84dp"
-                                android:background="@drawable/shape_r16"
-                                android:backgroundTint="@color/peach" />
-                        </LinearLayout>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="4dp"
-                            android:fontFamily="@font/readex_pro_regular"
-                            android:text="@string/month_nov"
-                            android:textColor="@color/text_secondary"
-                            android:textSize="9sp" />
-                    </LinearLayout>
+                    <!-- الأعمدة بتنبني بالكود من البيانات الحقيقية (ReportsActivity.renderChart) -->
                 </LinearLayout>
             </LinearLayout>
 

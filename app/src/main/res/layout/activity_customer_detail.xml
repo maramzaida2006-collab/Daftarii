@@ -46,7 +46,6 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:importantForAccessibility="no"
-                        android:rotation="180"
                         android:src="@drawable/ic_back"
                         app:tint="@color/text_primary" />
                 </FrameLayout>

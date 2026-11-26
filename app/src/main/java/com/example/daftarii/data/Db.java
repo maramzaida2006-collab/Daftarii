@@ -79,6 +79,7 @@ public final class Db {
     public static Customer toCustomer(DocumentSnapshot d) {
         Customer c = new Customer(d.getId(), d.getString(F_NAME), d.getString(F_PHONE),
                 lng(d, F_BALANCE) / 100.0, lng(d, F_DUE));
+        c.setCreatedAt(lng(d, F_CREATED));
         return c;
     }
 

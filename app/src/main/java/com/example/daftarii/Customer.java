@@ -8,6 +8,7 @@ public class Customer {
     private long dueDate;
     private boolean archived = false;
     private long deletedAt = 0;
+    private long createdAt = 0;
 
     // Constructor فارغ مطلوب لـ Firebase
     public Customer() {}
@@ -40,6 +41,9 @@ public class Customer {
 
     public boolean isArchived() { return archived; }
     public void setArchived(boolean archived) { this.archived = archived; }
+
+    public long getCreatedAt() { return createdAt; }
+    public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
 
     public long getDeletedAt() { return deletedAt; }
     public void setDeletedAt(long deletedAt) { this.deletedAt = deletedAt; }

@@ -56,7 +56,6 @@ public class ProfileActivity extends AppCompatActivity {
         syncSwitchStates();
         loadUserInfo();
         setupListeners();
-        refreshArchiveCount();
         updateLanguageLabel();
         // قسم الأمان والحساب: البصمة، PIN، كلمة السر، الإشعارات، تسجيل الخروج (سندس)
         ProfileSecurity.setup(this);
@@ -65,7 +64,6 @@ public class ProfileActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        refreshArchiveCount();
         updateLanguageLabel();
         syncSwitchStates();
         ProfileSecurity.refresh(this);
@@ -117,13 +115,51 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void refreshArchiveCount() {
-        if (tvArchiveCount == null) return;
+    private com.google.firebase.firestore.ListenerRegistration archivedCustomersListener, archivedTxListener;
+    private int archivedCustomers = 0, archivedTransactions = 0;
 
-        // زباين مؤرشفين + حركات مؤرشفة، لهالحساب بس (القديم كان بيقرأ زباين كل المستخدمين)
-        CustomerRepository.countArchived(customers ->
-                TransactionRepository.countArchived(transactions ->
-                        tvArchiveCount.setText(String.valueOf(customers + transactions))));
+    @Override
+    protected void onStart() {
+        super.onStart();
+        startArchiveCount();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopArchiveCount();
+    }
+
+    /**
+     * عدد الأرشيف لحظة بلحظة، بنفس الاستعلامين اللي بتعرضهم شاشة الأرشيف
+     * (زباين مؤرشفين + حركات مؤرشفة)، فالرقم دايماً بيطابق اللي جوّا.
+     * (القديم كان get() مرة وحدة، وأحياناً بيرجع رقم قديم من الكاش.)
+     */
+    private void startArchiveCount() {
+        stopArchiveCount();
+        if (tvArchiveCount == null) return;
+        archivedCustomers = 0;
+        archivedTransactions = 0;
+        showArchiveCount();
+        archivedCustomersListener = CustomerRepository.listen(true, list -> {
+            archivedCustomers = list.size();
+            showArchiveCount();
+        }, null);
+        archivedTxListener = TransactionRepository.listenArchived(list -> {
+            archivedTransactions = list.size();
+            showArchiveCount();
+        });
+    }
+
+    private void stopArchiveCount() {
+        if (archivedCustomersListener != null) archivedCustomersListener.remove();
+        if (archivedTxListener != null) archivedTxListener.remove();
+        archivedCustomersListener = null;
+        archivedTxListener = null;
+    }
+
+    private void showArchiveCount() {
+        if (tvArchiveCount != null) tvArchiveCount.setText(String.valueOf(archivedCustomers + archivedTransactions));
     }
 
     private void updateLanguageLabel() {

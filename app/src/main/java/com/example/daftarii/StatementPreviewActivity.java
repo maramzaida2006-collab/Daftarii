@@ -101,7 +101,7 @@ public class StatementPreviewActivity extends AppCompatActivity {
         tvCustomerPhone.setText(customerPhone != null && !customerPhone.trim().isEmpty() ? customerPhone.trim() : "");
         tvTotal.setText(String.format(Locale.US, "₪ %.2f", totalDebt));
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", new Locale("ar"));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy", Locale.getDefault());
         tvStatementDate.setText(getString(R.string.statement_subtitle, dateFormat.format(new Date())));
         tvPageCount.setText(getString(R.string.statement_page, 1, 1));
     }

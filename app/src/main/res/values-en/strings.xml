@@ -449,4 +449,13 @@
     <string name="tx_overpayment_message">Payment is ₪ %1$s and the balance is ₪ %2$s. The difference becomes credit for the customer. Continue?</string>
     <string name="tx_overpayment_confirm">Record anyway</string>
     <string name="customer_name_too_long">Name is too long (50 characters max)</string>
+    <string name="reports_summary_month">Collected ₪ %1$s of ₪ %2$s in new debts this month</string>
+    <string name="reports_summary_three">Collected ₪ %1$s of ₪ %2$s in new debts in the last 3 months</string>
+    <string name="reports_summary_year">Collected ₪ %1$s of ₪ %2$s in new debts this year</string>
+    <string name="reports_tx_count">%1$d entries</string>
+    <string name="reports_payment_count">%1$d payments</string>
+    <string name="reports_overdue_total">Total ₪ %1$s</string>
+    <string name="reports_new_customers_month">This month</string>
+    <string name="reports_new_customers_three">Last 3 months</string>
+    <string name="reports_new_customers_year">This year</string>
 </resources>
