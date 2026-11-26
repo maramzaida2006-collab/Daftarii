@@ -458,4 +458,5 @@
     <string name="reports_new_customers_month">This month</string>
     <string name="reports_new_customers_three">Last 3 months</string>
     <string name="reports_new_customers_year">This year</string>
+    <string name="load_failed_permission">No permission to access data. Publish the security rules (firestore.rules) in Firebase</string>
 </resources>

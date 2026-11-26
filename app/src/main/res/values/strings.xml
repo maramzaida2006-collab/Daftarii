@@ -478,4 +478,5 @@
     <string name="reports_new_customers_month">هذا الشهر</string>
     <string name="reports_new_customers_three">آخر 3 أشهر</string>
     <string name="reports_new_customers_year">هذه السنة</string>
+    <string name="load_failed_permission">ما في صلاحية للوصول للبيانات. لازم تنشروا قواعد الأمان (firestore.rules) بـ Firebase</string>
 </resources>

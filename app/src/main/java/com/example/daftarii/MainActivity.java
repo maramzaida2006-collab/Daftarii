@@ -260,7 +260,13 @@ public class MainActivity extends AppCompatActivity {
             refreshListsAndSummary();
         }, error -> {
             if (mAuth.getCurrentUser() != null) {
-                Toast.makeText(this, getString(R.string.load_failed), Toast.LENGTH_SHORT).show();
+                android.util.Log.e("Daftari", "loadCustomers failed", error);
+                // PERMISSION_DENIED = قواعد Firestore مش منشورة أو قديمة، مش مشكلة نت
+                boolean denied = error instanceof com.google.firebase.firestore.FirebaseFirestoreException
+                        && ((com.google.firebase.firestore.FirebaseFirestoreException) error).getCode()
+                        == com.google.firebase.firestore.FirebaseFirestoreException.Code.PERMISSION_DENIED;
+                Toast.makeText(this, getString(denied ? R.string.load_failed_permission : R.string.load_failed),
+                        Toast.LENGTH_LONG).show();
             }
         });
     }
